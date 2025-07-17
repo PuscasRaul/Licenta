@@ -12,6 +12,7 @@ typedef enum {
 } eLogLevel;
 
 #define LOG_SUBS_COUNT 4
+
 typedef enum {
   COMMUNICATION,
   DISPLAY,
