@@ -1,11 +1,32 @@
-all: build/ndarray.o build/logger.o
+CC      := gcc
+CFLAGS  := -g -Wall
 
-build/ndarray.o: src/Licenta/math/ndarray.c src/Licenta/math/ndarray.h
-	cc -c src/Licenta/math/ndarray.c -o build/ndarray.o
+SRC     := src
+BUILD   := build
+SRC_LIB := $(SRC)/Licenta
+SRC_MATH := $(SRC_LIB)/math
+SRC_LOG  := $(SRC_LIB)/Logger
+SRC_TEST := $(SRC)/tests
+BUILD_TEST := $(BUILD)/tests
 
-build/logger.o: src/Licenta/Logger/Logger.c src/Licenta/Logger/Logger.h
-	cc -c src/Licenta/Logger/Logger.c -o build/logger.o
+.PHONY: all test
 
-tests: 
+all: $(BUILD)/ndarray.o $(BUILD)/logger.o test
 
-build/tests/ndarray_test.o: src/tests/ndarray.c
+test: $(BUILD_TEST)/ndarray_test
+	@echo "Running tests..."
+	./$(BUILD_TEST)/ndarray_test
+
+$(BUILD_TEST)/ndarray_test: $(SRC_TEST)/ndarray.c $(BUILD)/ndarray.o
+	$(CC) $(CFLAGS) $^ -o $@
+
+$(BUILD)/ndarray.o: $(SRC_MATH)/ndarray.c $(SRC_MATH)/ndarray.h
+	$(CC) -c $(CFLAGS) $< -o $@
+
+$(BUILD)/logger.o: $(SRC_LOG)/Logger.c $(SRC_LOG)/Logger.h
+	$(CC) -c $(CFLAGS) $< -o $@
+
+.PHONY: clean
+clean:
+	rm -f $(BUILD)/*.o $(BUILD_TEST)/* build/test_runner
+
