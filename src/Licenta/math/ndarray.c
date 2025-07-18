@@ -1,4 +1,5 @@
 // TODO: Switch every printf, assert with the Logger.log
+// TODO: Fix stride calculations
 
 #include "ndarray.h"
 #include <string.h>
@@ -33,6 +34,9 @@ ndarray *ndarray_create(
     size_t *dimensions, 
     e_array_dtype type
 ){
+  if (ndim > NDARRAY_MAXDIMS)
+    return NULL;
+
   ndarray *array = NDARRAY_ALLOC(sizeof(ndarray));
   if (!array)
     return NULL;
@@ -76,10 +80,12 @@ ndarray *ndarray_create(
   array->dimensions = NDARRAY_ALLOC(ndim * sizeof(size_t));
   if (!array->dimensions) 
     goto fail;
+  
 
   array->strides = NDARRAY_ALLOC(ndim * sizeof(size_t));
   if (!array->strides) 
     goto fail;
+  
   
   for (size_t i = 0; i < ndim; i++) {
     array->dimensions[i] = dimensions[i];
@@ -122,6 +128,7 @@ ndarray *ndarray_create(
   if (data_size > NDARRAY_SIZE_MAX / array->descr->item_size) 
     // Overflow
     goto fail;
+  
 
   total_bytes = data_size * array->descr->item_size;
   array->data = NDARRAY_ALLOC(total_bytes);
@@ -144,14 +151,12 @@ ndarray *ndarray_create(
 }
 
 inline void ndarray_destroy(ndarray *arr) {
-  if (!arr)
+  int owns = 0; // set to 0 by default
+  if (!arr) 
     return;
   
   if (arr->descr) {
-    if (!arr->descr->owns_data)
-      return;
-  }
-  if (arr->descr) {
+    owns = arr->descr->owns_data;
     NDARRAY_FREE(arr->descr);
     arr->descr = NULL;
   }
@@ -163,7 +168,7 @@ inline void ndarray_destroy(ndarray *arr) {
     NDARRAY_FREE(arr->strides);
     arr->strides = NULL;
   }
-  if (arr->data) {
+  if (arr->data && owns) {
     NDARRAY_FREE(arr->data);
     arr->data = NULL;
   }

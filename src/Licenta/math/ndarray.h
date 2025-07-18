@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#define NDARRAY_SIZE_MAX 128
+#define NDARRAY_SIZE_MAX 10200 // make it a huge number, will tinker with it
 #define NDARRAY_MAXDIMS 128
 
 #ifndef NDARRAY_ALLOC
