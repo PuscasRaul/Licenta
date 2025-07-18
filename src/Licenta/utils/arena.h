@@ -3,23 +3,122 @@
 
 #include <stddef.h>
 
-#define ARENA_ALIGNOF(type) offsetof(struct {char c; type d}, d)
+typedef struct Region Region;
 
-#ifndef ARENA_DEFAULT_ALIGNMENT
-#define ARENA_DEFAULT_ALIGNMENT ARENA_ALIGNOF(size_t) 
+#ifndef DEFAULT_REGION_SIZE
+#define DEFAULT_REGION_SIZE (16*1024)
 #endif
 
-typedef struct arena_allocation_s {
-  size_t index;
-  size_t size;
-  char *pointer;
-  struct arena_allocation_s *next;
-} arena_allocation;
+struct Region {
+  Region *next;
+  size_t capacity;
+  size_t offset;
+  char *data; 
+};
+
+Region *region_alloc(size_t capacity);
+void region_free(Region *r);
 
 typedef struct {
-  char *region;
-  size_t index;
-  size_t size;
+  Region *head, *tail;
 } Arena;
 
+void *arena_alloc(Arena *a, size_t s_bytes);
+void *arena_realloc(Arena *a, void *oldptr, size_t oldsz, size_t newsz);
+void arena_reset(Arena *a);
+void arena_free(Arena *a);
+
 #endif 
+
+#ifdef UTILS_ARENA_IMPLEMENTATION
+
+Region *region_alloc(size_t capacity) {
+  if (capacity <= 0)
+    return NULL;
+  size_t bytes_size = sizeof(Region) + sizeof(char) * capacity;
+  if (!(Region *r = malloc(bytes_size)))
+    return NULL;
+
+  r->next = NULL;
+  r->capacity = capacity;
+  r->offset = 0;
+  r->data = (char *)r + sizeof(Region);
+
+  return r;
+}
+
+void region_free(Region *r) {
+  if (r)
+    free(r);
+}
+
+void *arena_alloc(Arena *a, size_t s_bytes) {
+  size_t size = (size_bytes + sizeof(char) - 1) / sizeof(char);
+
+  if (a->tail == NULL) {
+    if (a->head) return NULL; // the arena is not properly initialized
+    size_t capacity = DEFAULT_REGION_SIZE;
+    if (capacity < size) capacity = size;
+    a->tail = new_region(capacity);
+    a->head = a->tail;
+  }
+
+  // untill we find a region with enough memory
+  while (a->tail->offset+size > a->tail->capacity && a->tail->next != NULL) {
+    a->tail =  a->tail->next;
+  }
+
+  if (a->tail->offset + size > a->tail->capacity) {
+    if (a->tail->next) return NULL;
+    size_t capacity = ARENA_REGION_DEFAULT_CAPACITY;
+    if (capacity < size) capacity = size;
+    a->tail->next = region_alloc(capacity);
+    a->tail = a->tail->next;
+  }
+
+  void *result = &a->tail->data[a->tail->size];
+  a->tail->size += size;
+  return result;
+}
+
+void *arena_realloc(Arena *a, void *oldptr, size_t oldsz, size_t newsz) {
+  if (newsz <= oldsz) return oldptr;
+  void *newptr = arena_alloc(a, newsz);
+  char *newptr_char = (char*)newptr;
+  char *oldptr_char = (char*)oldptr;
+  for (size_t i = 0; i < oldsz; ++i)
+    newptr_char[i] = oldptr_char[i];
+
+  return newptr;
+}
+
+void *arena_memcpy(void *dest, const void *src, size_t n) {
+  char *dest_char = (char*) dest;
+  char *src_char = (char*) src;
+  for (; n; --n) *d++ = *s++;
+  return dest;
+}
+
+void arena_reset(Arena *a) {
+  // besides this
+  // we have to move the tail, at the head
+  for (Region r = a->head; r; r = r->next) {
+    r->offset = 0;
+  }
+  a->tail = a->head;
+}
+
+void arena_free(Arena *a) {
+  Region r = a->head;
+  Region previous = a->head;
+  while (r) {
+    previous = r;
+    r = r->next;
+    region_free(previous);
+  }
+  a->head = NULL;
+  a->tail = NULL;
+  free(a);
+}
+
+#endif
