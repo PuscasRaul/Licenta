@@ -1,32 +1,41 @@
 CC      := gcc
 CFLAGS  := -g -Wall
 
-SRC     := src
-BUILD   := build
-SRC_LIB := $(SRC)/Licenta
-SRC_MATH := $(SRC_LIB)/math
-SRC_LOG  := $(SRC_LIB)/Logger
-SRC_TEST := $(SRC)/tests
-BUILD_TEST := $(BUILD)/tests
+SRC         := src
+BUILD       := build
+SRC_LIB     := $(SRC)/Licenta
+SRC_MATH    := $(SRC_LIB)/math
+SRC_LOG     := $(SRC_LIB)/Logger
+SRC_TEST    := $(SRC)/tests
+BUILD_TEST  := $(BUILD)/tests
 
-.PHONY: all test
+.PHONY: all test clean
 
-all: $(BUILD)/ndarray.o $(BUILD)/logger.o test
+all: $(BUILD) $(BUILD_TEST) $(BUILD)/ndarray.o $(BUILD)/logger.o test
 
-test: $(BUILD_TEST)/ndarray_test
+test: $(BUILD_TEST)/ndarray_test $(BUILD_TEST)/arena_test
 	@echo "Running tests..."
 	./$(BUILD_TEST)/ndarray_test
+	./$(BUILD_TEST)/arena_test
 
 $(BUILD_TEST)/ndarray_test: $(SRC_TEST)/ndarray.c $(BUILD)/ndarray.o
 	$(CC) $(CFLAGS) $^ -o $@
 
+$(BUILD_TEST)/arena_test: $(SRC_TEST)/arena_allocator.c $(SRC_LIB)/utils/arena.h
+	$(CC) $(CFLAGS) $^ -o $@
+
 $(BUILD)/ndarray.o: $(SRC_MATH)/ndarray.c $(SRC_MATH)/ndarray.h
-	$(CC) -c $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD)/logger.o: $(SRC_LOG)/Logger.c $(SRC_LOG)/Logger.h
-	$(CC) -c $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
-.PHONY: clean
+$(BUILD):
+	mkdir -p $(BUILD)
+
+$(BUILD_TEST):
+	mkdir -p $(BUILD_TEST)
+
 clean:
 	rm -f $(BUILD)/*.o $(BUILD_TEST)/* build/test_runner
 
