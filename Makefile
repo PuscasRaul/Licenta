@@ -4,8 +4,6 @@ CFLAGS  := -g -Wall
 SRC         := src
 BUILD       := build
 SRC_LIB     := $(SRC)/Licenta
-SRC_MATH    := $(SRC_LIB)/math
-SRC_LOG     := $(SRC_LIB)/Logger
 SRC_TEST    := $(SRC)/tests
 BUILD_TEST  := $(BUILD)/tests
 
