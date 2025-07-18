@@ -4,8 +4,9 @@
 #ifndef UTILS_ARENA_H
 #define UTILS_ARENA_H
 
-#include <linux/limits.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 typedef struct Region Region;
 
@@ -41,7 +42,8 @@ Region *region_alloc(size_t capacity) {
   if (capacity <= 0)
     return NULL;
   size_t bytes_size = sizeof(Region) + sizeof(char) * capacity;
-  if (!(Region *r = malloc(bytes_size)))
+  Region *r = malloc(bytes_size);
+  if (!r)
     return NULL;
 
   r->next = NULL;
@@ -58,13 +60,13 @@ void region_free(Region *r) {
 }
 
 void *arena_alloc(Arena *a, size_t s_bytes) {
-  size_t size = (size_bytes + sizeof(char) - 1) / sizeof(char);
+  size_t size = (s_bytes + sizeof(char) - 1) / sizeof(char);
 
   if (a->tail == NULL) {
     if (a->head) return NULL; // the arena is not properly initialized
     size_t capacity = DEFAULT_REGION_SIZE;
     if (capacity < size) capacity = size;
-    a->tail = new_region(capacity);
+    a->tail = region_alloc(capacity);
     a->head = a->tail;
   }
 
@@ -75,14 +77,14 @@ void *arena_alloc(Arena *a, size_t s_bytes) {
 
   if (a->tail->offset + size > a->tail->capacity) {
     if (a->tail->next) return NULL;
-    size_t capacity = ARENA_REGION_DEFAULT_CAPACITY;
+    size_t capacity = DEFAULT_REGION_SIZE;
     if (capacity < size) capacity = size;
     a->tail->next = region_alloc(capacity);
     a->tail = a->tail->next;
   }
 
-  void *result = &a->tail->data[a->tail->size];
-  a->tail->size += size;
+  void *result = &a->tail->data[a->tail->offset];
+  a->tail->offset += size;
   return result;
 }
 
@@ -100,20 +102,20 @@ void *arena_realloc(Arena *a, void *oldptr, size_t oldsz, size_t newsz) {
 void *arena_memcpy(void *dest, const void *src, size_t n) {
   char *dest_char = (char*) dest;
   char *src_char = (char*) src;
-  for (; n; --n) *d++ = *s++;
+  for (; n; --n) *dest_char++ = *src_char++;
   return dest;
 }
 
 void arena_reset(Arena *a) {
-  for (Region r = a->head; r; r = r->next) {
+  for (Region *r = a->head; r; r = r->next) {
     r->offset = 0;
   }
   a->tail = a->head;
 }
 
 void arena_free(Arena *a) {
-  Region r = a->head;
-  Region previous = a->head;
+  Region *r = a->head;
+  Region *previous = a->head;
   while (r) {
     previous = r;
     r = r->next;
@@ -121,7 +123,6 @@ void arena_free(Arena *a) {
   }
   a->head = NULL;
   a->tail = NULL;
-  free(a);
 }
 
 void arena_debug_dump(Arena *a) {
@@ -135,13 +136,12 @@ void arena_debug_dump(Arena *a) {
   }
 
   printf("-------->REGIONS<-------\n");
-  for (Region r = a->head; r; r = r-next) {
+  for (Region *r = a->head; r; r = r->next) {
     printf("Dump of region at address %p\n", r);
     printf("capacity     :    %ld\n", r->capacity);
     printf("size     :    %ld\n", r->offset);
     printf("------------\n");
   }
-
 }
 
 #endif
