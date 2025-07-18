@@ -1,6 +1,10 @@
+// TODO: arena buffer pool with fragmentation control (for fun)
+// most used, least used, most recent, different policies
+
 #ifndef UTILS_ARENA_H
 #define UTILS_ARENA_H
 
+#include <linux/limits.h>
 #include <stddef.h>
 
 typedef struct Region Region;
@@ -27,6 +31,7 @@ void *arena_alloc(Arena *a, size_t s_bytes);
 void *arena_realloc(Arena *a, void *oldptr, size_t oldsz, size_t newsz);
 void arena_reset(Arena *a);
 void arena_free(Arena *a);
+void arena_debug_dump(Arena *a);
 
 #endif 
 
@@ -100,8 +105,6 @@ void *arena_memcpy(void *dest, const void *src, size_t n) {
 }
 
 void arena_reset(Arena *a) {
-  // besides this
-  // we have to move the tail, at the head
   for (Region r = a->head; r; r = r->next) {
     r->offset = 0;
   }
@@ -119,6 +122,26 @@ void arena_free(Arena *a) {
   a->head = NULL;
   a->tail = NULL;
   free(a);
+}
+
+void arena_debug_dump(Arena *a) {
+  printf("-------------------------------------------------------\n");
+  printf("Dump of arena at address %p\n", a);
+  if (a == NULL) {
+    printf(" It's NULL!\n");
+    printf("-------------------------------------------------------\n");
+    fflush(stdout);
+    return;
+  }
+
+  printf("-------->REGIONS<-------\n");
+  for (Region r = a->head; r; r = r-next) {
+    printf("Dump of region at address %p\n", r);
+    printf("capacity     :    %ld\n", r->capacity);
+    printf("size     :    %ld\n", r->offset);
+    printf("------------\n");
+  }
+
 }
 
 #endif
