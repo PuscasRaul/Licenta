@@ -1,5 +1,4 @@
 // TODO: Switch every printf, assert with the Logger.log
-// TODO: Fix stride calculations
 
 #include "ndarray.h"
 #include <string.h>
