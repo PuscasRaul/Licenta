@@ -49,7 +49,7 @@ void test_ndarray_createDestroy() {
 void test_ndarray_reshape() {
   printf("--------->>RESHAPE TESTS<<---------\n");
   size_t dimensions[2] = {2, 3};
-  size_t reshaped_dim[2] = {3, 2};
+  size_t reshaped_dim[3] = {3, 2};
 
   ndarray *arr = ndarray_create(2, dimensions, FLOAT32);
   ndarray_debugPrint(arr);

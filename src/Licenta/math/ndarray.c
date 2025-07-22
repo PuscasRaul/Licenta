@@ -103,7 +103,7 @@ ndarray *ndarray_create(
   size_t item_size = array->descr->item_size;
   array->strides[ndim - 1] = item_size;
   for (int i = ndim - 2; i >= 0; i--) {
-    array->strides[i] += array->strides[i + 1] * dimensions[i + 1]; 
+    array->strides[i] = array->strides[i + 1] * dimensions[i + 1]; 
   }
 
   if (!ndarray_ElementStrides(array)) 
@@ -249,7 +249,7 @@ static int attempt_nocopy_reshape(
 
   while (ni < newnd && oi < oldnd) {
     size_t np = new_dims[ni];
-    size_t op = new_dims[oi];
+    size_t op = old_dims[oi];
 
     while (np != op) {
       if (np < op) 
@@ -334,6 +334,7 @@ static inline ndarray *deep_reshape(
   // will move to a NDARRAY_REALLOC
   memcpy(reshaped->data, arr->data, old_nbytes);
 
+  printf("Did a deep reshape");
   return reshaped;
 }
 
@@ -402,6 +403,7 @@ static inline ndarray *view_reshape(
   memcpy(view->dimensions, new_dims, sizeof(size_t) * new_nd);
 
   free(new_strides);
+  printf("Did a no copy reshape");
   return view;
 
 fail:
