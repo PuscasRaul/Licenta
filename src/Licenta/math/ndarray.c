@@ -104,8 +104,7 @@ ndarray *ndarray_create(
   size_t item_size = array->descr->item_size;
   array->strides[ndim - 1] = item_size;
   for (int i = ndim - 2; i >= 0; i--) {
-    array->strides[i] = array->strides[i + 1];
-    array->strides[i] += array->dimensions[i + 1] * item_size;
+    array->strides[i] += array->strides[i + 1] * dimensions[i + 1]; 
   }
 
   if (!ndarray_ElementStrides(array)) 
@@ -373,8 +372,7 @@ static inline ndarray *view_reshape(
 
   new_strides[new_nd - 1] = item_size; 
   for (k = new_nd - 2; k >= 0; k--) {
-    new_strides[k] = new_strides[k + 1];
-    new_strides[k] += new_strides[k + 1] * item_size;
+    new_strides[k] = new_strides[k + 1] * new_dims[k + 1];
   }
 
   if (!attempt_nocopy_reshape(arr, new_nd, new_dims, new_strides))
@@ -435,3 +433,5 @@ ndarray *reshape(ndarray *arr, size_t new_nd, size_t *new_dims) {
 
   return reshaped;
 }
+
+
