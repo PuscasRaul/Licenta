@@ -435,4 +435,62 @@ ndarray *reshape(ndarray *arr, size_t new_nd, size_t *new_dims) {
   return reshaped;
 }
 
+/* RETURNS A NEW VIEW 
+ * This function makes the assumption that dims
+ * Has the size of ndims, and valid indexes
+ * Will not check for doubled indexes, will check for < 0 or > ndim
+ */
 
+static inline ndarray *ndarray_permute(ndarray *arr, size_t *dims) {
+  for (size_t i = 0; i < arr->nd; i++) {
+    if (dims[i] >= arr->nd || dims[i] < arr->nd)
+      return NULL;
+  }
+
+  ndarray *permuted = NDARRAY_ALLOC(sizeof(ndarray));
+  if (!permuted)
+    return NULL;
+
+  permuted->data = arr->data;
+  permuted->nd = arr->nd;
+  permuted->descr = NDARRAY_ALLOC(sizeof(array_description));
+  if (!permuted->descr)
+    goto fail;
+
+  permuted->descr->owns_data = 0;
+  permuted->descr->byteorder = arr->descr->byteorder;
+  permuted->descr->dtype = arr->descr->dtype;
+  permuted->descr->item_size = arr->descr->item_size;
+
+  permuted->strides = NDARRAY_ALLOC(sizeof(size_t) * arr->nd);
+  if (!permuted->strides)
+    goto fail;
+
+  permuted->dimensions = NDARRAY_ALLOC(sizeof(size_t) *arr->nd);
+  if (!permuted->dimensions)
+    goto fail;
+
+  for (size_t i = 0; i < arr->nd; i++) {
+    permuted->strides[i] = arr->strides[dims[i]];
+    permuted->dimensions[i] = arr->dimensions[dims[i]];
+  }
+
+fail:
+  if (permuted->descr) {
+    NDARRAY_FREE(permuted->descr);
+    permuted->descr = NULL;
+  }
+  if (permuted->strides) {
+    NDARRAY_FREE(permuted->strides);
+    permuted->strides = NULL;
+  }
+  if (permuted->dimensions) {
+    NDARRAY_FREE(permuted->dimensions);
+    permuted->dimensions = NULL;
+  }
+  if (permuted) {
+    NDARRAY_FREE(permuted);
+    permuted = NULL;
+  }
+  return NULL;
+}

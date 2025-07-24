@@ -93,4 +93,20 @@ void ndarray_debugPrint(ndarray *arr);
  */
 ndarray *reshape(ndarray *arr, size_t new_nds, size_t *new_dims);
 
+/* Multiplies the 2 arrays
+ * Assumes the multiplication is done over the first axis of a
+ * And the last axis of b
+ * Returns NULL if the 2 have different sizes, or on failure
+ * a new array on success
+ */
+ndarray *ndarry_dot(ndarray *a, ndarray *b);
+
+ndarray *ndarray_tensordot(
+    ndarray *a, 
+    ndarray *b, 
+    size_t *axes_a,
+    size_t *axes_b,
+    size_t naxes
+);
+
 #endif //SRC_MATH_NDARRAY_H 
