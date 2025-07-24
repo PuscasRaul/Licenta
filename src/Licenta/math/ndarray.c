@@ -252,9 +252,11 @@ static int attempt_nocopy_reshape(
     size_t op = old_dims[oi];
 
     while (np != op) {
-      if (np < op) 
-        np *= new_dims[nj++];
-      else 
+      if (np < op) {
+        if (nj >= newnd) return 0;
+        np *= new_dims[nj++]; 
+      }
+      else if (oj < oldnd)
         op *= old_dims[oj++];
     }
 
@@ -310,7 +312,6 @@ static inline ndarray *deep_reshape(
   }
 
   if (old_size != new_size) {
-    printf("ERROR: Size mismatch\n");
     return NULL;
   }
 
@@ -362,7 +363,6 @@ static inline ndarray *view_reshape(
   }
 
   if (old_size != new_size) {
-    printf("ERROR: Size mismatch\n");
     return NULL;
   }
 

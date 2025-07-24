@@ -13,7 +13,7 @@ all: $(BUILD) $(BUILD_TEST) $(BUILD)/ndarray.o $(BUILD)/logger.o test
 
 test: $(BUILD_TEST)/ndarray_test $(BUILD_TEST)/arena_test
 	@echo "Running tests..."
-	./$(BUILD_TEST)/ndarray_test
+	valgrind ./$(BUILD_TEST)/ndarray_test
 	#./$(BUILD_TEST)/arena_test
 
 $(BUILD_TEST)/ndarray_test: $(SRC_TEST)/ndarray.c $(BUILD)/ndarray.o
