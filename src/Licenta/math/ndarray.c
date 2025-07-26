@@ -4,6 +4,16 @@
 #include <string.h>
 #include <stdio.h>
 
+// NOTE: could make this a flag in descr
+static inline int ndarray_iscontiguous(ndarray *arr) {
+  for (size_t i = 0; i < arr->nd - 1; i++) {
+    if (arr->strides[i] != arr->strides[i + 1] * arr->dimensions[i + 1])
+      return 0;
+  }
+
+  return 1;
+}
+
 size_t ndarray_size(ndarray *arr) {
   if (!arr)
     return 0;
@@ -492,5 +502,16 @@ fail:
     NDARRAY_FREE(permuted);
     permuted = NULL;
   }
+  return NULL;
+}
+
+ndarray *ndarray_tensordot(
+    ndarray *a,
+    ndarray *b,
+    size_t *axes_a,
+    size_t *axes_b,
+    size_t naxes
+) {
+  int out_nd = (a->nd - naxes) + (b->nd - naxes);
   return NULL;
 }
