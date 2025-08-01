@@ -177,7 +177,76 @@ fail:
   return NULL;
 }
 
-void mat_print(Mat m, char *name, size_t padding);
+void mat_print(Mat m, size_t padding) {
+    // Print matrix info header
+    const char* dtype_names[] = {"FLOAT32", "FLOAT64", "INT32", "INT64"};
+    printf("Matrix Info:\n");
+    printf("  Shape: %zu x %zu\n", m.rows, m.cols);
+    printf("  Stride: %zu\n", m.stride);
+    printf("  Data Type: %s\n", dtype_names[m.descr->dtype]);
+    printf("  Item Size: %zu bytes\n", m.descr->item_size);
+    printf("  Owns Data: %s\n", m.descr->owns_data ? "yes" : "no");
+    printf("  Memory Address: %p\n", (void*)m.es);
+    printf("\nMatrix Data:\n");
+    
+    // Handle null pointer
+    if (m.es == NULL) {
+        printf("  [NULL DATA]\n");
+        return;
+    }
+    
+    // Handle empty matrix
+    if (m.rows == 0 || m.cols == 0) {
+        printf("  [EMPTY MATRIX]\n");
+        return;
+    }
+    
+    // Print column indices header if padding allows
+    if (padding >= 4) {
+        printf("     ");
+        for (size_t j = 0; j < m.cols; j++) {
+            printf("%*zu ", (int)padding, j);
+        }
+        printf("\n");
+    }
+    
+    // Print matrix data based on type
+    for (size_t i = 0; i < m.rows; i++) {
+        printf("[%2zu] ", i);
+        
+        for (size_t j = 0; j < m.cols; j++) {
+            char *elem_ptr = m.es + i * m.stride * m.descr->item_size + j * m.descr->item_size;
+            
+            switch (m.descr->dtype) {
+                case FLOAT32: {
+                    float val = *(float*)elem_ptr;
+                    printf("%*.3f ", (int)padding, val);
+                    break;
+                }
+                case FLOAT64: {
+                    double val = *(double*)elem_ptr;
+                    printf("%*.6f ", (int)padding, val);
+                    break;
+                }
+                case INT32: {
+                    int32_t val = *(int32_t*)elem_ptr;
+                    printf("%*d ", (int)padding, val);
+                    break;
+                }
+                case INT64: {
+                    int64_t val = *(int64_t*)elem_ptr;
+                    printf("%*lld ", (int)padding, (long long)val);
+                    break;
+                }
+                default:
+                    printf("%*s ", (int)padding, "?");
+                    break;
+            }
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
 
 Mat *mat_multiply(Mat *left, Mat *right) {
   if (left->descr->dtype != right->descr->dtype)

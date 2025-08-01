@@ -99,8 +99,7 @@ Mat *mat_col(Mat *src, size_t col);
  * @param m Matrix to print
  * @param name Name to display before the matrix
  */
-void mat_print(const Mat m, char *name, size_t padding);
-
+void mat_print(Mat m, size_t padding);
 
 /**
  * @brief Multiply two matrices
