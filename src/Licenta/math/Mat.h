@@ -127,5 +127,7 @@ void mat_scalar(Mat * const m, float value);
  */
 int mat_sum(Mat *dst, Mat *a);
 
+int mat_dot(Mat *left, Mat *right, void *result); 
+
 #endif // MAT_H_
 

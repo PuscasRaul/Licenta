@@ -1,4 +1,8 @@
-#include <cstddef>
+#include <stddef.h>
+#include <stdint.h>
+
+#define MAT_IMPLEMENTATION
+#include "../math/Mat.h"
 
 #ifndef NN_ACT
 #define NN_ACT ACT_SIG
@@ -11,58 +15,36 @@
 typedef enum {
   ACT_RELU,
   ACT_SIG,
-  ACT_SIN,
-  ACT_TANH
-} Act;
+} ACT_FUNC;
+
+typedef struct {
+  size_t size; // square tensors 
+  uint8_t depth; 
+  Mat **maps;  
+} Tensor3D;
+
+typedef struct {
+  size_t stride; // how much to skip, usually 1-2 
+  Tensor3D shape;
+} Filter;
+
+typedef struct {
+  Tensor3D input;
+  size_t n_filters;
+  Filter *filters; // array of filters
+  ACT_FUNC activation;
+} Convolution_Layer;
 
 typedef enum {
-  LOSS_MSE,
-  LOSS_BCE,
-  LOSS_CE
-} Loss;
+  MAX,
+  AVG
+} POOLING_TYPES;
 
-typedef enum {
-  LAYER_CONV,
-  LAYER_POOL,
-  LAYER_DENSE,
-} layer_type;
 
-typedef struct {
-  size_t input_size;
-  size_t output_size;
-  Act act_func;
-  Mat ws;
-  Mat bs;
-  Mat as;
-} dense_layer;
+// TODO: Implement and move to math module
+// WARN: Mock function, used for defining the prototypes of CNN functions
+Tensor3D init_tensor();
 
-typedef struct {
-  size_t in_width, in_length, in_depth;
-  size_t pool_size;
-  size_t stride;
-  size_t out_width, out_length, out_depth;
-} pool_layer;
+Mat *convolve(Tensor3D input, Filter filter);
+Tensor3D get_activation_maps(Convolution_Layer *layer); 
 
-typedef struct {
-  size_t in_width, in_length, in_depth; // input size
-  size_t filter_size; // use square filters
-  size_t filter_count;
-  size_t stride;
-  Mat *filters;
-} conv_layer;
-
-typedef struct {
-  layer_type type;
-  union {
-    dense_layer dense;
-    conv_layer conv;
-    pool_layer pool;
-  };
-} CNN_layer;
-
-typedef struct {
-  size_t layer_count;
-  CNN_layer *layers;
-  float learning_rate;
-  Loss loss_function;
-} CNN;
