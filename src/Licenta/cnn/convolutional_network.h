@@ -4,14 +4,6 @@
 #define MAT_IMPLEMENTATION
 #include "../math/Mat.h"
 
-#ifndef NN_ACT
-#define NN_ACT ACT_SIG
-#endif // NN_ACT
-
-#ifndef NN_RELU_PARAM
-#define NN_RELU_PARAM 0.1f
-#endif // NN_RELU_PARAM
-
 typedef enum {
   ACT_RELU,
   ACT_SIG,
@@ -40,11 +32,27 @@ typedef enum {
   AVG
 } POOLING_TYPES;
 
+typedef struct {
+  Tensor3D input;
+  POOLING_TYPES type;
+  size_t filter_size;
+  size_t stride;
+} Pool_Layer;
+
+union Layer {
+  Convolution_Layer conv_layer;
+  Pool_Layer pool_layer;
+};
 
 // TODO: Implement and move to math module
 // WARN: Mock function, used for defining the prototypes of CNN functions
 Tensor3D init_tensor();
 
+// Convolution layer operations
+// TODO: add a bias to the whole operation?
 Mat *convolve(Tensor3D input, Filter filter);
 Tensor3D get_activation_maps(Convolution_Layer *layer); 
+
+// Pooling layer operations
+Tensor3D downsample(Pool_Layer *layer);
 

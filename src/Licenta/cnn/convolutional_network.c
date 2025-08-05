@@ -5,7 +5,7 @@ static inline float sigmoidf(float x) {
 }
 
 static inline float reluf(float x) {
-  return x > 0 ? x : x * NN_RELU_PARAM;
+  return x > 0 ? x : x * 0.1f;
 }
 
 static void activate_tensor(Tensor3D tensor, ACT_FUNC activation) {
@@ -39,9 +39,15 @@ Mat *convolve(Tensor3D input, Filter filter) {
   if (input.depth != filter.shape.depth)
     return NULL;
 
+  // the output size is calculated as (N - F) / stride + 1
+  // where (N - F) / stride must be whole
+  if ((input.size - filter.shape.size) % filter.stride != 0)
+    return NULL;
+
   size_t f_size = filter.shape.size;
-  size_t res_rows = (input.size - filter.shape.size + 1) / filter.stride;
-  size_t res_cols = (input.size - filter.shape.size + 1) / filter.stride;
+  
+  size_t res_rows = (input.size - filter.shape.size) / filter.stride + 1;
+  size_t res_cols = (input.size - filter.shape.size) / filter.stride + 1;
 
   Mat *result = mat_create(res_rows, res_cols, FLOAT32);
   if (!result)
@@ -73,7 +79,7 @@ Mat *convolve(Tensor3D input, Filter filter) {
 }
 
 Tensor3D get_activation_maps(Convolution_Layer *layer) {
-  Tensor3D activation_maps = init_tensor(); 
+  Tensor3D activation_maps = init_tensor(); //WARN:  
   activation_maps.depth = layer->n_filters;
   for (size_t i = 0; i < layer->n_filters; i++) {
     activation_maps.maps[i] = convolve(layer->input, layer->filters[i]);
@@ -81,5 +87,22 @@ Tensor3D get_activation_maps(Convolution_Layer *layer) {
   
   activate_tensor(activation_maps, layer->activation);
   return activation_maps;
+}
+
+Tensor3D downsample(Pool_Layer *layer) {
+  Tensor3D result = init_tensor(); //WARN:
+
+  size_t stride = layer->stride;
+  size_t f_size = layer->filter_size;
+  size_t dims = (layer->input.size - f_size) / stride + 1;
+
+  switch (layer->type) {
+    for (size_t i = 0; i < dims; i++) {
+      for (size_t j = 0; j < dims; j++) {
+
+      }
+    }
+  }
+
 }
 
