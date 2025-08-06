@@ -28,8 +28,8 @@ typedef struct {
 } Convolution_Layer;
 
 typedef enum {
-  MAX,
-  AVG
+  MAX_POOL,
+  AVG_POOL
 } POOLING_TYPES;
 
 typedef struct {
