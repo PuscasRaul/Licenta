@@ -1,7 +1,7 @@
 #include "convolution.h"
 #include "common.h"
 
-static void activate_tensor(Tensor3D tensor, ACT_FUNC activation) {
+static inline void activate_tensor(Tensor3D tensor, ACT_FUNC activation) {
   switch (activation) {
     case ACT_RELU:
       for (size_t k = 0; k < tensor.depth; k++) {
@@ -71,11 +71,20 @@ static inline Mat *convolve(Tensor3D input, Filter filter) {
   return result;
 }
 
-Tensor3D get_activation_maps(Convolution_Layer *layer) {
+Convolution_Layer *CL_init(size_t filter_size, size_t nfilters) {
+  if (filter_size <= 0 || nfilters <= 0)
+    return NULL;
+
+
+}
+
+void CL_deinit(Convolution_Layer *cl);
+
+Tensor3D get_activation_maps(Convolution_Layer *layer, Tensor3D input) {
   Tensor3D activation_maps = init_tensor(); //WARN:  
   activation_maps.depth = layer->n_filters;
   for (size_t i = 0; i < layer->n_filters; i++) {
-    activation_maps.maps[i] = convolve(layer->input, layer->filters[i]);
+    activation_maps.maps[i] = convolve(input, layer->filters[i]);
   }
   
   activate_tensor(activation_maps, layer->activation);
