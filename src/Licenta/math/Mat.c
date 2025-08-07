@@ -1,47 +1,29 @@
 #include "Mat.h"
 
-static inline char *mat_at(Mat *m, size_t row, size_t col) {
+static inline double *mat_at(Mat *m, size_t row, size_t col) {
   return m->es + row * m->stride + col; 
 }
 
-Mat *mat_create(size_t rows, size_t cols, data_type dtype) {
+Mat *mat_create(size_t rows, size_t cols) {
   if (rows <= 0 || cols <= 0)
     return NULL;
 
-  Mat_description *descr = MAT_MALLOC(sizeof(Mat_description));
-  if (!descr)
-    return NULL;
-
-  descr->owns_data = 1;
-  descr->dtype = dtype;
-  switch(dtype % 2) {
-    case 0:
-      descr->item_size = 4;
-      break;
-    case 1:
-      descr->item_size = 8;
-      break;
-  }
-  
   Mat *mat = MAT_MALLOC(sizeof(Mat));
   if (!mat)
     goto fail;
 
-  char *es = MAT_MALLOC(descr->item_size * rows * cols);
-  if (!es)
+  mat->es = MAT_MALLOC(sizeof(double) * rows * cols);
+  if (!mat->es)
     goto fail;
 
   mat->rows = rows;
   mat->cols = cols;
-  mat->stride = cols * descr->item_size;
-  mat->descr = descr;
-  mat->es = es;
+  mat->owns_data = 1;
+  mat->stride = cols * sizeof(double);
 
   return mat;
   
   fail:
-    if (descr)
-      MAT_FREE(descr);
     if (mat) {
       if (mat->es)
         MAT_FREE(mat->es);
@@ -51,10 +33,9 @@ Mat *mat_create(size_t rows, size_t cols, data_type dtype) {
 }
 
 void mat_destroy(Mat *m) {
-  if (m->descr->owns_data)
+  if (m->owns_data)
     MAT_FREE(m->es);
 
-  MAT_FREE(m->descr);
   MAT_FREE(m);
 }
 
@@ -83,13 +64,8 @@ Mat *mat_slice(Mat *m, size_t row, size_t col, size_t nrows, size_t ncols) {
   if (!slice)
     return NULL;
 
-  slice->descr = MAT_MALLOC(sizeof(Mat_description));
-  if (!slice->descr)
-    goto fail;
 
-  slice->descr->owns_data = 0;
-  slice->descr->item_size = m->descr->item_size;
-  slice->descr->dtype = m->descr->dtype;
+  slice->owns_data = 0;
 
   // we do not need to modify the strides, since for the next row element
   // we need to skip the same amount of elements
@@ -102,9 +78,6 @@ Mat *mat_slice(Mat *m, size_t row, size_t col, size_t nrows, size_t ncols) {
   return slice;
 
 fail:
-  if (slice->descr)
-    MAT_FREE(slice->descr);
-
   MAT_FREE(slice);
   return NULL;
 }
@@ -117,13 +90,7 @@ Mat *mat_row(Mat *m, size_t row) {
   if (!result)
     return NULL;
 
-  result->descr = MAT_MALLOC(sizeof(Mat_description));
-  if (!result->descr)
-    goto fail;
-
-  result->descr->owns_data = 0;
-  result->descr->item_size = m->descr->item_size;
-  result->descr->dtype = m->descr->dtype;
+  result->owns_data = 0;
 
   // we do not need to modify the strides, since for the next row element
   // we need to skip the same amount of elements
@@ -136,9 +103,6 @@ Mat *mat_row(Mat *m, size_t row) {
   return result;
 
 fail:
-  if (result->descr)
-    MAT_FREE(result->descr);
-
   MAT_FREE(result);
   return NULL;
 }
@@ -151,13 +115,8 @@ Mat *mat_col(Mat *m, size_t col) {
   if (!result)
     return NULL;
 
-  result->descr = MAT_MALLOC(sizeof(Mat_description));
-  if (!result->descr)
-    goto fail;
 
-  result->descr->owns_data = 0;
-  result->descr->item_size = m->descr->item_size;
-  result->descr->dtype = m->descr->dtype;
+  result->owns_data = 0;
 
   // we do not need to modify the strides, since for the next row element
   // we need to skip the same amount of elements
@@ -170,88 +129,48 @@ Mat *mat_col(Mat *m, size_t col) {
   return result;
 
 fail:
-  if (result->descr)
-    MAT_FREE(result->descr);
-
   MAT_FREE(result);
   return NULL;
 }
 
-void mat_print(Mat m, size_t padding) {
+void mat_print(Mat *m) {
     // Print matrix info header
     const char* dtype_names[] = {"FLOAT32", "FLOAT64", "INT32", "INT64"};
     printf("Matrix Info:\n");
-    printf("  Shape: %zu x %zu\n", m.rows, m.cols);
-    printf("  Stride: %zu\n", m.stride);
-    printf("  Data Type: %s\n", dtype_names[m.descr->dtype]);
-    printf("  Item Size: %zu bytes\n", m.descr->item_size);
-    printf("  Owns Data: %s\n", m.descr->owns_data ? "yes" : "no");
-    printf("  Memory Address: %p\n", (void*)m.es);
+    printf("  Shape: %zu x %zu\n", m->rows, m->cols);
+    printf("  Stride: %zu\n", m->stride);
+    printf("  Item Size: %zu bytes\n", sizeof(double));
+    printf("  Owns Data: %s\n", m->owns_data ? "yes" : "no");
+    printf("  Memory Address: %p\n", (void*)m->es);
     printf("\nMatrix Data:\n");
     
     // Handle null pointer
-    if (m.es == NULL) {
+    if (m->es == NULL) {
         printf("  [NULL DATA]\n");
         return;
     }
     
     // Handle empty matrix
-    if (m.rows == 0 || m.cols == 0) {
+    if (m->rows == 0 || m->cols == 0) {
         printf("  [EMPTY MATRIX]\n");
         return;
     }
     
-    // Print column indices header if padding allows
-    if (padding >= 4) {
-        printf("     ");
-        for (size_t j = 0; j < m.cols; j++) {
-            printf("%*zu ", (int)padding, j);
-        }
-        printf("\n");
-    }
-    
     // Print matrix data based on type
-    for (size_t i = 0; i < m.rows; i++) {
+    for (size_t i = 0; i < m->rows; i++) {
         printf("[%2zu] ", i);
         
-        for (size_t j = 0; j < m.cols; j++) {
-            char *elem_ptr = m.es + i * m.stride * m.descr->item_size + j * m.descr->item_size;
-            
-            switch (m.descr->dtype) {
-                case FLOAT32: {
-                    float val = *(float*)elem_ptr;
-                    printf("%*.3f ", (int)padding, val);
-                    break;
-                }
-                case FLOAT64: {
-                    double val = *(double*)elem_ptr;
-                    printf("%*.6f ", (int)padding, val);
-                    break;
-                }
-                case INT32: {
-                    int32_t val = *(int32_t*)elem_ptr;
-                    printf("%*d ", (int)padding, val);
-                    break;
-                }
-                case INT64: {
-                    int64_t val = *(int64_t*)elem_ptr;
-                    printf("%*lld ", (int)padding, (long long)val);
-                    break;
-                }
-                default:
-                    printf("%*s ", (int)padding, "?");
-                    break;
-            }
+        for (size_t j = 0; j < m->cols; j++) {
+          double val = *mat_at(m, i, j);
+          printf("%f ", val);
         }
-        printf("\n");
+          printf("\n");
     }
     printf("\n");
 }
 
 Mat *mat_multiply(Mat *left, Mat *right) {
-  if (left->descr->dtype != right->descr->dtype)
-    return NULL;
-  Mat *result = mat_create(left->rows, right->cols, left->descr->dtype);
+  Mat *result = mat_create(left->rows, right->cols);
 
   for (size_t i = 0; i < left->rows; i++) {
     for (size_t j = 0; j < right->cols; j++) 
@@ -287,55 +206,14 @@ int mat_dot(Mat *left, Mat *right, void *result) {
   if (left->cols != right->rows)
     return -1;
 
-  if (left->descr->dtype != right->descr->dtype)
-    return -1;
-
-  switch (left->descr->dtype) {
-    case FLOAT32: {
-      float *casted = (float*) result;
-      *casted = 0;
-      for (size_t i = 0; i < left->rows; i++) {
-        for (size_t j = 0; j < right->cols; j++) {
-          for (size_t k = 0; k < left->cols; k++) {
-            *casted += MAT_AT(left, i, j) * MAT_AT(right, i, j); 
-          }
-        }
+  double *casted = (double*) result;
+  for (size_t i = 0; i < left->rows; i++) {
+    for (size_t j = 0; j < right->cols; j++) {
+      for (size_t k = 0; k < left->cols; k++) {
+        *casted += MAT_AT(left, i, j) * MAT_AT(right, i, j); 
       }
-      break;
-    }
-    case FLOAT64: {
-      double *casted = (double*) result;
-      for (size_t i = 0; i < left->rows; i++) {
-        for (size_t j = 0; j < right->cols; j++) {
-          for (size_t k = 0; k < left->cols; k++) {
-            *casted += MAT_AT(left, i, j) * MAT_AT(right, i, j); 
-          }
-        }
-      }
-      break;
-    }
-    case INT32: {
-      int32_t *casted = (int32_t*) result;
-      for (size_t i = 0; i < left->rows; i++) {
-        for (size_t j = 0; j < right->cols; j++) {
-          for (size_t k = 0; k < left->cols; k++) {
-            *casted += MAT_AT(left, i, j) * MAT_AT(right, i, j); 
-          }
-        }
-      }
-      break;
-    }
-    case INT64: {
-      int64_t *casted = (int64_t*) result;
-      for (size_t i = 0; i < left->rows; i++) {
-        for (size_t j = 0; j < right->cols; j++) {
-          for (size_t k = 0; k < left->cols; k++) {
-            *casted += MAT_AT(left, i, j) * MAT_AT(right, i, j); 
-          }
-        }
-      }
-      break;
     }
   }
+
   return 0;
 }

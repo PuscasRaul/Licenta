@@ -17,10 +17,6 @@
 #define MAT_FREE free
 #endif // MAT_FREE
 
-#ifndef MAT_ASSERT
-#define MAT_ASSERT assert
-#endif // MAT_ASSERT
-
 /**
  * @brief Access a matrix element at position (i, j)
  * @param m The matrix
@@ -30,25 +26,13 @@
  */
 #define MAT_AT(m, i, j) (m)->es[(i)*(m)->stride + (j)]
 
-typedef enum {
-  FLOAT32,
-  FLOAT64,
-  INT32,
-  INT64
-} data_type;
-
-typedef struct {
-  int owns_data;
-  data_type dtype;
-  size_t item_size;
-} Mat_description;
 
 typedef struct {
   size_t rows;
   size_t cols;
   size_t stride;
-  Mat_description *descr;
-  char *es;
+  int8_t owns_data;
+  double *es;
 } Mat;
 
 /**
@@ -57,7 +41,7 @@ typedef struct {
  * @param cols Number of columns
  * @return Pointer to the created matrix or NULL on failure
  */
-Mat *mat_create(size_t rows, size_t cols, data_type dtype); 
+Mat *mat_create(size_t rows, size_t cols); 
 
 /**
  * @brief Destroy a matrix created with mat_create
@@ -99,7 +83,7 @@ Mat *mat_col(Mat *src, size_t col);
  * @param m Matrix to print
  * @param name Name to display before the matrix
  */
-void mat_print(Mat m, size_t padding);
+void mat_print(Mat *m);
 
 /**
  * @brief Multiply two matrices
