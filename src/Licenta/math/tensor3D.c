@@ -10,14 +10,29 @@ Tensor3D *tensor_init(size_t size, size_t depth) {
   tensor->size = size;
   tensor->depth = depth;
 
-  tensor->maps = MALLOC(sizeof(Mat) * depth);
+  tensor->maps = MALLOC(sizeof(Mat*) * depth);
+  if (!tensor->maps) 
+    goto fail;
   
   for (size_t i = 0; i < depth; i++) {
-    tensor->maps[i] = *mat_create(size, size);
+    tensor->maps[i] = mat_create(size, size);
+    if (!tensor->maps[i])
+      goto fail;
   }
 
   return tensor;
 
+fail:
+  if (tensor->maps) {
+    for (size_t i = 0; i < depth; i++) 
+      if (tensor->maps[i]) {
+        FREE(tensor->maps[i]);
+        tensor->maps[i] = NULL;
+      }
+   FREE(tensor->maps); 
+  }
+  FREE(tensor);
+  return NULL;
 }
 
 void tensor_deinit(Tensor3D *tensor) {
