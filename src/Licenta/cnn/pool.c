@@ -1,13 +1,11 @@
 #include "pool.h"
 
-Tensor3D *downsample(Pool_Layer *layer) {
-  Tensor3D *input = layer->input;
-
+Tensor3D *downsample(Tensor3D *input, Pool_Layer *layer) {
   assert((input->size - input->size) % layer->stride != 0);
 
   size_t stride = layer->stride;
   size_t f_size = layer->filter_size;
-  size_t dims = (layer->input->size - f_size) / stride + 1;
+  size_t dims = (input->size - f_size) / stride + 1;
   Tensor3D *result = tensor_init(dims, input->depth); //WARN:
 
   switch (layer->type) {

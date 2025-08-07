@@ -9,7 +9,6 @@ typedef enum {
 } POOLING_TYPES;
 
 typedef struct {
-  Tensor3D *input;
   POOLING_TYPES type;
   size_t filter_size;
   size_t stride;
@@ -17,6 +16,6 @@ typedef struct {
 
 
 // Pooling layer operations
-Tensor3D *downsample(Pool_Layer *layer);
+Tensor3D *downsample(Tensor3D *input, Pool_Layer *layer);
 
 #endif // CNN_POOL_H

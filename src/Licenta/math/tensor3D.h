@@ -11,6 +11,7 @@ typedef struct {
 } Tensor3D;
 
 // WARN: Mock function, used for defining the prototypes of CNN functions
-Tensor3D init_tensor();
+Tensor3D *tensor_init(size_t size, size_t depth);
+void tensor_deinit(Tensor3D *tensor);
 
 #endif // TENSOR3D_H
