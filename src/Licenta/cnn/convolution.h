@@ -6,19 +6,27 @@
 
 typedef struct {
   size_t stride; // how much to skip, usually 1-2 
-  Tensor3D shape;
+  Tensor3D *shape;
 } Filter;
 
 typedef struct {
   size_t n_filters;
-  Filter *filters; // array of filters
+  Filter **filters; // array of filters
   ACT_FUNC activation;
 } Convolution_Layer;
 
-Convolution_Layer *CL_init(size_t filter_size, size_t nfilters);
-void CL_deinit(Convolution_Layer *cl);
+Filter *filter_init(size_t stride, size_t depth, size_t dims);
+void filter_deinit(Filter *filter);
 
-// TODO: add a bias to the whole operation?
+Convolution_Layer *conv_init(
+    size_t n_filters, 
+    size_t f_size,
+    size_t f_depth,
+    size_t stride,
+    ACT_FUNC act_func
+);
+void conv_deinit(Convolution_Layer *cl);
+
 Tensor3D get_activation_maps(Convolution_Layer *layer, Tensor3D input); 
 
 #endif // CNN_CONVOLUTION_H
