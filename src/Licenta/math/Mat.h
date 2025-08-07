@@ -56,7 +56,7 @@ void mat_destroy(Mat *m);
  * @param value Value to fill the matrix with
  * @return 0 on success, -1 on failure
  */
-void mat_fill(Mat *m, float value);
+void mat_fill(Mat *m, double value);
 
 Mat *mat_slice(Mat *m, size_t row, size_t col, size_t nrows, size_t ncols); 
 

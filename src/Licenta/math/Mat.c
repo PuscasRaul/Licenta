@@ -8,9 +8,9 @@ Mat *mat_create(size_t rows, size_t cols) {
   if (rows <= 0 || cols <= 0)
     return NULL;
 
-  Mat *mat = MAT_MALLOC(sizeof(Mat));
+  Mat *mat = MAT_MALLOC(sizeof(Mat)); // add size of es here
   if (!mat)
-    goto fail;
+    return NULL;
 
   mat->es = MAT_MALLOC(sizeof(double) * rows * cols);
   if (!mat->es)
@@ -24,12 +24,10 @@ Mat *mat_create(size_t rows, size_t cols) {
   return mat;
   
   fail:
-    if (mat) {
-      if (mat->es)
-        MAT_FREE(mat->es);
-      MAT_FREE(mat);
-    }
-    return NULL;
+  if (mat->es)
+    MAT_FREE(mat->es);
+  MAT_FREE(mat);
+  return NULL;
 }
 
 void mat_destroy(Mat *m) {
@@ -39,7 +37,7 @@ void mat_destroy(Mat *m) {
   MAT_FREE(m);
 }
 
-void mat_fill(Mat *m, float value) {
+void mat_fill(Mat *m, double value) {
   for (size_t i = 0; i < m->rows; i++) {
     for (size_t j = 0; j < m->cols; j++) 
       MAT_AT(m, i, j) = value;
@@ -170,8 +168,14 @@ void mat_print(Mat *m) {
 }
 
 Mat *mat_multiply(Mat *left, Mat *right) {
-  Mat *result = mat_create(left->rows, right->cols);
+  if (left->cols != right->rows)
+    return NULL;
 
+  Mat *result = mat_create(left->rows, right->cols);
+  if (!result)
+    return NULL;
+
+  mat_fill(result, 0.0);
   for (size_t i = 0; i < left->rows; i++) {
     for (size_t j = 0; j < right->cols; j++) 
       for (size_t k = 0; k < left->cols; j++) 
