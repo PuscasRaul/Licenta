@@ -3,27 +3,30 @@
 #include "../utils/arena.h"
 
 Filter *filter_init(
+    Filter *f,
     size_t stride,
     size_t depth,
     size_t dims
 ) {
-  Filter *filter = MALLOC(sizeof(Filter));
-  if (!filter)
-    return NULL;
-  filter->stride = stride;
-  filter->shape = tensor_init(dims, depth);
-  if (!filter->shape) {
-    FREE(filter);
-    return NULL;
-  }
-  return filter;
+  if (!f)
+    return nullptr;
+
+  *f = (Filter) {
+    .stride = stride,
+    .shape = tensor_new(dims, depth)
+  };
+  
+  if (!f->shape)
+    return nullptr;
+
+  return f;
 }
 
 void filter_deinit(Filter *filter) {
   if (filter->shape)
-    tensor_deinit(filter->shape);
-
-  FREE(filter);
+    tensor_destroy(filter->shape);
+  filter->shape = nullptr;
+  *filter = (Filter) {0};
 }
 
 Convolution_Layer *conv_init(
@@ -75,7 +78,7 @@ void conv_deinit(Convolution_Layer *cl) {
   FREE(cl);
 }
 
-static inline void activate_tensor(Tensor3D *tensor, ACT_FUNC activation) {
+static void activate_tensor(Tensor3D *tensor, ACT_FUNC activation) {
   switch (activation) {
     case ACT_RELU:
       for (size_t k = 0; k < tensor->depth; k++) {
@@ -102,7 +105,7 @@ static inline void activate_tensor(Tensor3D *tensor, ACT_FUNC activation) {
   }
 }
 
-static inline Mat *convolve(Tensor3D *input, Filter *filter) {
+static Mat *convolve(Tensor3D *input, Filter *filter) {
   if (input->depth != filter->shape->depth)
     return NULL;
 

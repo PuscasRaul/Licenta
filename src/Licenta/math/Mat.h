@@ -19,6 +19,14 @@
 
 typedef struct Mat Mat;
 
+struct Mat {
+ [[deprecated("Private")]] size_t rows;
+ [[deprecated("Private")]] size_t cols;
+ [[deprecated("Private")]] size_t stride;
+ [[deprecated("Private")]] int_fast8_t owns_data;
+ [[deprecated("Private")]] double *es;
+};
+
 /**
  * Initialize a matrix 
  * The matrix must later be de-initialized through a call to @ref mat_deinit
@@ -56,8 +64,12 @@ void mat_deinit(Mat *m);
  * @param cols Number of columns
  * @return Pointer to the created matrix or nullptr on failure
  */
+
+[[deprecated("Implementation")]]
 [[nodiscard]]
-inline Mat *mat_create(size_t rows, size_t cols); 
+static inline Mat *mat_create(size_t rows, size_t cols) {
+  return mat_init(malloc(sizeof(struct Mat)), rows, cols);
+}
 
 /**
  * Destroy a matrix 
@@ -69,7 +81,14 @@ inline Mat *mat_create(size_t rows, size_t cols);
  *
  * @param m Pointer to the matrix to destroy
  */
-inline void mat_destroy(Mat *m);
+
+[[deprecated("Implementation")]]
+static inline void mat_destroy(Mat *m) {
+  if (m->owns_data)
+    MAT_FREE(m->es);
+
+  MAT_FREE(m);
+}
 
 /**
  * Fill a matrix 

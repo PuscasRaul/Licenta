@@ -34,7 +34,24 @@ void arena_reset(Arena *a);
 void arena_free(Arena *a);
 void arena_debug_dump(Arena *a);
 
-#endif 
+#ifdef USE_ARENA
+  #define ARENA_ALLOC(arena, size) arena_alloc(arena, size)
+  #define ARENA_FREE(arena, ptr) 
+
+  extern Arena *arena_allocator;
+
+  #define MALLOC(size) ARENA_ALLOC(arena_allocator, size)
+  #define FREE(ptr) // no individual free's
+
+#else
+  #define ARENA_ALLOC(arena, size) malloc(size)
+  #define ARENA_FREE(arena, ptr) free(ptr)
+
+  #define MALLOC(size) ARENA_ALLOC(NULL, size)
+  #define FREE(ptr) ARENA_FREE(NULL, ptr)
+#endif // USE_ARENA
+
+#endif // UTILS_ARENA
 
 #ifdef UTILS_ARENA_IMPLEMENTATION
 
@@ -69,7 +86,7 @@ void *arena_alloc(Arena *a, size_t s_bytes) {
     a->tail = region_alloc(capacity);
     a->head = a->tail;
   }
-
+  
   // untill we find a region with enough memory
   while (a->tail->offset+size > a->tail->capacity && a->tail->next != NULL) {
     a->tail =  a->tail->next;
@@ -144,4 +161,4 @@ void arena_debug_dump(Arena *a) {
   }
 }
 
-#endif
+#endif // UTILS_ARENA_IMPLEMENTATION
