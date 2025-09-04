@@ -100,11 +100,29 @@ static inline void mat_destroy(Mat *m) {
  * @return Pointer to the created matrix or nullptr on failure
  */
 [[deprecated("Implementation")]]
-static inline Mat *mat_create_array(size_t length) {
-  if (!length)
+[[nodiscard]]
+static inline Mat *mat_vcreate(size_t length, size_t m_size) {
+  if (!length || !m_size)
     return nullptr;
   
-  return MAT_MALLOC(sizeof(Mat) * length);
+  Mat *m = MAT_MALLOC(sizeof(Mat) * length);
+  if (!m)
+    return nullptr;
+
+  for (size_t i = 0; i < length; i++)
+    if (!mat_init(&m[i], m_size, m_size))
+      goto fail;
+
+  return m;
+
+fail:
+  for (size_t i = 0; i < length; i++) {
+    if (!m[i].rows)
+      break;
+    mat_deinit(&m[i]);
+  }
+
+  return nullptr;
 }
 
 /**

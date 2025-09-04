@@ -2,20 +2,64 @@
 #include "common.h"
 #include "../utils/arena.h"
 
+struct Filter{
+  size_t stride; // how much to skip, usually 1-2 
+  Tensor3D *shape; // the actual shape of the filter
+}; 
+
+Filter *filter_init(Filter *f, size_t stride, size_t depth, size_t dims);
+void filter_deinit(Filter *f);
+
+[[nodiscard]]
+static inline Filter *filter_new(size_t stride, size_t depth, size_t dims) {
+  return filter_init(malloc(sizeof(Filter)), stride, depth, dims);
+}
+
+static inline void filter_destroy(Filter *f) {
+  if (f) {
+    filter_deinit(f);
+    free(f);
+  }
+}
+
+[[nodiscard]]
+static inline Filter *filter_vnew(size_t length) {
+  if (!length)
+    return nullptr;
+
+  Filter *f = malloc(sizeof(Filter) * length);
+  if (!f)
+    return nullptr;
+
+  for (size_t i = 0; i < length; i++)
+    if (!filter_init(&f[i], 1, 1, 1))
+      goto fail;
+
+  return f;
+
+fail:
+  for (size_t i = 0; i < length; i++) { 
+    if (!f[i].stride)
+      break;
+    filter_deinit(&f[i]);
+  }
+  return nullptr;
+}
+
 Filter *filter_init(
     Filter *f,
     size_t stride,
     size_t depth,
     size_t dims
-) {
+    ) {
   if (!f)
     return nullptr;
 
   *f = (Filter) {
     .stride = stride,
-    .shape = tensor_new(dims, depth)
+      .shape = tensor_new(dims, depth)
   };
-  
+
   if (!f->shape)
     return nullptr;
 
@@ -23,12 +67,15 @@ Filter *filter_init(
 }
 
 void filter_deinit(Filter *filter) {
-  if (filter->shape)
-    tensor_destroy(filter->shape);
-  filter->shape = nullptr;
-  *filter = (Filter) {0};
+  if (filter) {
+    if (filter->shape)
+      tensor_destroy(filter->shape);
+    filter->shape = nullptr;
+    *filter = (Filter) {0};
+  }
 }
 
+/*
 Convolution_Layer *conv_init(
     size_t n_filters, 
     size_t f_size,
@@ -147,3 +194,4 @@ static Mat *convolve(Tensor3D *input, Filter *filter) {
   }
   return result;
 }
+*/
