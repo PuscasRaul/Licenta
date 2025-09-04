@@ -45,11 +45,9 @@ Mat *mat_init(Mat *m, size_t rows, size_t cols) {
 }
 
 [[deprecated("Implementation")]]
-void mat_deinit(Mat *m) {
-  if (m) {
-    MAT_FREE(m->es);
-    *m = (Mat) {};
-  }
+void mat_deinit(Mat m[static 1]) {
+  MAT_FREE(m->es);
+  *m = (Mat) {};
 }
 
 [[deprecated("Implementation")]]

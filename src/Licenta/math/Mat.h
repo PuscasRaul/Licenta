@@ -40,7 +40,7 @@ struct Mat {
  * @param cols Number of cols
  * @return Pointer to the initialized @m, or nullptr on failure
  */
-Mat *mat_init(Mat m[static restrict 1], size_t rows, size_t cols);
+Mat *mat_init(Mat *m, size_t rows, size_t cols);
 
 /**
  * Deinitialize a matrix.
@@ -53,7 +53,7 @@ Mat *mat_init(Mat m[static restrict 1], size_t rows, size_t cols);
  *
  * @param m Pointer to a Mat structure to deinitialize.
  */
-void mat_deinit(Mat m[static restrict 1]);
+void mat_deinit(Mat m[static 1]);
 
 /**
  * Create a new matrix 
@@ -82,7 +82,7 @@ static inline Mat *mat_create(size_t rows, size_t cols) {
  */
 
 [[deprecated("Implementation")]]
-static inline void mat_destroy(Mat m[static restrict 1]) {
+static inline void mat_destroy(Mat *m) {
   if (m && m->owns_data)
     MAT_FREE(m->es);
 
