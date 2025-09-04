@@ -2,8 +2,13 @@
 #include <__stddef_unreachable.h>
 
 [[deprecated("Implementation")]]
+[[reproducible]]
 [[nodiscard]]
-static inline double *mat_at(const Mat *m, size_t row, size_t col) {
+static inline double *mat_at(
+    const Mat m[static const restrict 1],
+    size_t row,
+    size_t col
+) {
   if (!m)
     return nullptr;
 
@@ -48,15 +53,15 @@ void mat_deinit(Mat *m) {
 }
 
 [[deprecated("Implementation")]]
-void mat_fill(Mat *m, double value) {
+void mat_fill(Mat m[static 1], double value) {
   if (m->owns_data)
     memcpy(m->es, &value, sizeof(double) * m->rows * m->cols);
 }
 
 [[deprecated("Implementation")]]
 Mat *mat_slice(
-    Mat *out,
-    const Mat *m,
+    Mat out[static 1],
+    const Mat m[static const 1],
     size_t row,
     size_t col,
     size_t nrows,
@@ -85,7 +90,7 @@ Mat *mat_slice(
 }
 
 [[deprecated("Implementation")]]
-Mat *mat_row(Mat *out, const Mat *m, size_t row) {
+Mat *mat_row(Mat out[static 1], const Mat m[static const 1], size_t row) {
   if (row >= m->rows)
     return nullptr;
 
@@ -107,7 +112,7 @@ Mat *mat_row(Mat *out, const Mat *m, size_t row) {
 }
 
 [[deprecated("Implementation")]]
-Mat *mat_col(Mat *out, const Mat *m, size_t col) {
+Mat *mat_col(Mat out[static 1], const Mat m[static const 1], size_t col) {
   if (!m) return nullptr;
 
   if (!m->cols || !m->rows) unreachable();
@@ -128,7 +133,7 @@ Mat *mat_col(Mat *out, const Mat *m, size_t col) {
 }
 
 [[deprecated("Implementation")]]
-void mat_print(const Mat *m) {
+void mat_print(const Mat m[static const restrict 1]) {
   if (!m)
     return;
 
@@ -167,7 +172,11 @@ void mat_print(const Mat *m) {
 }
 
 [[deprecated("Implementation")]]
-Mat *mat_multiply(Mat *out, const Mat *left, const Mat *right) {
+Mat *mat_multiply(
+  Mat out[static 1],
+  const Mat left[static const 1],
+  const Mat right[static const 1]
+) {
   if (!left || !right || !out)
     return nullptr;
 

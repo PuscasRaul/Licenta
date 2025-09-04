@@ -1,6 +1,7 @@
 #ifndef MAT_H_
 #define MAT_H_
 
+#include <limits.h>
 #include <stddef.h>
 #include <assert.h>
 #include <stdint.h>
@@ -39,7 +40,7 @@ struct Mat {
  * @param cols Number of cols
  * @return Pointer to the initialized @m, or nullptr on failure
  */
-Mat *mat_init(Mat *m, size_t rows, size_t cols);
+Mat *mat_init(Mat m[static restrict 1], size_t rows, size_t cols);
 
 /**
  * Deinitialize a matrix.
@@ -52,7 +53,7 @@ Mat *mat_init(Mat *m, size_t rows, size_t cols);
  *
  * @param m Pointer to a Mat structure to deinitialize.
  */
-void mat_deinit(Mat *m);
+void mat_deinit(Mat m[static restrict 1]);
 
 /**
  * Create a new matrix 
@@ -75,19 +76,35 @@ static inline Mat *mat_create(size_t rows, size_t cols) {
  * Destroy a matrix 
  * Internally, the @ref mat_deinit is being called
  * Then the m pointer is free'd
- * Safe to call for m == nullptr
  *  
  * @pre @m must be created through @ref mat_create or @mat_slice
- *
  * @param m Pointer to the matrix to destroy
  */
 
 [[deprecated("Implementation")]]
-static inline void mat_destroy(Mat *m) {
-  if (m->owns_data)
+static inline void mat_destroy(Mat m[static restrict 1]) {
+  if (m && m->owns_data)
     MAT_FREE(m->es);
 
   MAT_FREE(m);
+}
+
+/**
+ * Create a new array of matrixes
+ * The matrix must then be destroyed through a call to @ref mat_destroy
+ *
+ * @pre rows > 0 && cols > 0
+ *
+ * @param rows Number of rows
+ * @param cols Number of columns
+ * @return Pointer to the created matrix or nullptr on failure
+ */
+[[deprecated("Implementation")]]
+static inline Mat *mat_create_array(size_t length) {
+  if (!length)
+    return nullptr;
+  
+  return MAT_MALLOC(sizeof(Mat) * length);
 }
 
 /**
@@ -97,7 +114,7 @@ static inline void mat_destroy(Mat *m) {
  * @param m Matrix to fill
  * @param value Value to fill the matrix with
  */
-void mat_fill(Mat *m, double value);
+void mat_fill(Mat m[static restrict 1], double value);
 
  /**
  * Create a submatrix (slice) of @p m and store it in @p out.
@@ -128,14 +145,20 @@ void mat_fill(Mat *m, double value);
  * @param ncols  Number of columns in the slice.
  * @return       Pointer to the slice object, or NULL on failure.
  */
-Mat *mat_slice(Mat *out, const Mat *m, size_t row, size_t col, size_t nrows, size_t ncols); 
+Mat *mat_slice(
+    Mat out[static 1],
+    const Mat m[static const 1],
+    size_t row,
+    size_t col,
+    size_t nrows,
+    size_t ncols
+); 
 
 /**
  * Create a view representing a single row from @p src and store it in @p out.
  *
  * The returned matrix has dimensions 1 × src->cols and its @c data pointer
  * references the row inside @p src->data; no new element buffer is allocated.
- *
  * If @p out is NULL, a new Mat is allocated and returned. If @p out is not
  * NULL, it will be overwritten with the row view. In both cases, the returned
  * value is the row object.
@@ -152,7 +175,7 @@ Mat *mat_slice(Mat *out, const Mat *m, size_t row, size_t col, size_t nrows, siz
  * @param row Row index to extract.
  * @return    Pointer to the row view object, or NULL on failure.
  */
-Mat *mat_row(Mat* out, const Mat *src, size_t row);
+Mat *mat_row(Mat out[static 1], const Mat src[static const 1], size_t row);
 
 /**
  * Create a view representing a single column from @p src and store it in @p out.
@@ -176,14 +199,14 @@ Mat *mat_row(Mat* out, const Mat *src, size_t row);
  * @param col Column index to extract.
  * @return    Pointer to the column view object, or NULL on failure.
  */
-Mat *mat_col(Mat *out, const Mat *src, size_t col);
+Mat *mat_col(Mat out[static 1], const Mat src[static const 1], size_t col);
 
 /**
  * @brief Print a matrix with a given name
  * @param m Matrix to print
  * @param name Name to display before the matrix
  */
-void mat_print(const Mat *m);
+void mat_print(const Mat m[static const restrict 1]);
 
 /**
  * Multiply matrix @p left by matrix @p right and store the result in @p left.
@@ -206,7 +229,12 @@ void mat_print(const Mat *m);
  * @param right Matrix to multiply with.
  * @return      Pointer to the updated @p left matrix, or NULL on error.
  */
-Mat *mat_multiply(Mat *out, const Mat *left, const Mat *right);
+
+Mat *mat_multiply(
+  Mat out[static 1],
+  const Mat left[static const 1],
+  const Mat right[static const 1]
+);
 
 /**
  * Multiply every element of matrix @p m by the scalar @p value.
