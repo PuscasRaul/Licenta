@@ -2,14 +2,6 @@
 #include <__stddef_unreachable.h>
 #include <stdio.h>
 
-struct Mat {
- size_t rows;
- size_t cols;
- size_t stride;
- int_fast8_t owns_data;
- double *es;
-};
-
 [[nodiscard]]
 double *mat_at(
     const Mat *m,

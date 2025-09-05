@@ -19,6 +19,14 @@
 
 typedef struct Mat Mat;
 
+struct Mat {
+ size_t rows;
+ size_t cols;
+ size_t stride;
+ int_fast8_t owns_data;
+ double *es;
+};
+
 /**
  * Initialize a matrix 
  * The matrix must later be de-initialized through a call to @ref mat_deinit
