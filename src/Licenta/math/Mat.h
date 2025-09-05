@@ -99,6 +99,8 @@ void mat_destroy(Mat *m);
 [[nodiscard]]
 Mat *mat_vcreate(size_t length, size_t m_size);
 
+void mat_vdestroy(size_t length, Mat vmat[static length]);
+
 /**
  * Fill a matrix 
  * The function is safe to call with a nullptr

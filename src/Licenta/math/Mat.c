@@ -45,7 +45,7 @@ Mat *mat_init(Mat *m, size_t rows, size_t cols) {
 void mat_deinit(Mat m[static 1]) {
   if (!m)
     return;
-  if (m->owns_data) 
+  if (m->owns_data)  
     MAT_FREE(m->es);
   *m = (Mat) {};
 }
@@ -56,8 +56,7 @@ Mat *mat_create(size_t rows, size_t cols) {
 
 void mat_destroy(Mat *m) {
   if (m) {
-    if (m->owns_data)
-      MAT_FREE(m->es);
+    mat_deinit(m);
     MAT_FREE(m);
   }
 }
@@ -85,6 +84,13 @@ fail:
   }
 
   return nullptr;
+}
+
+void mat_vdestroy(size_t length, Mat vmat[static length]) {
+  for (size_t i = 0; i < length; i++) 
+    mat_deinit(&vmat[i]);
+   
+  MAT_FREE(vmat);
 }
 
 void mat_fill(Mat *m, double value) {
