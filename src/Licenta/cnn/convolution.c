@@ -1,157 +1,40 @@
 #include "convolution.h"
-#include "common.h"
 #include "../utils/arena.h"
 
-struct Filter{
-  size_t stride; // how much to skip, usually 1-2 
-  Tensor3D *shape; // the actual shape of the filter
-}; 
-
-Filter *filter_init(Filter *f, size_t stride, size_t depth, size_t dims);
-void filter_deinit(Filter *f);
-
 [[nodiscard]]
-static inline Filter *filter_new(size_t stride, size_t depth, size_t dims) {
-  return filter_init(malloc(sizeof(Filter)), stride, depth, dims);
-}
-
-static inline void filter_destroy(Filter *f) {
-  if (f) {
-    filter_deinit(f);
-    free(f);
-  }
-}
-
-[[nodiscard]]
-static inline Filter *filter_vnew(size_t length) {
-  if (!length)
-    return nullptr;
-
-  Filter *f = malloc(sizeof(Filter) * length);
-  if (!f)
-    return nullptr;
-
-  for (size_t i = 0; i < length; i++)
-    if (!filter_init(&f[i], 1, 1, 1))
-      goto fail;
-
-  return f;
-
-fail:
-  for (size_t i = 0; i < length; i++) { 
-    if (!f[i].stride)
-      break;
-    filter_deinit(&f[i]);
-  }
-  return nullptr;
-}
-
-Filter *filter_init(
-    Filter *f,
-    size_t stride,
-    size_t depth,
-    size_t dims
-    ) {
-  if (!f)
-    return nullptr;
-
-  *f = (Filter) {
-    .stride = stride,
-      .shape = tensor_new(dims, depth)
-  };
-
-  if (!f->shape)
-    return nullptr;
-
-  return f;
-}
-
-void filter_deinit(Filter *filter) {
-  if (filter) {
-    if (filter->shape)
-      tensor_destroy(filter->shape);
-    filter->shape = nullptr;
-    *filter = (Filter) {0};
-  }
-}
-
-/*
 Convolution_Layer *conv_init(
+    Convolution_Layer *cl,
     size_t n_filters, 
     size_t f_size,
     size_t f_depth,
     size_t stride,
     ACT_FUNC act_func
 ){
-  Convolution_Layer *cl = MALLOC(sizeof(Convolution_Layer));
+
   if (!cl)
-    return NULL;
+    return nullptr;
 
-  cl->n_filters = n_filters;
-  cl->activation = act_func;
-  cl->filters = MALLOC(sizeof(Filter*) * n_filters);
-  if (!cl->filters) {
-    FREE(cl);
-    return NULL;
-  }
+  *cl = (Convolution_Layer) {
+    .n_filters = n_filters,
+    .activation = act_func,
+    .filters = filter_vnew(n_filters, f_size, stride, f_depth)
+  };
 
-  for (size_t i = 0; i < n_filters; i++) {
-    cl->filters[i] = filter_init(stride, f_depth, f_size);
-    if (!cl->filters[i])
-      goto fail;
-  }
+  if (!cl->filters)
+    return nullptr;
 
   return cl;
-
-fail:
-  for (size_t i = 0; i < n_filters; i++)
-    if (cl->filters[i])
-      FREE(cl->filters[i]);
-
-  FREE(cl->filters);
-  FREE(cl);
-  return NULL;
 }
 
 void conv_deinit(Convolution_Layer *cl) {
-  for (size_t i = 0; i < cl->n_filters; i++) {
-    FREE(cl->filters[i]);
-    cl->filters[i] = NULL;
-  }
+  if (!cl)
+    return;
 
-  FREE(cl->filters);
-  cl->filters = NULL;
-
-  FREE(cl);
+  free(cl->filters);
+  *cl = (Convolution_Layer) {};
 }
 
-static void activate_tensor(Tensor3D *tensor, ACT_FUNC activation) {
-  switch (activation) {
-    case ACT_RELU:
-      for (size_t k = 0; k < tensor->depth; k++) {
-        for (size_t i = 0; i < tensor->size; i++) {
-          for (size_t j = 0; j < tensor->size; j++) {
-            float val = MAT_AT(tensor->maps[k], i, j);
-            MAT_AT(tensor->maps[k], i, j) = relu(val);
-          }
-        }
-      }
-      break;
-    case ACT_SIG:
-      for (size_t k = 0; k < tensor->depth; k++) {
-        for (size_t i = 0; i < tensor->size; i++) {
-          for (size_t j = 0; j < tensor->size; j++) {
-            float val = MAT_AT(tensor->maps[k], i, j);
-            MAT_AT(tensor->maps[k], i, j) = sigmoid(val);
-          }
-        }
-      }
-      break;
-    default:
-      break;
-  }
-}
-
+[[nodiscard]]
 static Mat *convolve(Tensor3D *input, Filter *filter) {
   if (input->depth != filter->shape->depth)
     return NULL;
@@ -194,4 +77,3 @@ static Mat *convolve(Tensor3D *input, Filter *filter) {
   }
   return result;
 }
-*/

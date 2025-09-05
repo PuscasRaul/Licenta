@@ -45,7 +45,8 @@ Mat *mat_init(Mat *m, size_t rows, size_t cols) {
 void mat_deinit(Mat m[static 1]) {
   if (!m)
     return;
-  MAT_FREE(m->es);
+  if (m->owns_data) 
+    MAT_FREE(m->es);
   *m = (Mat) {};
 }
 
@@ -54,10 +55,11 @@ Mat *mat_create(size_t rows, size_t cols) {
 }
 
 void mat_destroy(Mat *m) {
-  if (m && m->owns_data)
-    MAT_FREE(m->es);
-
-  MAT_FREE(m);
+  if (m) {
+    if (m->owns_data)
+      MAT_FREE(m->es);
+    MAT_FREE(m);
+  }
 }
 
 [[nodiscard]]

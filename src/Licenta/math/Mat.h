@@ -137,6 +137,7 @@ void mat_fill(Mat *m, double value);
  * @param ncols  Number of columns in the slice.
  * @return       Pointer to the slice object, or NULL on failure.
  */
+[[nodiscard]]
 Mat *mat_slice(
     Mat *out,
     const Mat *m,
