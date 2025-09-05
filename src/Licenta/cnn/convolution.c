@@ -37,43 +37,53 @@ void conv_deinit(Convolution_Layer *cl) {
 [[nodiscard]]
 static Mat *convolve(Tensor3D *input, Filter *filter) {
   if (input->depth != filter->shape->depth)
-    return NULL;
+    return nullptr; 
 
   // the output size is calculated as (N - F) / stride + 1
   // where (N - F) / stride must be whole
   if ((input->size - filter->shape->size) % filter->stride != 0)
-    return NULL;
+    return nullptr;
 
   size_t f_size = filter->shape->size;
-  
   size_t res_rows = (input->size - filter->shape->size) / filter->stride + 1;
   size_t res_cols = (input->size - filter->shape->size) / filter->stride + 1;
+  double dot_result = 0;
 
   Mat *result = mat_create(res_rows, res_cols);
+  Mat *slice = mat_create(f_size, f_size);
+
   if (!result)
-    return NULL;
+    goto fail;
+  if (!slice) 
+    goto fail;
 
   // go over rows x cols, and inside over depth
   for (size_t i = 0; i < res_rows; i += filter->stride) {
     for (size_t j = 0; j < res_cols; j += filter->stride) {
       for (size_t k = 0; k < filter->shape->depth; k++) {
-        Mat *slice = mat_slice(input->maps[k], 
-            i * filter->stride,
-            j * filter->stride,
-            f_size,
-            f_size);
+        if (!mat_slice(slice, &input->maps[k],i, j, f_size,f_size))
+          goto fail;
 
-        if (!slice) 
-          return NULL; // we panic
+        if (mat_dot(slice, &filter->shape->maps[k], &dot_result)) 
+          goto fail; // just panic
         
-        float res;
-        if (mat_dot(slice, filter->shape->maps[k], (void*) &res)) {
-          mat_destroy(result);
-          return NULL; // we panic
-        }
-        MAT_AT(result, i, j) += res;
+        *(mat_at(result, i, j)) += dot_result;
       }
     }
   }
   return result;
+
+fail:
+  mat_destroy(result);
+  result = nullptr;
+  if (slice) {
+    mat_destroy(slice);
+    slice = nullptr;
+  }
+
+  return nullptr;
+}
+  
+Tensor3D get_activation_maps(Convolution_Layer *layer, Tensor3D input) {
+
 }
