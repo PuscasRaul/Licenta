@@ -1,7 +1,7 @@
 #include <math.h>
 
-#ifndef CNN_COMMON_H
-#define CNN_COMMON_H
+#ifndef MATH_ACTIVATION_H
+#define MATH_ACTIVATION_H
 
 typedef enum {
   ACT_RELU,
@@ -58,4 +58,4 @@ _Generic((X), \
     default: relud \
   )(X)
 
-#endif // CNN_COMMON_h
+#endif // MATH_ACTIVATION_H
