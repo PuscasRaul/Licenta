@@ -22,6 +22,6 @@ Convolution_Layer *conv_init(
 );
 
 void conv_deinit(Convolution_Layer *cl);
-Tensor3D get_activation_maps(Convolution_Layer *layer, Tensor3D input); 
+Tensor3D *get_activation_maps(Convolution_Layer *layer, Tensor3D *input); 
 
 #endif // CNN_CONVOLUTION_H

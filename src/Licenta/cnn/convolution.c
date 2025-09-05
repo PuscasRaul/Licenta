@@ -35,21 +35,13 @@ void conv_deinit(Convolution_Layer *cl) {
 }
 
 [[nodiscard]]
-static Mat *convolve(Tensor3D *input, Filter *filter) {
-  if (input->depth != filter->shape->depth)
-    return nullptr; 
-
-  // the output size is calculated as (N - F) / stride + 1
-  // where (N - F) / stride must be whole
-  if ((input->size - filter->shape->size) % filter->stride != 0)
-    return nullptr;
+static Mat *convolve(Tensor3D *input, Filter *filter, Mat *result) {
 
   size_t f_size = filter->shape->size;
-  size_t res_rows = (input->size - filter->shape->size) / filter->stride + 1;
-  size_t res_cols = (input->size - filter->shape->size) / filter->stride + 1;
+  size_t res_rows = (input->size - f_size) / filter->stride + 1;
+  size_t res_cols = (input->size - f_size) / filter->stride + 1;
   double dot_result = 0;
 
-  Mat *result = mat_create(res_rows, res_cols);
   Mat *slice = mat_create(f_size, f_size);
 
   if (!result)
@@ -63,7 +55,7 @@ static Mat *convolve(Tensor3D *input, Filter *filter) {
       for (size_t k = 0; k < filter->shape->depth; k++) {
         if (!mat_slice(slice, &input->maps[k],i, j, f_size,f_size))
           goto fail;
-
+;
         if (mat_dot(slice, &filter->shape->maps[k], &dot_result)) 
           goto fail; // just panic
         
@@ -80,10 +72,35 @@ fail:
     mat_destroy(slice);
     slice = nullptr;
   }
-
   return nullptr;
 }
   
-Tensor3D get_activation_maps(Convolution_Layer *layer, Tensor3D input) {
+Tensor3D *get_activation_maps(Convolution_Layer *layer, Tensor3D *input) {
 
+  size_t f_size = layer->filters[0].shape->size;
+  size_t f_stride = layer->filters[0].stride;
+  size_t f_depth = layer->filters[0].shape->depth;
+  size_t res_rows = (input->size - f_size) / f_stride + 1;
+
+  if (input->depth != f_depth)
+    return nullptr; 
+
+  // the output size is calculated as (N - F) / stride + 1
+  // where (N - F) / stride must be whole
+  if ((input->size - f_size) % f_stride != 0)
+    return nullptr;
+
+  Tensor3D *act_map = tensor_new(res_rows, layer->n_filters);
+  if (!act_map)
+    return nullptr;
+
+  for (size_t i = 0; i < layer->n_filters; i++) 
+    if(!convolve(input, &layer->filters[i], &act_map->maps[i]))
+      goto fail;
+
+  return act_map;
+
+fail:
+  tensor_destroy(act_map);
+  return nullptr;
 }
