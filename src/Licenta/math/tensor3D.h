@@ -3,8 +3,8 @@
 #include "Mat.h"
 #include "activation.h"
 
-#ifndef TENSOR3D_H
-#define TENSOR3D_H
+#ifndef MATH_TENSOR3D_H
+#define MATH_TENSOR3D_H
 
 typedef struct Tensor3D Tensor3D;
 
@@ -41,4 +41,4 @@ void tensor_destroy(Tensor3D *t);
 
 void activate_tensor(Tensor3D *tensor, ACT_FUNC activation);
 
-#endif // TENSOR3D_H
+#endif // MATH_TENSOR3D_H
