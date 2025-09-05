@@ -1,11 +1,18 @@
 #include "Mat.h"
 #include <__stddef_unreachable.h>
+#include <stdio.h>
 
-[[deprecated("Implementation")]]
-[[reproducible]]
+struct Mat {
+ size_t rows;
+ size_t cols;
+ size_t stride;
+ int_fast8_t owns_data;
+ double *es;
+};
+
 [[nodiscard]]
-static inline double *mat_at(
-    const Mat m[static const restrict 1],
+double *mat_at(
+    const Mat *m,
     size_t row,
     size_t col
 ) {
@@ -18,7 +25,6 @@ static inline double *mat_at(
   return (m->es + row * m->stride + col); 
 }
 
-[[deprecated("Implementation")]]
 Mat *mat_init(Mat *m, size_t rows, size_t cols) {
   if (!m)
     return nullptr;
@@ -44,22 +50,57 @@ Mat *mat_init(Mat *m, size_t rows, size_t cols) {
   return m;
 }
 
-[[deprecated("Implementation")]]
 void mat_deinit(Mat m[static 1]) {
+  if (!m)
+    return;
   MAT_FREE(m->es);
   *m = (Mat) {};
 }
 
-[[deprecated("Implementation")]]
-void mat_fill(Mat m[static 1], double value) {
+Mat *mat_create(size_t rows, size_t cols) {
+  return mat_init(malloc(sizeof(struct Mat)), rows, cols);
+}
+
+void mat_destroy(Mat *m) {
+  if (m && m->owns_data)
+    MAT_FREE(m->es);
+
+  MAT_FREE(m);
+}
+
+[[nodiscard]]
+Mat *mat_vcreate(size_t length, size_t m_size) {
+  if (!length || !m_size)
+    return nullptr;
+  
+  Mat *m = MAT_MALLOC(sizeof(Mat) * length);
+  if (!m)
+    return nullptr;
+
+  for (size_t i = 0; i < length; i++)
+    if (!mat_init(&m[i], m_size, m_size))
+      goto fail;
+
+  return m;
+
+fail:
+  for (size_t i = 0; i < length; i++) {
+    if (!m[i].rows)
+      break;
+    mat_deinit(&m[i]);
+  }
+
+  return nullptr;
+}
+
+void mat_fill(Mat *m, double value) {
   if (m->owns_data)
     memcpy(m->es, &value, sizeof(double) * m->rows * m->cols);
 }
 
-[[deprecated("Implementation")]]
 Mat *mat_slice(
-    Mat out[static 1],
-    const Mat m[static const 1],
+    Mat *out,
+    const Mat *m,
     size_t row,
     size_t col,
     size_t nrows,
@@ -87,8 +128,7 @@ Mat *mat_slice(
   return out;
 }
 
-[[deprecated("Implementation")]]
-Mat *mat_row(Mat out[static 1], const Mat m[static const 1], size_t row) {
+Mat *mat_row(Mat *out, const Mat *m, size_t row) {
   if (row >= m->rows)
     return nullptr;
 
@@ -109,8 +149,7 @@ Mat *mat_row(Mat out[static 1], const Mat m[static const 1], size_t row) {
   return out;
 }
 
-[[deprecated("Implementation")]]
-Mat *mat_col(Mat out[static 1], const Mat m[static const 1], size_t col) {
+Mat *mat_col(Mat *out, const Mat *m, size_t col) {
   if (!m) return nullptr;
 
   if (!m->cols || !m->rows) unreachable();
@@ -130,8 +169,7 @@ Mat *mat_col(Mat out[static 1], const Mat m[static const 1], size_t col) {
   return out;
 }
 
-[[deprecated("Implementation")]]
-void mat_print(const Mat m[static const restrict 1]) {
+void mat_print(const Mat * const restrict m) {
   if (!m)
     return;
 
@@ -169,11 +207,10 @@ void mat_print(const Mat m[static const restrict 1]) {
   printf("\n");
 }
 
-[[deprecated("Implementation")]]
 Mat *mat_multiply(
-  Mat out[static 1],
-  const Mat left[static const 1],
-  const Mat right[static const 1]
+  Mat *out,
+  const Mat *left,
+  const Mat *right
 ) {
   if (!left || !right || !out)
     return nullptr;
@@ -197,7 +234,6 @@ Mat *mat_multiply(
   return out;
 }
 
-[[deprecated("Implementation")]]
 void mat_scalar(Mat *m, float value) {
   if (!m)
     return;
@@ -208,7 +244,6 @@ void mat_scalar(Mat *m, float value) {
   }
 }
 
-[[deprecated("Implementation")]]
 int mat_sum(Mat *dst, const Mat *a) {
   if (!dst || !a)
     return -1;
@@ -226,7 +261,6 @@ int mat_sum(Mat *dst, const Mat *a) {
   return 0;
 }
 
-[[deprecated("Implementation")]]
 int mat_dot(const Mat *left, const Mat *right, double *result) {
   if (!left || !right || !result)
     return -1;

@@ -6,7 +6,6 @@
 #include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <time.h>
 
@@ -19,14 +18,6 @@
 #endif // MAT_FREE
 
 typedef struct Mat Mat;
-
-struct Mat {
- [[deprecated("Private")]] size_t rows;
- [[deprecated("Private")]] size_t cols;
- [[deprecated("Private")]] size_t stride;
- [[deprecated("Private")]] int_fast8_t owns_data;
- [[deprecated("Private")]] double *es;
-};
 
 /**
  * Initialize a matrix 
@@ -53,7 +44,14 @@ Mat *mat_init(Mat *m, size_t rows, size_t cols);
  *
  * @param m Pointer to a Mat structure to deinitialize.
  */
-void mat_deinit(Mat m[static 1]);
+void mat_deinit(Mat *m);
+
+[[nodiscard]]
+double *mat_at(
+    const Mat *m,
+    size_t row,
+    size_t col
+); 
 
 /**
  * Create a new matrix 
@@ -66,11 +64,8 @@ void mat_deinit(Mat m[static 1]);
  * @return Pointer to the created matrix or nullptr on failure
  */
 
-[[deprecated("Implementation")]]
 [[nodiscard]]
-static inline Mat *mat_create(size_t rows, size_t cols) {
-  return mat_init(malloc(sizeof(struct Mat)), rows, cols);
-}
+Mat *mat_create(size_t rows, size_t cols); 
 
 /**
  * Destroy a matrix 
@@ -81,13 +76,7 @@ static inline Mat *mat_create(size_t rows, size_t cols) {
  * @param m Pointer to the matrix to destroy
  */
 
-[[deprecated("Implementation")]]
-static inline void mat_destroy(Mat *m) {
-  if (m && m->owns_data)
-    MAT_FREE(m->es);
-
-  MAT_FREE(m);
-}
+void mat_destroy(Mat *m);
 
 /**
  * Create a new array of matrixes
@@ -99,31 +88,8 @@ static inline void mat_destroy(Mat *m) {
  * @param cols Number of columns
  * @return Pointer to the created matrix or nullptr on failure
  */
-[[deprecated("Implementation")]]
 [[nodiscard]]
-static inline Mat *mat_vcreate(size_t length, size_t m_size) {
-  if (!length || !m_size)
-    return nullptr;
-  
-  Mat *m = MAT_MALLOC(sizeof(Mat) * length);
-  if (!m)
-    return nullptr;
-
-  for (size_t i = 0; i < length; i++)
-    if (!mat_init(&m[i], m_size, m_size))
-      goto fail;
-
-  return m;
-
-fail:
-  for (size_t i = 0; i < length; i++) {
-    if (!m[i].rows)
-      break;
-    mat_deinit(&m[i]);
-  }
-
-  return nullptr;
-}
+Mat *mat_vcreate(size_t length, size_t m_size);
 
 /**
  * Fill a matrix 
@@ -132,7 +98,7 @@ fail:
  * @param m Matrix to fill
  * @param value Value to fill the matrix with
  */
-void mat_fill(Mat m[static restrict 1], double value);
+void mat_fill(Mat *m, double value);
 
  /**
  * Create a submatrix (slice) of @p m and store it in @p out.
@@ -164,8 +130,8 @@ void mat_fill(Mat m[static restrict 1], double value);
  * @return       Pointer to the slice object, or NULL on failure.
  */
 Mat *mat_slice(
-    Mat out[static 1],
-    const Mat m[static const 1],
+    Mat *out,
+    const Mat *m,
     size_t row,
     size_t col,
     size_t nrows,
@@ -193,7 +159,7 @@ Mat *mat_slice(
  * @param row Row index to extract.
  * @return    Pointer to the row view object, or NULL on failure.
  */
-Mat *mat_row(Mat out[static 1], const Mat src[static const 1], size_t row);
+Mat *mat_row(Mat *out, const Mat *src, size_t row);
 
 /**
  * Create a view representing a single column from @p src and store it in @p out.
@@ -217,14 +183,15 @@ Mat *mat_row(Mat out[static 1], const Mat src[static const 1], size_t row);
  * @param col Column index to extract.
  * @return    Pointer to the column view object, or NULL on failure.
  */
-Mat *mat_col(Mat out[static 1], const Mat src[static const 1], size_t col);
+
+Mat *mat_col(Mat *out, const Mat *m, size_t col); 
 
 /**
  * @brief Print a matrix with a given name
  * @param m Matrix to print
  * @param name Name to display before the matrix
  */
-void mat_print(const Mat m[static const restrict 1]);
+void mat_print(const Mat * const restrict m);
 
 /**
  * Multiply matrix @p left by matrix @p right and store the result in @p left.
@@ -249,9 +216,9 @@ void mat_print(const Mat m[static const restrict 1]);
  */
 
 Mat *mat_multiply(
-  Mat out[static 1],
-  const Mat left[static const 1],
-  const Mat right[static const 1]
+  Mat *out,
+  const Mat *left,
+  const Mat *right
 );
 
 /**
