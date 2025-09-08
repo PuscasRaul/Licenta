@@ -38,7 +38,6 @@ void conv_deinit(Convolution_Layer *cl) {
 
 [[nodiscard]]
 static Mat *convolve(Tensor3D *input, Filter *filter, Mat *result) {
-
   size_t f_size = filter->shape->size;
   size_t res_rows = (input->size - f_size) / filter->stride + 1;
   size_t res_cols = (input->size - f_size) / filter->stride + 1;
