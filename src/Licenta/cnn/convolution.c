@@ -30,6 +30,8 @@ void conv_deinit(Convolution_Layer *cl) {
   if (!cl)
     return;
 
+  filter_vdestroy(cl->n_filters, cl->filters);
+
   free(cl->filters);
   *cl = (Convolution_Layer) {};
 }
@@ -76,7 +78,6 @@ fail:
 }
   
 Tensor3D *get_activation_maps(Convolution_Layer *layer, Tensor3D *input) {
-
   size_t f_size = layer->filters[0].shape->size;
   size_t f_stride = layer->filters[0].stride;
   size_t f_depth = layer->filters[0].shape->depth;
@@ -102,5 +103,6 @@ Tensor3D *get_activation_maps(Convolution_Layer *layer, Tensor3D *input) {
 
 fail:
   tensor_destroy(act_map);
+  act_map = nullptr;
   return nullptr;
 }
