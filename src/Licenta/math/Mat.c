@@ -270,6 +270,7 @@ int mat_dot(const Mat *left, const Mat *right, double *result) {
   if (left->cols != right->cols || left->rows != right->rows)
     return -1;
 
+  *result = 0;
   for (size_t i = 0; i < left->rows; i++) 
     for (size_t k = 0; k < left->cols; k++) 
       for (size_t j = 0; j < right->cols; j++) 
