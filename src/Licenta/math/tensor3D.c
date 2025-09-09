@@ -49,20 +49,22 @@ void activate_tensor(Tensor3D *tensor, ACT_FUNC activation) {
   switch (activation) {
     case ACT_RELU:
       for (size_t k = 0; k < tensor->depth; k++) {
+        size_t stride = tensor->maps[k].stride;
         for (size_t i = 0; i < tensor->size; i++) {
           for (size_t j = 0; j < tensor->size; j++) {
-            float val = *(mat_at(&tensor->maps[k], i, j));
-            *(mat_at(&tensor->maps[k], i, j)) = relu(val);
+            float val = tensor->maps[k].es[i * stride + j];
+            tensor->maps[k].es[i * stride + j] = relu(val);
           }
         }
       }
       break;
     case ACT_SIG:
       for (size_t k = 0; k < tensor->depth; k++) {
+        size_t stride = tensor->maps[k].stride;
         for (size_t i = 0; i < tensor->size; i++) {
           for (size_t j = 0; j < tensor->size; j++) {
-            float val = *(mat_at(&tensor->maps[k], i, j));
-            *(mat_at(&tensor->maps[k], i, j)) = sigmoid(val);
+            float val = tensor->maps[k].es[i * stride + j];
+            tensor->maps[k].es[i * stride + j] = sigmoid(val);
           }
         }
       }

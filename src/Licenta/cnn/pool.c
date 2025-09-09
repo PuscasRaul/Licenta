@@ -1,5 +1,33 @@
 #include "pool.h"
 
+Pool_Layer *pool_init(
+    Pool_Layer *pl,
+    size_t filter_size,
+    size_t f_stride,
+    POOLING_TYPES type
+    ) {
+  if (!pl)
+    return nullptr;
+
+  *pl = (Pool_Layer) {
+    .f_stride = f_stride, 
+    .filter_size = filter_size,
+    .type = type
+  };
+   
+  return pl;
+}
+
+void pool_deinit(Pool_Layer *pl) {
+  if (pl) 
+    *pl = (Pool_Layer) {};
+}
+
+Tensor3D *downsample(Tensor3D *input, Pool_Layer *pl) {
+
+}
+
+/*
 Tensor3D *downsample(Tensor3D *input, Pool_Layer *layer) {
   assert((input->size - input->size) % layer->stride != 0);
 
@@ -45,3 +73,4 @@ Tensor3D *downsample(Tensor3D *input, Pool_Layer *layer) {
       }
   return result;
 }
+*/

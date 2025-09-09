@@ -2,7 +2,9 @@
 #include <__stddef_unreachable.h>
 #include <stdio.h>
 
-// unsafe method, meant to be used only inside the library
+/* USE INSTEAD OF mat_at for performance reasons
+ * inside the library
+ */
 #define MAT_AT(m, i, j) (m)->es[(i) * (m)->stride + (j)]
 
 [[nodiscard]]

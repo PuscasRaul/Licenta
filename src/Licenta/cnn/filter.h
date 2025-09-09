@@ -12,6 +12,7 @@ typedef struct {
 [[nodiscard]]
 Filter *filter_init(Filter *f, size_t stride, size_t depth, size_t dims); 
 void filter_deinit(Filter *f);
+
 [[nodiscard]]
 Filter *filter_vnew(size_t length, size_t size, size_t stride, size_t depth); 
 void filter_vdestroy(size_t length, Filter vf[static length]);
@@ -20,7 +21,6 @@ void filter_vdestroy(size_t length, Filter vf[static length]);
 static inline Filter *filter_new(size_t stride, size_t depth, size_t dims) {
   return filter_init(malloc(sizeof(Filter)), stride, depth, dims);
 }
-
 static inline void filter_destroy(Filter *f) {
   if (f) {
     filter_deinit(f);

@@ -54,6 +54,7 @@ static Mat *convolve(Tensor3D *input, Filter *filter, Mat *result) {
   // go over rows x cols, and inside over depth
 
   for (size_t k = 0; k < filter->shape->depth; k++) {
+    out_row = 0;
     for (size_t i = 0; i < res_rows; i += filter->stride) {
       out_col = 0;
       for (size_t j = 0; j < res_cols; j += filter->stride) {
@@ -101,7 +102,10 @@ Tensor3D *get_activation_maps(Convolution_Layer *layer, Tensor3D *input) {
   for (size_t i = 0; i < layer->n_filters; i++) 
     if(!convolve(input, &layer->filters[i], &act_map->maps[i]))
       goto fail;
-
+  
+  // problem: might be a performance bottle neck, lots of nested loops
+  // redone and redone, if needed, activate the value in the convolve function
+  activate_tensor(act_map, layer->activation);
   return act_map;
 
 fail:
