@@ -2,6 +2,9 @@
 #include <__stddef_unreachable.h>
 #include <stdio.h>
 
+// unsafe method, meant to be used only inside the library
+#define MAT_AT(m, i, j) (m)->es[(i) * (m)->stride + (j)]
+
 [[nodiscard]]
 double *mat_at(
     const Mat *m,
@@ -126,7 +129,7 @@ Mat *mat_slice(
   out->rows = nrows;
   out->stride = m->stride;
   out->owns_data = 0;
-  out->es = mat_at(m, row, col);
+  out->es = m->es + row * m->stride + col;
   return out;
 }
 
@@ -146,7 +149,7 @@ Mat *mat_row(Mat *out, const Mat *m, size_t row) {
   out->stride = m->stride;
   out->rows = 1;
   out->cols = m->cols;
-  out->es = mat_at(m, row, 0);
+  out->es = m->es + (row * m->stride);
 
   return out;
 }
@@ -166,7 +169,7 @@ Mat *mat_col(Mat *out, const Mat *m, size_t col) {
   out->stride = m->stride;
   out->rows = m->rows;
   out->cols = 1;
-  out->es = mat_at(m, 0, col);
+  out->es = m->es + col;
 
   return out;
 }
@@ -201,7 +204,7 @@ void mat_print(const Mat * const restrict m) {
     printf("[%2zu] ", i);
 
     for (size_t j = 0; j < m->cols; j++) {
-      double val = *mat_at(m, i, j);
+      double val = MAT_AT(m, i, j);
       printf("%f ", val);
     }
     printf("\n");
@@ -209,6 +212,8 @@ void mat_print(const Mat * const restrict m) {
   printf("\n");
 }
 
+// TODO: since no access to simd, maybe move this to a batch-oriented
+// matrix multiplication
 Mat *mat_multiply(
   Mat *out,
   const Mat *left,
@@ -230,7 +235,7 @@ Mat *mat_multiply(
   for (size_t i = 0; i < left->rows; i++) {
     for (size_t k = 0; k < left->cols; k++) 
       for (size_t j = 0; j < right->cols; j++) 
-        *(mat_at(out, i, j)) += *(mat_at(left, i, k)) * *(mat_at(right, k, j));
+        MAT_AT(out, i, j) += MAT_AT(left, i, k) * MAT_AT(right, k, j);
   }
 
   return out;
@@ -242,7 +247,7 @@ void mat_scalar(Mat *m, float value) {
 
   for (size_t i = 0; i < m->rows; i++) {
     for (size_t j = 0; j < m->cols; j++) 
-      *(mat_at(m, i, j)) *= value;
+      MAT_AT(m, i, j) *= value;
   }
 }
 
@@ -258,7 +263,7 @@ int mat_sum(Mat *dst, const Mat *a) {
 
   for (size_t i = 0; i < dst->rows; i++) {
     for (size_t j = 0; j < dst->cols; j++)
-      *(mat_at(dst, i, j)) += *(mat_at(a, i, j));
+      dst->es[i * dst->stride + j] += a->es[i * a->stride + j];
   }
   return 0;
 }
@@ -274,7 +279,7 @@ int mat_dot(const Mat *left, const Mat *right, double *result) {
   for (size_t i = 0; i < left->rows; i++) 
     for (size_t k = 0; k < left->cols; k++) 
       for (size_t j = 0; j < right->cols; j++) 
-        *result += *(mat_at(left, i, k)) * *(mat_at(right, k, j)); 
+        *result += MAT_AT(left, i, k) * MAT_AT(right, k, j); 
     
   return 0;
 }
