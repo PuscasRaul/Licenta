@@ -52,17 +52,18 @@ static Mat *convolve(Tensor3D *input, Filter *filter, Mat *result) {
     goto fail;
 
   // go over rows x cols, and inside over depth
-  for (size_t i = 0; i < res_rows; i += filter->stride) {
-    out_col = 0;
-    for (size_t j = 0; j < res_cols; j += filter->stride) {
-      for (size_t k = 0; k < filter->shape->depth; k++) {
+
+  for (size_t k = 0; k < filter->shape->depth; k++) {
+    for (size_t i = 0; i < res_rows; i += filter->stride) {
+      out_col = 0;
+      for (size_t j = 0; j < res_cols; j += filter->stride) {
         if (!mat_slice(slice, &input->maps[k],i, j, f_size,f_size))
           goto fail;
 
         dot_result = 0;
         if (mat_dot(slice, &filter->shape->maps[k], &dot_result)) 
           goto fail; // just panic
-        
+
         *(mat_at(result, out_row, out_col)) += dot_result;
       }
       ++out_col;
