@@ -94,8 +94,10 @@ void mat_vdestroy(size_t length, Mat vmat[static length]) {
 }
 
 void mat_fill(Mat *m, double value) {
-  if (m->owns_data)
-    memcpy(m->es, &value, sizeof(double) * m->rows * m->cols);
+  if (!m || !m->es) return;
+  for (size_t i = 0; i < m->rows * m->cols; i++) {
+    m->es[i] = value;
+  }
 }
 
 Mat *mat_slice(
@@ -226,8 +228,8 @@ Mat *mat_multiply(
 
   mat_fill(out, 0.0);
   for (size_t i = 0; i < left->rows; i++) {
-    for (size_t j = 0; j < right->cols; j++) 
-      for (size_t k = 0; k < left->cols; k++) 
+    for (size_t k = 0; k < left->cols; k++) 
+      for (size_t j = 0; j < right->cols; j++) 
         *(mat_at(out, i, j)) += *(mat_at(left, i, k)) * *(mat_at(right, k, j));
   }
 
@@ -265,16 +267,13 @@ int mat_dot(const Mat *left, const Mat *right, double *result) {
   if (!left || !right || !result)
     return -1;
 
-  if (left->cols != right->rows)
+  if (left->cols != right->cols || left->rows != right->rows)
     return -1;
 
-  for (size_t i = 0; i < left->rows; i++) {
-    for (size_t j = 0; j < right->cols; j++) {
-      for (size_t k = 0; k < left->cols; k++) {
+  for (size_t i = 0; i < left->rows; i++) 
+    for (size_t k = 0; k < left->cols; k++) 
+      for (size_t j = 0; j < right->cols; j++) 
         *result += *(mat_at(left, i, j)) * *(mat_at(right, i, j)); 
-      }
-    }
-  }
-
+    
   return 0;
 }
