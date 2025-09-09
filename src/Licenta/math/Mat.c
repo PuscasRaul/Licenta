@@ -273,7 +273,7 @@ int mat_dot(const Mat *left, const Mat *right, double *result) {
   for (size_t i = 0; i < left->rows; i++) 
     for (size_t k = 0; k < left->cols; k++) 
       for (size_t j = 0; j < right->cols; j++) 
-        *result += *(mat_at(left, i, j)) * *(mat_at(right, i, j)); 
+        *result += *(mat_at(left, i, k)) * *(mat_at(right, k, j)); 
     
   return 0;
 }
