@@ -12,7 +12,7 @@ Filter *filter_init(
 
   *f = (Filter) {
     .stride = stride,
-      .shape = tensor_new(dims, depth)
+    .shape = tensor_new(dims, depth)
   };
 
   if (!f->shape)
@@ -44,18 +44,14 @@ Filter *filter_vnew(
     return nullptr;
 
   for (size_t i = 0; i < length; i++)
-    if (!filter_init(&f[i], stride, depth, size))
-      goto fail;
+    if (!filter_init(&f[i], stride, depth, size)) {
+      for (size_t j = 0; j < i; ++j) 
+        filter_deinit(&f[j]);
+      free(f);
+      return nullptr;
+    }
 
   return f;
-
-fail:
-  for (size_t i = 0; i < length; i++) { 
-    if (!f[i].stride)
-      break;
-    filter_deinit(&f[i]);
-  }
-  return nullptr;
 }
 
 void filter_vdestroy(size_t length, Filter vf[static length]) {
