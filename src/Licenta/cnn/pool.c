@@ -24,7 +24,61 @@ void pool_deinit(Pool_Layer *pl) {
 }
 
 Tensor3D *downsample(Tensor3D *input, Pool_Layer *pl) {
+  size_t stride = pl->f_stride;
+  size_t f_size = pl->filter_size;
+  size_t dims = (input->size - f_size + 1) / stride;
+  size_t depth = input->depth;
+  size_t out_row = 0, out_col = 0;
+  Tensor3D *result = tensor_new(dims, input->depth);
+  if (!result)
+    return nullptr;
 
+  switch (pl->type) {
+    case (MAX_POOL):
+      double max = -1;
+      for (size_t k = 0; k < depth; k++) {
+        Mat current = input->maps[k];
+        out_row = 0;
+        for (size_t ih = 0; ih + stride - 1 < dims; ih += stride) {
+          out_col = 0;
+          for (size_t jh = 0; jh + stride - 1 < dims; jh += stride) {
+            max = -1;
+            for (size_t il = 0; il < stride; il++) {
+              for (size_t jl = 0; jl < stride; jl++) {
+                double elem = 
+                  current.es[(ih + il) * current.stride + (jl + jh)];
+                if (elem > max)
+                  max = elem;
+              }
+            }
+            result->maps[k].es[out_row * result->maps[k].stride + out_col] = max;
+          }
+        }
+      }
+      return result;
+      break;
+    case (AVG_POOL):
+      double avg = 0.0f;
+      for (size_t k = 0; k < depth; k++) {
+        Mat current = input->maps[k];
+        out_row = 0;
+        for (size_t ih = 0; ih + stride - 1 < dims; ih += stride) {
+          out_col = 0;
+          for (size_t jh = 0; jh + stride - 1 < dims; jh += stride) {
+            avg = 0.0f;
+            for (size_t il = 0; il < stride; il++) 
+              for (size_t jl = 0; jl < stride; jl++) 
+                avg += current.es[(ih + il) * current.stride + (jl + jh)];
+            result->maps[k].es[out_row * result->maps[k].stride + out_col] = 
+              avg / (stride * stride); // (stride * stride) because of square fiters, so it's stride squared elements
+          }
+        }
+      }
+      return result;
+      break;
+    default:
+      unreachable();
+  }
 }
 
 /*
