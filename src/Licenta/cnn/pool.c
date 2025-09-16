@@ -1,4 +1,5 @@
 #include "pool.h"
+#include <math.h>
 
 Pool_Layer *pool_init(
     Pool_Layer *pl,
@@ -23,10 +24,12 @@ void pool_deinit(Pool_Layer *pl) {
     *pl = (Pool_Layer) {};
 }
 
+/* TODO: most probably will be a bottle neck, optimize for better caching later
+ */
 Tensor3D *downsample(Tensor3D *input, Pool_Layer *pl) {
   size_t stride = pl->f_stride;
   size_t f_size = pl->filter_size;
-  size_t dims = (input->size - f_size + 1) / stride;
+  size_t dims = (input->size - f_size) / stride + 1;
   size_t depth = input->depth;
   size_t out_row = 0, out_col = 0;
   Tensor3D *result = tensor_new(dims, input->depth);
@@ -39,12 +42,12 @@ Tensor3D *downsample(Tensor3D *input, Pool_Layer *pl) {
       for (size_t k = 0; k < depth; k++) {
         Mat current = input->maps[k];
         out_row = 0;
-        for (size_t ih = 0; ih + stride - 1 < dims; ih += stride) {
+        for (size_t ih = 0; ih + stride - 1 < input->size; ih += stride) {
           out_col = 0;
-          for (size_t jh = 0; jh + stride - 1 < dims; jh += stride) {
-            max = -1;
-            for (size_t il = 0; il < stride; il++) {
-              for (size_t jl = 0; jl < stride; jl++) {
+          for (size_t jh = 0; jh + stride - 1 < input->size; jh += stride) {
+            max = -INFINITY;
+            for (size_t il = 0; il < f_size; il++) {
+              for (size_t jl = 0; jl < f_size; jl++) {
                 double elem = 
                   current.es[(ih + il) * current.stride + (jl + jh)];
                 if (elem > max)
@@ -53,7 +56,9 @@ Tensor3D *downsample(Tensor3D *input, Pool_Layer *pl) {
             }
             result->maps[k].es[out_row * result->maps[k].stride + out_col] = max;
           }
+          ++out_col;
         }
+        ++out_row;
       }
       return result;
       break;
@@ -62,17 +67,19 @@ Tensor3D *downsample(Tensor3D *input, Pool_Layer *pl) {
       for (size_t k = 0; k < depth; k++) {
         Mat current = input->maps[k];
         out_row = 0;
-        for (size_t ih = 0; ih + stride - 1 < dims; ih += stride) {
+        for (size_t ih = 0; ih + stride - 1 < input->size; ih += stride) {
           out_col = 0;
-          for (size_t jh = 0; jh + stride - 1 < dims; jh += stride) {
+          for (size_t jh = 0; jh + stride - 1 < input->size; jh += stride) {
             avg = 0.0f;
-            for (size_t il = 0; il < stride; il++) 
-              for (size_t jl = 0; jl < stride; jl++) 
+            for (size_t il = 0; il < f_size; il++) 
+              for (size_t jl = 0; jl < f_size; jl++) 
                 avg += current.es[(ih + il) * current.stride + (jl + jh)];
             result->maps[k].es[out_row * result->maps[k].stride + out_col] = 
-              avg / (stride * stride); // (stride * stride) because of square fiters, so it's stride squared elements
+              avg / (f_size * f_size); // (stride * stride) because of square fiters, so it's stride squared elements
           }
+          ++out_col;
         }
+        ++out_row;
       }
       return result;
       break;

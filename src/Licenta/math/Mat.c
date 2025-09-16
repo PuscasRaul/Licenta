@@ -56,7 +56,14 @@ void mat_deinit(Mat m[static 1]) {
 }
 
 Mat *mat_create(size_t rows, size_t cols) {
-  return mat_init(malloc(sizeof(struct Mat)), rows, cols);
+  Mat *m = MAT_MALLOC(sizeof(struct Mat));
+  if (m) 
+    if (!mat_init(m,rows, cols)) {
+      MAT_FREE(m);
+      return nullptr;
+    }
+  
+  return m;
 }
 
 void mat_destroy(Mat *m) {
