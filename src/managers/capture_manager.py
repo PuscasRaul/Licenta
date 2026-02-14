@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 import cv2 as cv
-import threading
+import numpy as np
+
 
 class Frame(object):
-    def __init__(self, image_data, timestamp, metadata) -> None:
+    def __init__(
+            self,
+            image_data: np.array,
+            timestamp: float,
+            metadata: dict = None
+    ) -> None:
         self._image_data = image_data
         self._timestap = timestamp
         self._metadata = metadata
@@ -46,15 +52,13 @@ class CvCaptureManager(ICaptureManger):
         self._size = frame.shape[:2]
         self._video_capture.set(cv.CAP_PROP_BUFFERSIZE, 1)
 
-        '''
+    '''
+    def _reader(self):
         TODO: Check which solution is better for getting the latest frame
+        import threading
         self._lock = threading.Lock()
         self._read_thread = threading.Thread(target=self._reader)
         self._read_thread.daemon = True
-        '''
-
-    '''
-    def _reader(self):
         while (True):
             with self._lock:
                 ret = self._video_capture.grab()
@@ -72,6 +76,7 @@ class CvCaptureManager(ICaptureManger):
         with self._lock:
             _, frame = self._video_capture.retrieve()
         success, frame = self._video_capture.read()
+        frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
         metadata = ""  # should be a dictionary containing all important info
         return Frame(
             frame,
@@ -79,4 +84,4 @@ class CvCaptureManager(ICaptureManger):
             metadata)
 
     def stop(self) -> None:
-        pass
+        self._video_capture.release()
