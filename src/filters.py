@@ -3,6 +3,7 @@ import numpy as np
 
 
 class ProcessingFunctions():
+
     @staticmethod
     def binary_array(array: np.array, thresh, value=0) -> np.array:
         '''
@@ -55,7 +56,6 @@ class ProcessingFunctions():
         :return: 2D binarized array after VEDA has been applied
         '''
 
-        # TODO: Finish this function tomorrow
         veda_array = np.zeros_like(array)
         it = np.nditer(array, flags=['multi_index'])
         for coord in it:
@@ -90,3 +90,25 @@ class ProcessingFunctions():
                 veda_array[coord[0]][coord[1]+1] = 255
 
         return veda_array
+
+    @staticmethod
+    def integral_image(array: np.array) -> np.array:
+        '''
+        integral image is an algorithm for generating the sum of
+        values in a rectangular subset of a grid quickly and efficiently
+        :param array: Binarized 2D array, after VEDA or Sobel applied
+        :param value_array: Output array of same shape as array
+        :return :2D array
+        TODO: Find a better documentation
+        '''
+        return array.cumsum(axis=0).cumsum(axis=1)
+
+    @staticmethod
+    def skip_quantity(array: np.array) -> None:
+        '''
+        skip quantity is the skip number from white pixel to black pixel or
+        from black pixel to white pixel in the rectangl
+        :param array: binarized array after Sobel/VEDA has been applied
+        :return :Not yet defined
+        '''
+        return
