@@ -1,0 +1,40 @@
+\begin{thebibliography}{RRT15}
+
+\bibitem[Har93]{mastersthesis1993}
+Peter Harwood.
+\newblock The title of the work.
+\newblock Master's thesis, The school of the thesis, The address of the
+  publisher, 7 1993.
+\newblock An optional note.
+
+\bibitem[Jos93]{phdthesis1993}
+Peter Joslin.
+\newblock {\em The title of the work}.
+\newblock PhD thesis, The school of the thesis, The address of the publisher, 7
+  1993.
+\newblock An optional note.
+
+\bibitem[{Min}]{kinaSUR}
+{Ministry for Primary Industries}.
+\newblock {Kina sea urchin regions in NZ}.
+\newblock \url{http://fs.fish.govt.nz/Page.aspx?pk=7\&sc=SUR}.
+\newblock Online; accessed 29 January 2014.
+
+\bibitem[RB12]{Narayan2012}
+Narayan Ramasubbu and Rajesh~Krishna Balan.
+\newblock Overcoming the challenges in cost estimation for distributed software
+  projects.
+\newblock In {\em Proceedings of the 34th International Conference on Software
+  Engineering}, ICSE '12, page 91–101. IEEE Press, 2012.
+
+\bibitem[RRT15]{Robbes2015}
+Romain Pierre~Julien Robbes, D~Röthlisberger, and É~Tanter.
+\newblock Object-oriented software extensions in practice.
+\newblock {\em Empirical Software Engineering}, 20(3), 2015.
+
+\bibitem[Som10]{Sommerville2010}
+Ian Sommerville.
+\newblock {\em Software Engineering}.
+\newblock Addison-Wesley Publishing Company, USA, 9th edition, 2010.
+
+\end{thebibliography}
