@@ -2,5 +2,32 @@
 
 %\chapter*{Introducere}
 \label{intro}
-
-\par Introducere: obiectivele lucrării și descrierea succintă a capitolelor, prezentarea temei, prezentarea contribuției proprii, respectiv a rezultatelor originale și menționarea (dacă este cazul) a sesiunii de comunicări unde a fost prezentată sau a revistei unde a fost publicată.
+\paragraph{}
+Datorită numărului din ce în ce mai crescut de autoturisme puse în circulație anual, crearea și dezvoltarea unui sistem de recunoaștere automată a numerelor de înmatriculare, a identificatorului unic atașat fiecărui vehicul este cu atât mai mare. Un astfel de sistem este are aplicații în securizarea parcărilor, blocarea accessului în interiorul zonelor protejate de lege și monitorizarea traficului. Un exemplu concret ar fi localizarea unui autoturism pierdut. Fără ajutorul unui sistem automat, pentru a reuși această misiune ar fi necesară intervenția și colaborarea a unui număr ridicat de persoane, care în ciuda efortului lor ar putea produce un rezultat eronat datorită faptului că este pur și simplu dificil să citim și să reținem numărul de înmatriculare al unui vehicul aflat în mișcare.
+\paragraph{}
+Sistemele de recunoaștere automată a numărului de înmatriculare (ALPR) sunt cunoscute și sub numele de: identificare automată a vehiculelor (AVI), recunoaștere optică a caracterelor (OCR) pentru autoturisme. Variația plăcuțelor și a mediului în care se face recunoașterea cauzează provocări procesului de detectare și identificare:
+\begin{enumerate}
+  \item{ Vaiații ale plăcuței }
+        \begin{itemize}
+          \item{ Locația: Plăcuțele pot apărea în diferite segmente ale imaginii }
+          \item{ Cantitatea: O imagine poate conține mai multe plăcuțe }
+          \item{ Mărimea: Plăcuțele pot avea mărimi diferite datorită diferitelor formate, dar și a distanței față de cameră }
+          \item{ Culoarea: Numerele de înmatriculare din diferite țări pot fi scrise pe diferite culori }
+          \item{ Fontul: Numerele de înmatriculare din diferite țări pot fi scrise folosind diferite fonturi }
+          \item{ Obscuare: Plăcuțele pot fi murdare }
+        \end{itemize}
+  \item{ Mediul înconjurător }
+        \begin{itemize}
+            \item{ Luminozitate: Cadrele capturate pot varia în nivelul de luminozitate în mare parte datorită luminii din mediul înconjurător și a celei de la faruri }
+            \item { Fundalul: Fundalul imaginii poate conține tipare similare cu cele găsite pe numărul de înmatriculare }
+        \end{itemize}
+    \end{enumerate}
+\paragraph{}
+Sistemele ALPR care extract un număr de înmatriculare dintr-o imagine pot fi compuse din 4 etape.
+\begin{itemize}
+    \item{Prima etapă constă în capturarea unei imagini calitative a autoturismului. Calitatea unui cadru este influențată în mare măsură de tipul camerei și capabilitătile maxime ale acesteia (ISO, timp de expunere, diafragma maximă) dar și de setările aplicate de către utilizator.}
+    \item{A doua etapă reprezintă localizarea plăcuței pe baza unui set de caracteristici predefinit: culoare, existența caracterelor, granița acesteia cu vehiculul.
+    \b{TODO Mai în detaliu despre metoda aleasă de mine: existența caracterelor}}
+    \item{Cea de a treia etapă reprezintă segmentarea plăcuței și extragerea caracterelor prin proiectarea culorii acestora,  etichetarea lor sau compararea cu o matriță. \b{TODO Mai în detaliue despre ce fac eu INDECIS}}
+    \item{Ultimul pas îl reprezintă recunoașterea fiecărui caracter.}
+\end{itemize}
