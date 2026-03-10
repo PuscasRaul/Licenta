@@ -101,14 +101,51 @@ class ProcessingFunctions():
         :return :2D array
         TODO: Find a better documentation
         '''
-        return array.cumsum(axis=0).cumsum(axis=1)
+        it = np.nditer(array, flags=["multi_index"])
+        result = np.zeros_like(array)
+        for coord in it:
+            x = coord[0]
+            y = coord[1]
+            if x == 0:
+                sat = 0
+            else:
+                sat = result[x-1][y]
+            if y == 0:
+                s = 0
+            else:
+                s = result[x][y-1]
+            result[x][y] = sat + s + array[x][y]
+
+        return result
 
     @staticmethod
-    def skip_quantity(array: np.array) -> None:
+    def skip_quantity(array: np.array, image_width) -> np.array:
         '''
         skip quantity is the skip number from white pixel to black pixel or
         from black pixel to white pixel in the rectangl
         :param array: binarized array after Sobel/VEDA has been applied
         :return :Not yet defined
+
+        S(x, y) = S'(x + w/2, y) - S'(x - w/2, y)
+        S'(x, y) = S'(x - 1, y) + E(x-1, y)(x, y)
+
+        E(x-1, y)(x, y) = 1, BE(x-1, y) != BE(x, y)
+                          0, otherwise
         '''
-        return
+
+        image_half = image_width // 2
+        transitions = np.zeros_like(array)
+        transitions[1:, :] = (array[1:, :] != array[:-1, :]).astype(int)
+        s_prime = np.cumsum(transitions, axis=0)
+        rows, cols = array.shape
+        skipped_image = np.zeros_like(array)
+        idx_x = np.arange(rows)
+        idx_right = np.clip(idx_x + image_half, 0, rows - 1)
+        idx_left = np.clip(idx_x - image_half, 0, rows - 1)
+        skipped_image = s_prime[idx_right, :] - s_prime[idx_left, :]
+        return skipped_image
+
+    @staticmethod
+    def connected_component_analysis() -> np.array:
+
+        return None
