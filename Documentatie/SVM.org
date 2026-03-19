@@ -1,0 +1,158 @@
+#+title: SVM
+#+Author: Puscas Raul Andrei
+
+* TABLE OF CONTENTS :toc:
+- [[#the-learning-methodology][The learning methodology]]
+  - [[#supervised-learning][Supervised Learning]]
+  - [[#learning-and-generalisations][Learning and Generalisations]]
+- [[#linear-learning-machines][Linear Learning Machines]]
+  - [[#linear-classification][Linear Classification]]
+  - [[#theorems-and-definitions][Theorems and Definitions]]
+  - [[#fishers-discriminant][Fisher's discriminant]]
+  - [[#multi-class-discrimination][Multi-class discrimination]]
+  - [[#linear-regressions][Linear regressions]]
+- [[#learning-in-feature-space][Learning in Feature Space]]
+  - [[#different-approaches-to-feature-selection-exists][Different approaches to feature selection exists.]]
+  - [[#feature-selection-should-be-viewed-as-part-of-of-the-learning-process][Feature selection should be viewed as part of of the learning process.]]
+- [[#the-implicit-mapping-into-feature-space][The implicit Mapping into Feature Space]]
+
+* The learning methodology
+
+** Supervised Learning
+The approach of using examples to synthetise programs is knows as the learning methodology, and in the particular case when the examples are input/ output pairs it is known as supervised learning.
+The input/ output pairings typically reflect a functional relationship mapping the input to outputs, though this is not always the case as for examples when the input is altered by noise. When an underlying function from inputs to outputs exists, it is called the /target function/.
+There exists unsupervised training learning, where there are no output pairing existent in the training data.
+There are also other methods of learning which consider more complex interactions between a learner and their environment.
+
+Another type of variation is the way in which the training data is generated and how they are presented to the learner.
+There is a distinction between *batch learning* in which all the data is given to the learner at once and *on-line* learning in which the learner receives on example at a time, and gives their estimate of the output, before receiving the correct value.
+
+** Learning and Generalisations
+The ability of a hypothesis to correctly classify data not in the training set is known as generalization. Shifting the goal to generaliazation removes the need to know the underlying form of the hypothesis.
+
+* Linear Learning Machines
+
+** Linear Classification
+Binary classification is frequently performed by using a real-valued function
+        f : X ⊆ Rⁿ –> R
+In the following way:
+        The input x = (x₁, x₂, ..., xₙ) is assigned the positive class if f(x) ≥ 0, otherwise the negative class.
+We consider the case where f(x) is linear so it can be written as:
+        f(x) = ⟨ W • x ⟩ + b
+        f(x) = Σᵢⁿ wᵢxᵢ + b
+        Where (w, b) ϵ (Rⁿ× R) are paramteres that control the function.
+
+*THE PERCEPTRON ALGORITHM*
+#+begin_example PSEUDOCODE
+        w₀ <– 0, b₀ <– 0, k <– 0
+        R <– max({xᵢ | 1 ≤ i ≤ l}) ## l - the size of the training set
+        repeat
+                for i = 1 to l
+                        if yᵢ(⟨ wₖ, xᵢ ⟩ + bₖ) ≤ 0 then
+                                wₖ₊₁ <– wₖ + μyᵢxᵢ
+                                bₖ₊₁ <– bₖ + μyᵢR²
+                                k <- k + 1
+                        end if
+                end for
+        untill no mistakes are made inside the for loop
+        return (wₖ, bₖ) where k is the number of mistakes
+#+end_example
+
+** Theorems and Definitions
+
+*** Theorem 2.3 Novikoff
+Let S be a non-trivial training set, and let
+        R = max₁ˡ( ∥xᵤ∥ ), where ∥xᵤ∥ represents the *geometric norm*
+        ∥xᵤ∥ = √(x₁² + x₂² + ... + xₙ²)
+Suppose that there exists a vector ∥wₒₚₜ∥ = 1 and
+        yᵢ(⟨wₒₚₜ × xᵢ⟩ + bₒₚₜ) ≥ y
+Then the number of mistakes made by the perceptron is at most
+        S = (2R/y)²
+
+*** Definition 2.6
+Fix a value γ > 0, we can define the margin slack variable of an example (xᵢ, yᵢ) with respect to the hyperplane (w, b) and target margin γ as:
+        ξ((xᵢ, yᵢ) (w, b), γ) = ξᵢ = max(0,γ-γᵢ(⟨w × xᵢ⟩ + b))
+Informally, this quantity measures how much a point failed to have a margin of γ from the hyperplane. if ξᵢ > γ then xᵢ is missclassified by (w, b).
+The norm ∥ξ∥₂ measures the amount by which training fails to have margin γ.
+
+*** Theorem 2.7 (Freud and Schapire)
+Let S be a non-trivial training set with no duplicate examples. ∥xᵢ∥ ≤ R. Let (w, b) be any hyperplane with ∥w∥ = 1, let γ > 0.
+        D = √Σᵢˡ ξ² = √Σᵢˡ ξ((xᵢ, yᵢ), (w, b), γ)²
+Then the number of mistakes in the first execution of the for loop is:
+        ((2 × R + D)/γ)²
+
+*** Writing hypotheses in a dual-form
+It is important to note that the perceptron algorithm works by adding misclassified positive training examples or subtracting misclassified negative to an initial arbitrarily chosen weight vector. Without loss of generality, we have assumed that the initial weight vector is the *0* vector, and so the final hypothesis will be:
+        w = Σᵢᴸ αᵢγᵢxᵢ
+Where since the sign of the coefficient xᵢ is given by the classification γᵢ, the αᵢ are positive values proportional to the number of times misclassification
+of xᵢ has caused the weight to be updated.
+Points that have caused fewer mistakes will have a smaller αᵢ, whereas difficult ones will have a larger value. αᵢ is often called the embedding strength.
+
+Once sample S has been fixed, one can think of the α as alternative representation of the hypothesis in different/ dual coordinates.
+The decision function can be written as
+        h(x) = sgn(⟨w × x⟩ + b)
+             = sgn(⟨Σ₁ᴸ αⱼγⱼxⱼ × x⟩ + b)
+             = sgn(Σ₁ᴸ αⱼγⱼ⟨xⱼ × x⟩ + b)
+
+#+begin_example PSEUDOCDE
+        Given training set S
+        α <- 0, b <- 0
+        R <- max₁ᴸ ∥xᵢ∥
+        repeat
+                for i = 1 to L
+                    if γᵢ(Σ₁ᴸ αᵢγⱼ ⟨xⱼ × xᵢ⟩ ≤ 0) then
+                            αᵢ <- αⱼ + 1
+                            b <- b + γᵢ × R²
+                    end if
+                end for
+        untill no mistakes were made inside the for loop
+        return (α, b) to define function h(x)
+
+
+
+#+end_example
+
+Compared to the standard perceptron, where we maintain a vector w that gets updated everytime we make a mistake as  w = γᵢ × xᵢ + w. Which for a staring 0 vector just accumulates to a linear combination of the inputs.
+In the dual form, we no longer maintain the W, we maintain for each xᵢ how many times it was mistakenly calculated -> αᵢ.
+So, when we make a new prediction we have:
+        1. In the Classic Perceptron algorithm : ⟨ w * x ⟩ + b
+        2. In the dual form:  ⟨Σ₁ᴸ αⱼxⱼγⱼ × x⟩ + b. We compute the weight vector on the fly.
+Due to this dual form representation, we can easily swap the dot product with a Kernel-Function, or a different kind of function.
+
+** Fisher's discriminant
+The perceptron is guaranteed to converge only if the data are linearly separable. One procedure that does not suffer from this limitation is Fisher's discriminant, which is aimed at finding the hyperplane (w, b) on which the projection of the data is maximally separated.
+The cost function to be optimised is the following:
+        F = (m₁ - m₋₁)²/(σ₁² + σ²₋₁)
+        Where mᵢ and σᵢ are the mean and standard deviation of the function output values:
+        {⟨w × xⱼ⟩ + b : γⱼ = i}
+
+** Multi-class discrimination
+The problem of binary discrimination can also be solved by defining a vector wᵢ and bias bᵢ for each class. Each time a new instance has to be classified, both functions are evaluated, and then point is x is assigned to the class 1 if ⟨w₁ × x⟩ + b₁ ≥ ⟨w₋₁ × x⟩ + b₋₁, to class -1 otherwise.
+
+For a multi class classification problem, the output domain is Y = {1, 2, 3... n}, we associate a weight vector and a bias to each of the classes and
+for point x it gets assigned to max₁ᴸ(⟨x × wᵢ⟩ + b)
+
+** Linear regressions
+
+* Learning in Feature Space
+The complexity of the target function that is to be learned depends on the way it is represented, and the difficulty of learning a task can vary accordingly. Ideally, a representation that matches the specific learning problem should be chosen. So one common strategy in machine learning is changing the representation of the data.
+        x = (x₁, x₂, ..., xₙ) —> θ(x) = (θ₁(x), θ₂(x2), ..., θₙ(x))
+        This steps represents mapping the input space X into a feature specta F = {θ(x) | x ϵ X }
+
+The fact that simply mapping the data into another space can greatly simplify the task has been known for a long time in ML, and has given rise to a number of techniques for selecting best representation of data. The quantities introduced to describe the data are usually caled features, while the original quantities are sometimes called attributes.
+
+** Different approaches to feature selection exists.
+Frequently one seeks to identify the smallest number of features that still convey the essential information contained in the original attributes.
+This is known as dimensionality reduction.
+        x = (x₁, x₂, ..., xₙ) —> θ(x) = (θ₁(x), θ₂(x), ..., θₖ(x)), k < n
+
+** Feature selection should be viewed as part of of the learning process.
+It is somewhat of an arbitrary step, which reflects our prior expectations of the underlying target function.
+
+* The implicit Mapping into Feature Space
+In order to learn non-linear relations with a linear machine, we need to select a set of non-linear features and to rewrite the data into a new representation. This is equivalent to applying a fixed non-linear mapping of the data to a feature space, in which the linear machine is used.
+Hence, the set of hyptheses we consider will be functions of the type:
+
+        f(x) —> Σᵢⁿwᵢθᵢ(x) + b , where θ : X –> F is a non-linear map from the input space to some feature space.
+
+This means that we will build non-linear machines in 2 steps: first a non-linear mapping transforms the data into a feature space F, and then the linear machine is used to classify the feature space.

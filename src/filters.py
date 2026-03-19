@@ -1,6 +1,10 @@
 import cv2 as cv
 import numpy as np
 
+'''
+TODO: Write the code in a more "Pythonic" way
+'''
+
 
 class ProcessingFunctions():
 
@@ -99,10 +103,10 @@ class ProcessingFunctions():
         :param array: Binarized 2D array, after VEDA or Sobel applied
         :param value_array: Output array of same shape as array
         :return :2D array
-        TODO: Find a better documentation
         '''
         it = np.nditer(array, flags=["multi_index"])
         result = np.zeros_like(array)
+
         for coord in it:
             x = coord[0]
             y = coord[1]
@@ -132,17 +136,34 @@ class ProcessingFunctions():
         E(x-1, y)(x, y) = 1, BE(x-1, y) != BE(x, y)
                           0, otherwise
         '''
-
         image_half = image_width // 2
-        transitions = np.zeros_like(array)
-        transitions[1:, :] = (array[1:, :] != array[:-1, :]).astype(int)
-        s_prime = np.cumsum(transitions, axis=0)
-        rows, cols = array.shape
+        iter = np.nditer(array, flags=["multi_index"])
+
         skipped_image = np.zeros_like(array)
-        idx_x = np.arange(rows)
-        idx_right = np.clip(idx_x + image_half, 0, rows - 1)
-        idx_left = np.clip(idx_x - image_half, 0, rows - 1)
-        skipped_image = s_prime[idx_right, :] - s_prime[idx_left, :]
+        for coord in iter:
+            x = coord[0]
+            y = coord[1]
+            delta = 0
+
+            if (array[x-1][y] != array[x][y]):
+                delta = 1
+            skipped_image[x][y] = skipped_image[x-1][y] + delta
+
+        for coord in iter:
+            x = coord[0]
+            y = coord[1]
+
+            right = x + image_half
+            left = x - image_half
+            if right >= np.shape(array)[0]:
+                right = np.shape(array)[0]
+
+            if left <= 0:
+                left = 0
+
+            skipped_image[x][y] = skipped_image[right][y]
+            - skipped_image[left][y]
+
         return skipped_image
 
     @staticmethod
