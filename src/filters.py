@@ -167,6 +167,22 @@ class ProcessingFunctions():
         return skipped_image
 
     @staticmethod
-    def connected_component_analysis() -> np.array:
+    def connected_component_analysis(array: np.array) -> np.array:
+        '''
+        Connected component analysis represents an algorithm useful
+        for character segmentation.
+        It represents the second stage of the pipeline. Before the SVM
+        gets to run on them, and after we have thresholded and located
+        the license plate.
+        '''
+        output = np.zeros_like(array.shape)
+        analysis = cv.connectedComponentsWithStats(array, 4, cv.CV_325)
+        (total_labels, label_ids, values, centroid) = analysis
+        for i in range(1, total_labels):
+            area = values[i, cv.CC_STAT_AREA]
 
-        return None
+            if (area > 140 and (area < 400)):
+                component_mask = (label_ids == i).astype("uint8") * 255
+                output = cv.bitwise_or(output, component_mask)
+
+        return output
