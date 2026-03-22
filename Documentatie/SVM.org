@@ -11,10 +11,13 @@
   - [[#fishers-discriminant][Fisher's discriminant]]
   - [[#multi-class-discrimination][Multi-class discrimination]]
   - [[#linear-regressions][Linear regressions]]
-- [[#learning-in-feature-space][Learning in Feature Space]]
-  - [[#different-approaches-to-feature-selection-exists][Different approaches to feature selection exists.]]
-  - [[#feature-selection-should-be-viewed-as-part-of-of-the-learning-process][Feature selection should be viewed as part of of the learning process.]]
-- [[#the-implicit-mapping-into-feature-space][The implicit Mapping into Feature Space]]
+  - [[#leastsquares][Least–Squares]]
+- [[#kernel-induced-feature-spaces][Kernel-Induced feature spaces]]
+  - [[#learning-in-feature-space][Learning in Feature Space]]
+  - [[#the-implicit-mapping-into-feature-space][The implicit Mapping into Feature Space]]
+  - [[#making-kernels][Making kernels]]
+- [[#generalisation-theory][Generalisation Theory]]
+  - [[#probably-approximate-correct-learning][Probably Approximate Correct Learning]]
 
 * The learning methodology
 
@@ -36,26 +39,26 @@ The ability of a hypothesis to correctly classify data not in the training set i
 Binary classification is frequently performed by using a real-valued function
         f : X ⊆ Rⁿ –> R
 In the following way:
-        The input x = (x₁, x₂, ..., xₙ) is assigned the positive class if f(x) ≥ 0, otherwise the negative class.
+The input x = (x₁, x₂, ..., xₙ) is assigned the positive class if f(x) ≥ 0, otherwise the negative class.
 We consider the case where f(x) is linear so it can be written as:
         f(x) = ⟨ W • x ⟩ + b
         f(x) = Σᵢⁿ wᵢxᵢ + b
-        Where (w, b) ϵ (Rⁿ× R) are paramteres that control the function.
+Where (w, b) ϵ (Rⁿ× R) are paramteres that control the function.
 
-*THE PERCEPTRON ALGORITHM*
+THE PERCEPTRON ALGORITHM
 #+begin_example PSEUDOCODE
-        w₀ <– 0, b₀ <– 0, k <– 0
-        R <– max({xᵢ | 1 ≤ i ≤ l}) ## l - the size of the training set
-        repeat
-                for i = 1 to l
-                        if yᵢ(⟨ wₖ, xᵢ ⟩ + bₖ) ≤ 0 then
-                                wₖ₊₁ <– wₖ + μyᵢxᵢ
-                                bₖ₊₁ <– bₖ + μyᵢR²
-                                k <- k + 1
-                        end if
-                end for
-        untill no mistakes are made inside the for loop
-        return (wₖ, bₖ) where k is the number of mistakes
+    w₀ <– 0, b₀ <– 0, k <– 0
+    R <– max({xᵢ | 1 ≤ i ≤ l}) ## l - the size of the training set
+    repeat
+            for i = 1 to l
+                    if yᵢ(⟨ wₖ, xᵢ ⟩ + bₖ) ≤ 0 then
+                            wₖ₊₁ <– wₖ + μyᵢxᵢ
+                            bₖ₊₁ <– bₖ + μyᵢR²
+                            k <- k + 1
+                    end if
+            end for
+    untill no mistakes are made inside the for loop
+    return (wₖ, bₖ) where k is the number of mistakes
 #+end_example
 
 ** Theorems and Definitions
@@ -90,40 +93,41 @@ Points that have caused fewer mistakes will have a smaller αᵢ, whereas diffic
 
 Once sample S has been fixed, one can think of the α as alternative representation of the hypothesis in different/ dual coordinates.
 The decision function can be written as
-        h(x) = sgn(⟨w × x⟩ + b)
-             = sgn(⟨Σ₁ᴸ αⱼγⱼxⱼ × x⟩ + b)
-             = sgn(Σ₁ᴸ αⱼγⱼ⟨xⱼ × x⟩ + b)
+    h(x) = sgn(⟨w × x⟩ + b)
+         = sgn(⟨Σ₁ᴸ αⱼγⱼxⱼ × x⟩ + b)
+         = sgn(Σ₁ᴸ αⱼγⱼ⟨xⱼ × x⟩ + b)
 
 #+begin_example PSEUDOCDE
-        Given training set S
-        α <- 0, b <- 0
-        R <- max₁ᴸ ∥xᵢ∥
-        repeat
-                for i = 1 to L
-                    if γᵢ(Σ₁ᴸ αᵢγⱼ ⟨xⱼ × xᵢ⟩ ≤ 0) then
-                            αᵢ <- αⱼ + 1
-                            b <- b + γᵢ × R²
-                    end if
-                end for
-        untill no mistakes were made inside the for loop
-        return (α, b) to define function h(x)
-
-
-
+    Given training set S
+    α <- 0, b <- 0
+    R <- max₁ᴸ ∥xᵢ∥
+    repeat
+            for i = 1 to L
+                if γᵢ(Σ₁ᴸ αᵢγⱼ ⟨xⱼ × xᵢ⟩ ≤ 0) then
+                        αᵢ <- αⱼ + 1
+                        b <- b + γᵢ × R²
+                end if
+            end for
+    untill no mistakes were made inside the for loop
+    return (α, b) to define function h(x)
 #+end_example
 
 Compared to the standard perceptron, where we maintain a vector w that gets updated everytime we make a mistake as  w = γᵢ × xᵢ + w. Which for a staring 0 vector just accumulates to a linear combination of the inputs.
 In the dual form, we no longer maintain the W, we maintain for each xᵢ how many times it was mistakenly calculated -> αᵢ.
 So, when we make a new prediction we have:
-        1. In the Classic Perceptron algorithm : ⟨ w * x ⟩ + b
-        2. In the dual form:  ⟨Σ₁ᴸ αⱼxⱼγⱼ × x⟩ + b. We compute the weight vector on the fly.
+       1. In the Classic Perceptron algorithm : ⟨ w * x ⟩ + b
+       2. In the dual form:  ⟨Σ₁ᴸ αⱼxⱼγⱼ × x⟩ + b. We compute the weight vector on the fly.
 Due to this dual form representation, we can easily swap the dot product with a Kernel-Function, or a different kind of function.
+
+Remark 2.11 The Gram Matrix
+The training data only enter the algorithm through the entries of the matrix
+        G = (⟨xᵢ × xⱼ⟩)ˡᵢ,ⱼ₌₁
 
 ** Fisher's discriminant
 The perceptron is guaranteed to converge only if the data are linearly separable. One procedure that does not suffer from this limitation is Fisher's discriminant, which is aimed at finding the hyperplane (w, b) on which the projection of the data is maximally separated.
 The cost function to be optimised is the following:
         F = (m₁ - m₋₁)²/(σ₁² + σ²₋₁)
-        Where mᵢ and σᵢ are the mean and standard deviation of the function output values:
+Where mᵢ and σᵢ are the mean and standard deviation of the function output values:
         {⟨w × xⱼ⟩ + b : γⱼ = i}
 
 ** Multi-class discrimination
@@ -133,26 +137,78 @@ For a multi class classification problem, the output domain is Y = {1, 2, 3... n
 for point x it gets assigned to max₁ᴸ(⟨x × wᵢ⟩ + b)
 
 ** Linear regressions
+The problem of linear regression consists in finding a linear function:
+        f(x) = ⟨w × x⟩ + b
+That bests interpolates a given set S of training points labeled from Y ⊆ R. Geometrically this corresponds to a hyperplane fitting the given points.
 
-* Learning in Feature Space
+** Least–Squares
+Given a training set S, with xᵢ ϵ X ⊆ Rⁿ, yᵢ ϵ R, the problem of linear regression is to find a linear function f that models the data.
+The least-squared approach prescribes choosing (w, b) in order to minimise the sum of the squares deviations of the data
+        L(w, b) = Σ₁ᴸ (yᵢ - ⟨w × xᵢ⟩ + b)²
+
+* Kernel-Induced feature spaces
+In this chapter, the kernel technique will be introduced, which provides one of the main building blocks of SVMs.
+
+** Learning in Feature Space
 The complexity of the target function that is to be learned depends on the way it is represented, and the difficulty of learning a task can vary accordingly. Ideally, a representation that matches the specific learning problem should be chosen. So one common strategy in machine learning is changing the representation of the data.
         x = (x₁, x₂, ..., xₙ) —> θ(x) = (θ₁(x), θ₂(x2), ..., θₙ(x))
-        This steps represents mapping the input space X into a feature specta F = {θ(x) | x ϵ X }
+This steps represents mapping the input space X into a feature specta F = {θ(x) | x ϵ X }
 
 The fact that simply mapping the data into another space can greatly simplify the task has been known for a long time in ML, and has given rise to a number of techniques for selecting best representation of data. The quantities introduced to describe the data are usually caled features, while the original quantities are sometimes called attributes.
 
-** Different approaches to feature selection exists.
+Different approaches to feature selection exists.
 Frequently one seeks to identify the smallest number of features that still convey the essential information contained in the original attributes.
 This is known as dimensionality reduction.
         x = (x₁, x₂, ..., xₙ) —> θ(x) = (θ₁(x), θ₂(x), ..., θₖ(x)), k < n
 
-** Feature selection should be viewed as part of of the learning process.
+Feature selection should be viewed as part of of the learning process.
 It is somewhat of an arbitrary step, which reflects our prior expectations of the underlying target function.
 
-* The implicit Mapping into Feature Space
+** The implicit Mapping into Feature Space
 In order to learn non-linear relations with a linear machine, we need to select a set of non-linear features and to rewrite the data into a new representation. This is equivalent to applying a fixed non-linear mapping of the data to a feature space, in which the linear machine is used.
 Hence, the set of hyptheses we consider will be functions of the type:
 
         f(x) —> Σᵢⁿwᵢθᵢ(x) + b , where θ : X –> F is a non-linear map from the input space to some feature space.
 
 This means that we will build non-linear machines in 2 steps: first a non-linear mapping transforms the data into a feature space F, and then the linear machine is used to classify the feature space.
+As shown in Chapter 2, one important property of linear learning machines is that they can be expressed in a dual representation. This means that the hypothesis can be expressed as a linear combination of the training sets, so that the decision rule can be evaluated simply as a dot product between the test points and train points.
+        f(x) = Σᵢᴸ αᵢγᵢ⟨θ(xᵢ) × θ(x)⟩ + b
+If we have a way of computing ⟨θ(xᵢ) × θ(x)⟩ in feature space directly as a function of the original input points, it becomes possible to merge the two steps (mapping into the feature space and computing the output) needed to build a non-linear learning machine. We call such a direct computation a *kernel function*.
+
+*** Definition 3.4 Kernel Function
+A kernel is a function K, such that for all x,z ϵ X
+        K(x, z) = ⟨θ(x) × θ(z)⟩, where θ is a mapping from X to a feature space F
+An important consequence of the dual representation is that the dimension of the feature space need not affect the computation. As one does not represent the feature vectors explicitly, the number of operations required to compute the inner product using the kernel function is not necessarily proportional to the dimension of the feature space.
+The use of kernels makes it possibly to map the data implicitly into a feature space and to train a linear machine in such a space, potentially side-stepping the computational problems inherent in evaluating the feature map. The only information used about the training examples is their Gram Matrix in the feature space, also known as the kernel matrix and it will be denoted further by *K*.
+The key to this approach is finding a kernel function that can be evaluated efficiently. Once we have such a function the decision rule can be evaluated by at most L evaluations of the kernel:
+        f(x) Σ₁ᴸ αᵢγᵢK(xᵢ, x) + b
+One of the curious facts about using a kernel, is that we do not need to know the underlying feature map in order to be able to learn in the feature space.
+The idea of a kernel generalises the standard inner product in the input space. It is clear that this inner product provides an example of a kernel.
+        K(x, z) = ⟨x × z⟩
+We can also take the feature map to be any fixed linear transformation x -> Ax, for some matrix A
+K(x, z) = ⟨Ax × Az⟩ = x'A'Az = x'Bz, where by construction B = A'A is a square symmmetric positive semi-definite matrix.
+
+** Making kernels
+The use of a kernel-function is an attractive computational short-cut. If we wish to use this approach, there appears to be a need to first create a complicated feature-space, then work out the kernel function.
+In practice, the approach taken is to define a kernel function directly, hence implicitly defining the feature space. In this way, we avoid the feature space not only in the computation of the inner products, but also in the design of the learning machine itself.
+
+Before we can design a kernel function, we need to know what properties a function K(x, z) are necessary for it to be a kernel of some feature space.
+
+*** Kernel Characterisation
+1. The function must be symmetric
+   K(x, z) = ⟨θ(x) × θ(z)⟩ = ⟨θ(z), θ(x)⟩ = K(z, x)
+2. Satisfy the inequalities that follow from the Cauchy-Schwarz inequity
+   K(x, z)² = ⟨θ(x) × θ(z)⟩² ≤ ∥θ(x)∥² ∥θ(z)∥²
+            = ⟨θ(x) × θ(z)⟩ ⟨θ(z) × θ(z)⟩ = K(x, x) K(z, z)
+3. Mercer's Theorem
+   Mercer's Theorem provides a characterisation of when a function K(x, z) is a kernel.
+   Considering a finite space x = {x₁, x₂, ..., xₙ} and supposed K(x, z) is a symmetric function on X. Consider the matrix
+        K = (K(xᵢxⱼ))ⁿᵢⱼ₌₁
+        Kᵢⁿ= [K(xᵢ, x₁), K(xᵢ, x₂), ... K(xᵢ, xⱼ) ... ]
+
+        K - symmetric => There exists an orthogonal matrix V such as K = V ∧ V', where ∧ is a diagonal matrix containing the eigenvalues αᵢ of K with corresponding eigenvectors vₜ = (υₜᵢ)₁ⁿ
+        Assuming all the eigenvalues are non-negative
+
+* Generalisation Theory
+In this chapter the main results of VC theory are reviewed.
+** Probably Approximate Correct Learning
