@@ -2,6 +2,15 @@
 \label{chap:ch1}
 
 \indent\par
+Detectarea corectă și precisă a plăcuței de înmatriculare (LP) în interiorul imaginii este o secțiune critică a întregului proces. Regiunea determinată de LP poate fi localizată folosind diferite metode care pot fi clasificate în funcție de caracteristica utilizată: culoare, textură, sau contur. Cea din urmă este utilizată cel mai frecvent și se bazează pe presupunerea că în interiorul LP-ului contururile caracterelor sunt mai bine definite. Aceasta se datoroează schimbărilor de luminozitate mai drastice și mai comune decât în oricare altă zonă.  Metodele bazate pe culoare au ca fundație presupunerea că există o distincție clară între culoarea numărului de înmatriculare și fundal; iar cele pe textură se folosesc de prezența caracterelor în interiorul LP-ului pentru a delimita regiunea acestuia.
+\paragraph{}
+Conform~\cite{SOAReview} defectele comune ale metodelor bazate pe conturul LP-ului sunt sensibilitatea ridicată la claritatea imaginii, prezența liniilor verticale nedorite și înclinări ale LP-ului, cea din urmă putând fi parțial evitată prin utilizarea transformării Hough ca piatră de temelie a procesului de localizare, conform~\cite{HoughTransformation}. Cele care se folosesc de culoarea și textura LP-ului au o sensibilitate crescută la luminozitatea imaginii, dar și la formatul LP-ului, nefind capabile să generalizeze.
+\paragraph{}
+Datorită diversității de formate valide a numerelor de înmatriculare din România, s-a luat decizia de a folosi un algoritm bazat pe conturul numărului de înmatriculare în ciuda defectelor menționate anterior. Această categorie de metode poate fi împărțită în mod binar în algoritmi bazați pe detectarea contururilor verticale și a celor orizontale. Cea din urmă este perceptibilă la erori din cauză că bara mașinii poate fi identificată în mod greșit ca făcând parte din LP, de aceea varianta aceasta nu a fost considerată ca fiind validă.
+\paragraph{}
+
+
+Poziția numărului de înmatriculare în cadrul imaginii poate fi determinată folosind diferiți factori: culoarea acestuia,
 Extragerea numărului de înmatriculare folosind tehnici și algoritmi bazați pe margini și boundary(NOTE: Tradu)
 
 \indent\par Informatii si citare carte \cite{Sommerville2010}.

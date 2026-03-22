@@ -23,11 +23,4 @@ Sistemele de recunoaștere automată a numărului de înmatriculare (ALPR) sunt 
         \end{itemize}
     \end{enumerate}
 \paragraph{}
-Sistemele ALPR care extract un număr de înmatriculare dintr-o imagine pot fi compuse din 4 etape.
-\begin{itemize}
-    \item{Prima etapă constă în capturarea unei imagini calitative a autoturismului. Calitatea unui cadru este influențată în mare măsură de tipul camerei și capabilitătile maxime ale acesteia (ISO, timp de expunere, diafragma maximă) dar și de setările aplicate de către utilizator.}
-    \item{A doua etapă reprezintă localizarea plăcuței pe baza unui set de caracteristici predefinit: culoare, existența caracterelor, granița acesteia cu vehiculul.
-    \b{TODO Mai în detaliu despre metoda aleasă de mine: existența caracterelor}}
-    \item{Cea de a treia etapă reprezintă segmentarea plăcuței și extragerea caracterelor prin proiectarea culorii acestora,  etichetarea lor sau compararea cu o matriță. \b{TODO Mai în detaliue despre ce fac eu INDECIS}}
-    \item{Ultimul pas îl reprezintă recunoașterea fiecărui caracter.}
-\end{itemize}
+Sistemele ALPR care extrag un număr de înmatriculare dintr-o imagine pot fi reduse la un proces format din 4 etape. Prima etapă constă în capturarea unei imagini a \b{calitate a autoturismului} autoturismului; calitatea unui cadru este influențată de tipul camerei și capabilitătile maxime ale acesteia (ISO, timp de expunere, diafragma maximă) dar și de setările aplicate de către utilizator. A doua etapă reprezintă localizarea plăcuței pe baza unui set de caracteristici predefinit: culoare, existența caracterelor, granița acesteia cu vehiculul. Cea de a treia etapă reprezintă segmentarea plăcuței și extragerea caracterelor. Ultimul pas îl reprezintă recunoașterea fiecărui caracter.
