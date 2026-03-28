@@ -1,5 +1,6 @@
 #+title: SVM
 #+Author: Puscas Raul Andrei
+#+OPTIONS: ^:{}
 
 * TABLE OF CONTENTS :toc:
 - [[#the-learning-methodology][The learning methodology]]
@@ -16,8 +17,11 @@
   - [[#learning-in-feature-space][Learning in Feature Space]]
   - [[#the-implicit-mapping-into-feature-space][The implicit Mapping into Feature Space]]
   - [[#making-kernels][Making kernels]]
+  - [[#making-kernels-from-features][Making kernels from features]]
+  - [[#working-in-feature-space][Working in feature space]]
 - [[#generalisation-theory][Generalisation Theory]]
   - [[#probably-approximate-correct-learning][Probably Approximate Correct Learning]]
+  - [[#vapnik-chervonenkis-vc-theory][Vapnik Chervonenkis (VC) Theory]]
 
 * The learning methodology
 
@@ -209,6 +213,30 @@ Before we can design a kernel function, we need to know what properties a functi
         K - symmetric => There exists an orthogonal matrix V such as K = V ∧ V', where ∧ is a diagonal matrix containing the eigenvalues αᵢ of K with corresponding eigenvectors vₜ = (υₜᵢ)₁ⁿ
         Assuming all the eigenvalues are non-negative
 
+** Making kernels from features
+Another way to obtain a kernel is of course to start from the features, and to obtain it by working out their inner product. In this case there is no need to check for positive semi-definiteness since this will follow automatically from the definition as an inner product. Let us consider a kernel over a a discrete space, in this case finite strings in order to illustrate the potential of the method for non-Euclidian spaces.
+
+*** (String subsequence kernels)
+Let Σ be a finite alphabet. A string is a finite sequence of characters from Σ, including the empty sequence. For strings s, t we denote the length of s by |s|. And by st the string concatenated by the addition of t to s. The string s[i:j] is the substring sᵢsᵢ₊₁...sⱼ. We say that u is a subsequence of s, if there exist indicies i=(i₁, ..., iᵤ) such that uⱼ = sᵢ. We denote by Σⁿ the set of all finite strings of length n, and by Σ^* the set of all strings.
+
+We now define the feature space Fₙ = R^{Σ²}. The feature mapping θ for a string s is given by the defining the u coordinate θᵤ(s) for each s ϵ Σⁿ.
+
+** Working in feature space
+Since the embedding given by the feature mapping is non linear and hence in general defines a n dimensional sub-manifold of the feature space, linear combinations of images often do not correspond to images of any input point. Nevertheless, we are able to represent such points using the dual representation, and provided we are only concerned with distances and inner products the kernel can be used without computing an explicit feature vector.
+Let θ(X) be the image of the input space under the feature mapping, and define F = co(θ(X)) to be the space of all finite linear combination of points from θ(X).
+
 * Generalisation Theory
 In this chapter the main results of VC theory are reviewed.
+
 ** Probably Approximate Correct Learning
+The main assumption on which the model is based is that the data used in training and testing are generated independently and indentically (i.i.d) according to an unknown but fixed distribution D. We assume this is a distribution over input/ output parining (x, y) ϵ {-1, 1}, an approach which subsumes the case where the output y is determined by a fixed target function t of the input ( y = t(x) ). Adaptations of the model have considered the case where the distribution changes over time, or where there is not full independence in the generation of examples in the training set (augmenting data via linear transformations). The model also ignores the possibility that the learner might be able to influence which examples are chosen, an ingredient that is studied in the query model of learning.
+        err_{d}(h) = D{ (x, y) : h(x) ≠ y}
+Such a measure is also referred to as a risk functional, as its measure the expected error rate. The aim of the analysis will be to assert bounds on this error in terms of several quantities. Perhaps the most crucial is the number of training examples used. Frequentelly pac results have been presented as bounds on the number of training examples to achieve a certain error. This is also known as the sample complexity of the problem. We prefer bounding the error as the number of training examples required as this error can be directly used in chossing between classes.
+Consider a fixed inference rule for selecting a hypothesis h_{s} from the class H of classification rules at the learners disposal.
+        S = ((x₁, y₁), (x₂, y₂), ..., (xₗ, yₗ)), l - number of training examples chosen i.i.d according to D.
+In this setting, we can view the generalisation error err_{DS}(h) as a random variable depending on the random selection of the training set. The statistical mechanical method approach for analyzing generalization aims to bound the expected generalisation error, where the expectation is taken over the random selection of the training sets of a particular size. There are situations when such an estimation can be unreliable, an example being is the estimator given by cross-validation. The pac model of learning requires a generalisation error bound that is unlikely to fail. It therefore bounds the tail of the distribution of the generalisation of the generalisation error random variable err_{}_{D}(hₛ). The size of the tail is determined by a futher parameter δ specified by the learner. Hence, a pac bound has the form ϵ = (l, H, S) and asserts that with probability atleast 1 - δ over randomly generated sets S, the generalisation error of the selected hypothesis hₛ will be bound by:
+        err_{D}(hₛ) ≤ ϵ(l, H, S)
+
+** Vapnik Chervonenkis (VC) Theory
+For a finite set of hypothesis it is not hard to obtain a bound in the form of inequality. Assume we use the inference rule that selects any hypothesis h that is consistent with the training examples in S. The probability that all l examples are consistent with the hypothesis h for which err(h) ≥ ϵ, is bounded by:
+        Dᴸ = { S : h consistent and err(h) > ϵ} ≤ (1 - ϵ)ᴸ ≤ exp(-ϵL)
