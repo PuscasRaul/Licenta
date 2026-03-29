@@ -20,7 +20,7 @@
   - [[#making-kernels-from-features][Making kernels from features]]
   - [[#working-in-feature-space][Working in feature space]]
 - [[#generalisation-theory][Generalisation Theory]]
-  - [[#probably-approximate-correct-learning][Probably Approximate Correct Learning]]
+  - [[#probably-approximate-correct-learning-pac-model][Probably Approximate Correct Learning (PAC model)]]
   - [[#vapnik-chervonenkis-vc-theory][Vapnik Chervonenkis (VC) Theory]]
 
 * The learning methodology
@@ -228,15 +228,48 @@ Let θ(X) be the image of the input space under the feature mapping, and define 
 * Generalisation Theory
 In this chapter the main results of VC theory are reviewed.
 
-** Probably Approximate Correct Learning
+** Probably Approximate Correct Learning (PAC model)
 The main assumption on which the model is based is that the data used in training and testing are generated independently and indentically (i.i.d) according to an unknown but fixed distribution D. We assume this is a distribution over input/ output parining (x, y) ϵ {-1, 1}, an approach which subsumes the case where the output y is determined by a fixed target function t of the input ( y = t(x) ). Adaptations of the model have considered the case where the distribution changes over time, or where there is not full independence in the generation of examples in the training set (augmenting data via linear transformations). The model also ignores the possibility that the learner might be able to influence which examples are chosen, an ingredient that is studied in the query model of learning.
         err_{d}(h) = D{ (x, y) : h(x) ≠ y}
 Such a measure is also referred to as a risk functional, as its measure the expected error rate. The aim of the analysis will be to assert bounds on this error in terms of several quantities. Perhaps the most crucial is the number of training examples used. Frequentelly pac results have been presented as bounds on the number of training examples to achieve a certain error. This is also known as the sample complexity of the problem. We prefer bounding the error as the number of training examples required as this error can be directly used in chossing between classes.
 Consider a fixed inference rule for selecting a hypothesis h_{s} from the class H of classification rules at the learners disposal.
         S = ((x₁, y₁), (x₂, y₂), ..., (xₗ, yₗ)), l - number of training examples chosen i.i.d according to D.
-In this setting, we can view the generalisation error err_{DS}(h) as a random variable depending on the random selection of the training set. The statistical mechanical method approach for analyzing generalization aims to bound the expected generalisation error, where the expectation is taken over the random selection of the training sets of a particular size. There are situations when such an estimation can be unreliable, an example being is the estimator given by cross-validation. The pac model of learning requires a generalisation error bound that is unlikely to fail. It therefore bounds the tail of the distribution of the generalisation of the generalisation error random variable err_{}_{D}(hₛ). The size of the tail is determined by a futher parameter δ specified by the learner. Hence, a pac bound has the form ϵ = (l, H, S) and asserts that with probability atleast 1 - δ over randomly generated sets S, the generalisation error of the selected hypothesis hₛ will be bound by:
+In this setting, we can view the generalisation error err_{DS}(h) as a random variable depending on the random selection of the training set. The statistical mechanical method approach for analyzing generalization aims to bound the expected generalisation error, where the expectation is taken over the random selection of the training sets of a particular size. There are situations when such an estimation can be unreliable, an example being is the estimator given by cross-validation. The pac model of learning requires a generalisation error bound that is unlikely to fail. It therefore bounds the tail of the distribution (least probable cases when picking l random examples from the training set S [ex: a dice giving 6 10 times in a row, compared to a normal-distribution of numbers]) of the generalisation error random variable err_{}_{D}(hₛ). The size of the tail is determined by a futher parameter δ specified by the learner. Hence, a pac bound has the form ϵ = (l, H, S) and asserts that with probability atleast 1 - δ over randomly generated sets S, the generalisation error of the selected hypothesis hₛ will be bound by:
         err_{D}(hₛ) ≤ ϵ(l, H, S)
+or in other words it is probably approximately correct. This is equivalent to asserting that the probability that training set S gives rise to a hypothesis with a large error is small:
+        D^{l}= { S : err_{D}(h_{S}) > ϵ(l, H, δ) } < δ *INEQUALITY 4.2*
+The PAC approach has the flavour of a statistical test in the sense that it asserts the probability that the dataset has mislead us is small. This corresponds to saying that the result is significant at the δ level, or in other words that *the probability that a set has mislead us is at most δ*.
 
 ** Vapnik Chervonenkis (VC) Theory
 For a finite set of hypothesis it is not hard to obtain a bound in the form of inequality. Assume we use the inference rule that selects any hypothesis h that is consistent with the training examples in S. The probability that all l examples are consistent with the hypothesis h for which err(h) ≥ ϵ, is bounded by:
-        Dᴸ = { S : h consistent and err(h) > ϵ} ≤ (1 - ϵ)ᴸ ≤ exp(-ϵL)
+        D^{l} = { S : h consistent and err(h) > ϵ} ≤ (1 - ϵ)ᴸ ≤ exp(-ϵl)
+Considering that all hypotheses from H have a large error, the probability that one is consistent with S is:
+        |H|exp(-ϵL)
+By the union bound on the probability that one of the events occurs. This bounds the probability that a consistent hypotheses h_{S} has error greater than ϵ as given:
+        D^{l}{S: h_{S} consistent and err(h_{S}) ≤ ϵ} ≤ |H|exp(-ϵl)
+In order to ensure the right-hand side is less than δ we set
+        ϵ = ϵ(l, H, S) = 1/l ln(|H|/δ) [SIMPLE BOUND]
+*Explaining note*
+        Here, truly ϵ measures the required accuracy of the model we are training (we want to achieve an accuracy of ϵ = 0.0001), but in order to do that we must ensure that we have a dataset S that covers all possible examples. Even if you have a great learning algorithm, there is always a tiny mathematical chance that the training data S you were given is completely unrepresentative of the real world.
+        Imagine you are trying to learn if a coin is fair. You flip it 10 times, and by pure, astronomical fluke, it comes up "Heads" all 10 times. Your learner will conclude "This coin always results in heads."
+        This bad dataset is determined by the δ parameter. Therefore a small δ, 1e-5, would force us in that case to use a huge dataset because of bound:
+                ϵ = 1/l ln(|H|/δ), where ϵ is fixed, and preferably a small number (in the case of creating a learner). When testing it we compute it.
+This simple bound already shows how the complexity of the function class H (architecture of all hypothesis H) measured here by its cardinality has a direct effect on the error bound. Clearly choosing H too large can cause to overfitting (using a Deep architecture on a dataset of 10 XOR examples ). The result also shows that a property relating the true error to the empirical error (ϵ - δ ) holds for all hypotheses of H. Learning theory relies on bounding the difference between empirical and true estimates of error uniformly over the set of hypotheses and conditions that can arise. As we have seen, this is not difficult when the number of hypotheses is finite, but VC theory generalised this to a number of infinite hypotheses.
+
+We assume a inference rule that delivers any consistent hypotheses and denote by err_{S}(h) the number of errors made by hypotheses h on training set S. The key to bounding over an infinite set of functions (so deep-architectures, non-deep in order to avoid overfitting) is to bound the probability of inequality 4.2 by twice the probability of having zero error on the training examples but high error on a second random example S'
+        D^{l}= { S : ∃ h ϵ H : err_{S}(h) = 0, err_{D}(h) > ϵ } ≤ 2D^{2l}= {SS' : ∃h ϵ H : err_{S}(h) = 0, err_{S'}> ϵl / 2}
+The quantity on the right hand-side is bounded by *fixing* the 2l sample and counting different orders in which the points might have been chosen while still keeping all the errors in the second sample (they do not help in computing the weights????). Since each order of permutation is equally likely the fraction of orders that satisfy the property is an upper bound on its probability. By only considering permutations that swap corresponding points from the first and second sample, we can bound the fraction of such permutations by 2^{-ϵl/2} independently of the particular set of 2l points
+The advantage of considering errors over a finite 2l sample space, is that the hypotheses space becomes finite, since there can be no more than 2^{2l} classifications.
+In order to obtain a union bound on the overall probability of the right hand side all that is required is a bound on the size of the hypotheses space when restricted to 2l, a quantity known as the growth function:
+        B_{H}(l) = max_{x₁, ..., xₗ}|{h(x₁), h(x₂), ..., h(x_{l}): h ϵ H}
+The first observation about this quantity is that it can not exceed 2ˡ, since the set over which the maximum is sought are all subsets of 2l.
+A set of points {x₁, ..., xₗ} for which the set
+        {h(x₁), h(x₂), ..., h(x_{l})} = {-1, 1}^{l}
+Is said to be shattered by H. If there are sets of any size which can be shattered by H then the growth function is equal to 2^{l} for all l.
+The final ingredient of VC theory is the analysis of the case when there is a d which is the largest set size that can be shattered by H. In this case the growth function can be bounded as follows:
+        B_{H}(l) ≤ (el/d)^{d}
+The value d is knows as the VC dimension of H
+
+*Explanation note*
+Here, we generalize the theory so that we may use the PAC model of learning to compute the error even on deep–architectures( training on deep networks, infinite hypotheses) and be able to tell if the model did overfit or not by comparing to another sample of the dataset during training. So since we have a 2l training examples, split into two halves, both taken from the same set generated by the distribution D, it is highly likely that the learned model performs in the same way on both of them, showing similar errors. If we overfit the training set, it will fail this test.
+*Compared to a test set*, this proves that all of the hypotheses of H will perform in a similar way for the same l. Using a test set with prove that a certain h \epsilon H performs a certain way, but using this we prove that all of H does.
