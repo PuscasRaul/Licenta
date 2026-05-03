@@ -1,10 +1,6 @@
 import cv2 as cv
 import numpy as np
 
-'''
-TODO: Write the code in a more "Pythonic" way
-'''
-
 
 class DetectionPipeline():
 
@@ -36,16 +32,28 @@ class DetectionPipeline():
         binary[(array >= thresh[0]) & (array <= thresh[1])] = value
         return binary
 
-    def adaptive_thresholding(self, array: np.array) -> np.array:
-        thresh_mean = cv.adaptiveThreshold(
-            array,
-            255,
-            cv.ADAPTIVE_THRESH_MEAN_C,
-            cv.THRESH_BINARY,
-            199,
-            5
-        )
-        return thresh_mean
+    def sobel(self, array: np.array) -> np.array:
+        '''
+        Return a 2D image sobel image
+        :param array: np 2D array that represents a grayscale image
+        :return Sobel image
+        '''
+
+        ddepth = cv.CV_16S
+        scale = 1
+        delta = 0
+        grad_x = cv.Sobel(array, ddepth, 1, 0, ksize=3, scale=scale,
+                          delta=delta, borderType=cv.BORDER_DEFAULT)
+        grad_y = cv.Sobel(array, ddepth, 0, 1, ksize=3, scale=scale,
+                          delta=delta, borderType=cv.BORDER_DEFAULT)
+        abs_grad_x = cv.convertScaleAbs(grad_x)
+        abs_grad_y = cv.convertScaleAbs(grad_y)
+        grad = cv.addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0)
+        return grad
+
+    def grad4_thresholding(self, array: np.array) -> np.array:
+        thresh = [0, cv.mean(array)[0] * 6]
+        return self.binary_array(array, thresh)
 
     def ulea(self, array: np.array) -> np.array:
         '''
@@ -69,50 +77,6 @@ class DetectionPipeline():
                         output[r, c] = 255
 
         return output
-
-    def veda(self, array: np.array) -> np.array:
-        '''
-        Perform VEDA on a 2D binarized array
-        :param array: 2D binarized array
-
-        :return: 2D binarized array after VEDA has been applied
-        '''
-
-        veda_array = np.full_like(array, 255)
-        it = np.nditer(array, flags=['multi_index'])
-        for coord in it:
-            row, col = it.multi_index
-            left_col = col - 1
-            right_col = col + 1
-            right_right_col = col + 2
-            down_row = row + 1
-
-            if left_col < 0:
-                left_col = 0
-            if right_col >= np.shape(array)[1]:
-                right_col = col
-            if right_right_col >= np.shape(array)[1]:
-                right_right_col = right_col
-            if down_row >= np.shape(array)[0]:
-                down_row = row
-
-            center_cond = array[row][col] == 0 \
-                and array[row][right_col] == 0\
-                and array[down_row][col] == 0 \
-                and array[down_row][right_col] == 0
-            left_cond = array[row][left_col] == 0 \
-                and array[down_row][left_col] == 0
-            right_cond = array[row][right_right_col] == 0 \
-                and array[down_row][right_right_col] == 0
-
-            if center_cond and (not left_cond or not right_cond):
-                veda_array[row][col] = 0
-                if row + 1 >= np.shape(veda_array)[0]:
-                    veda_array[row][col] = 0
-                else:
-                    veda_array[row + 1][col] = 0
-
-        return veda_array
 
     def integral_image(self, array: np.array) -> np.array:
         '''
@@ -139,46 +103,29 @@ class DetectionPipeline():
 
         return result
 
-    def skip_image(self, array: np.array) -> np.array:
-        '''
-        skip quantity is the skip number from white pixel to black pixel or
-        from black pixel to white pixel in the rectangl
-        :param array: binarized array after VEDA has been applied
-        :return :Not yet defined
+    def skip_image(self, array: np.ndarray, w: int) -> np.ndarray:
+        """
+        Calculates the skip image based on horizontal edge transitions.
 
-        S(x, y) = S'(x + w/2, y) - S'(x - w/2, y)
-        S'(x, y) = S'(x - 1, y) + E(x-1, y)(x, y)
+        :param array: binarized image array (2D numpy array)
+        :param w: width of the sliding window for equation (6)
+        :return: 2D numpy array containing S(x, y) skip quantities
+        """
+        rows, cols = array.shape
+        half_w = w // 2
 
-        E(x-1, y)(x, y) = white, BE(x-1, y) != BE(x, y)
-                          black, otherwise
-        '''
-        half_width = np.shape(array)[0]
-        delta = np.zeros_like(array)
-        rows, cols = np.shape(array)
-        iter = np.nditer(array, flags=['multi_index'])
-        for _ in iter:
-            row, col = iter.multi_index
-            prev_row = max(0, row - 1)
-            element = array[row][col]
-            prev_element = array[prev_row][col]
+        transitions = np.diff(array, axis=1) != 0
+        delta = np.zeros((rows, cols), dtype=np.int32)
 
-            if element != prev_element:
-                delta[row][col] = 1
-            else:
-                delta[row][col] = 0
+        delta[:, 1:] = transitions.astype(np.int32) * 255
+        S_prime = np.cumsum(delta, axis=1)
+        S = np.zeros((rows, cols), dtype=np.int32)
+        for x in range(cols):
+            x_plus = min(x + half_w, cols - 1)
+            x_minus = max(x - half_w, 0)
+            S[:, x] = S_prime[:, x_plus] - S_prime[:, x_minus]
 
-        np.cumsum(a=delta, axis=0, out=delta)
-        skipped_image = np.zeros_like(array)
-        for _ in iter:
-            row, col = iter.multi_index
-
-            up = array[row - half_width][col]
-            down = array[row + half_width][col]
-            skipped_image[row][col] = up + down
-
-        return skipped_image
-
-
+        return S
 
     def connected_component_analysis(self, array: np.array) -> np.array:
         '''
