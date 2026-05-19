@@ -4,9 +4,6 @@
  "chapter2"
  (lambda ()
    (LaTeX-add-labels
-    "chap:ch1"
-    "FigCBSD"
-    "TabelSolutii"
-    "LabelMyEquation"))
+    "chap:ch1"))
  :latex)
 

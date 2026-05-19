@@ -1,16 +1,23 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
 
-\bibitem{SOAReview}
-Jithmi Shashirangana, Heshan Padmasiri, Dulani Meedeniya, and Charith Perera.
-\newblock Automated license plate recognition: a survey on methods and
-  techniques.
-\newblock {\em IEEE Access}, 9:11203--11225, 2020.
+\bibitem{shi2005automatic}
+Xifan Shi, Weizhong Zhao, and Yonghang Shen.
+\newblock Automatic license plate recognition system based on color image
+  processing.
+\newblock In {\em International conference on computational science and its
+  applications}, pages 1159--1168. Springer, 2005.
 
-\bibitem{HoughTransformation}
-Tran~Duc Duan, TL~Hong Du, Tran~Vinh Phuoc, and Nguyen~Viet Hoang.
-\newblock Building an automatic vehicle license plate recognition system.
-\newblock In {\em Proc. Int. Conf. Comput. Sci. RIVF}, volume~1, pages 59--63,
-  2005.
+\bibitem{chang2004automatic}
+Shyang-Lih Chang, Li-Shien Chen, Yun-Chung Chung, and Sei-Wan Chen.
+\newblock Automatic license plate recognition.
+\newblock {\em IEEE transactions on intelligent transportation systems},
+  5(1):42--53, 2004.
+
+\bibitem{zunino2002vector}
+Rodolfo Zunino and Stefano Rovetta.
+\newblock Vector quantization for license-plate location and image coding.
+\newblock {\em IEEE Transactions on Industrial Electronics}, 47(1):159--167,
+  2002.
 
 \bibitem{luo2009efficient}
 Lin Luo, Hao Sun, Weiping Zhou, and Limin Luo.
@@ -18,16 +25,78 @@ Lin Luo, Hao Sun, Weiping Zhou, and Limin Luo.
 \newblock In {\em 2009 First International Conference on Information Science
   and Engineering}, pages 770--773. IEEE, 2009.
 
-\bibitem{sarfraz2003saudi}
-Muhammad Sarfraz, Mohammed~Jameel Ahmed, and Syed~A Ghazi.
-\newblock Saudi arabian license plate recognition system.
-\newblock In {\em 2003 International conference on geometric modeling and
-  graphics, 2003. Proceedings}, pages 36--41. IEEE, 2003.
+\bibitem{morph_operations}
+V~Karthikeyan and VJ~Vijayalakshmi.
+\newblock Localization of license plate using morphological operations.
+\newblock {\em arXiv preprint arXiv:1402.5623}, 2014.
 
 \bibitem{VEDA}
 Abbas~M Al-Ghaili, Syamsiah Mashohor, Alyani Ismail, and Abdul~Rahman Ramli.
 \newblock A new vertical edge detection algorithm and its application.
 \newblock In {\em 2008 international conference on computer engineering \&
   systems}, pages 204--209. IEEE, 2008.
+
+\bibitem{HoughTransformation}
+Tran~Duc Duan, TL~Hong Du, Tran~Vinh Phuoc, and Nguyen~Viet Hoang.
+\newblock Building an automatic vehicle license plate recognition system.
+\newblock In {\em Proc. Int. Conf. Comput. Sci. RIVF}, volume~1, pages 59--63,
+  2005.
+
+\bibitem{lee1994automatic}
+Eun~Ryung Lee, Pyeoung~Kee Kim, and Hang~Joon Kim.
+\newblock Automatic recognition of a car license plate using color image
+  processing.
+\newblock In {\em Proceedings of 1st international conference on image
+  processing}, volume~2, pages 301--305. IEEE, 1994.
+
+\bibitem{rosenblatt1958perceptron}
+Frank Rosenblatt.
+\newblock The perceptron: a probabilistic model for information storage and
+  organization in the brain.
+\newblock {\em Psychological review}, 65(6):386, 1958.
+
+\bibitem{vapnik1963pattern}
+Vladimir~N Vapnik.
+\newblock Pattern recognition using generalized portrait method.
+\newblock {\em Automation and remote control}, 24(6):774--780, 1963.
+
+\bibitem{vapnik1964note}
+Vladimir~N Vapnik.
+\newblock A note on one class of perceptrons.
+\newblock {\em Automat. Rem. Control}, 25:821--837, 1964.
+
+\bibitem{vapnik2015uniform}
+Vladimir~N Vapnik and A~Ya Chervonenkis.
+\newblock On the uniform convergence of relative frequencies of events to their
+  probabilities.
+\newblock In {\em Measures of complexity: festschrift for alexey chervonenkis},
+  pages 11--30. Springer, 2015.
+
+\bibitem{svmIntroduction}
+Nello Cristianini and John Shawe-Taylor.
+\newblock {\em An Introduction to Support Vector Machines and Other
+  Kernel-based Learning Methods}.
+\newblock Cambridge University Press, 2000.
+
+\bibitem{cortes1995support}
+Corinna Cortes and Vladimir Vapnik.
+\newblock Support-vector networks.
+\newblock {\em Machine learning}, 20(3):273--297, 1995.
+
+\bibitem{boser1992training}
+Bernhard~E Boser, Isabelle~M Guyon, and Vladimir~N Vapnik.
+\newblock A training algorithm for optimal margin classifiers.
+\newblock In {\em Proceedings of the fifth annual workshop on Computational
+  learning theory}, pages 144--152, 1992.
+
+\bibitem{hornik1989multilayer}
+Kurt Hornik, Maxwell Stinchcombe, and Halbert White.
+\newblock Multilayer feedforward networks are universal approximators.
+\newblock {\em Neural networks}, 2(5):359--366, 1989.
+
+\bibitem{rumelhart1986learning}
+David~E Rumelhart, Geoffrey~E Hinton, and Ronald~J Williams.
+\newblock Learning representations by back-propagating errors.
+\newblock {\em Nature}, 323(6088):533--536, 1986.
 
 \end{thebibliography}

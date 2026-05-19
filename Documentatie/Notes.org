@@ -1,0 +1,40 @@
+#+title: Notes for thesis
+#+Author: Puscas Raul Andrei
+#+OPTIONS: ^:{}
+
+* Table of contents :toc:
+- [[#notes-for-introduction][Notes for introduction]]
+- [[#notes-for-license-plate-recognition][Notes for License Plate recognition]]
+  - [[#localization-of-license-plate-using-morphological-operations][Localization of License Plate Using Morphological Operations]]
+- [[#notes-for-character-segmentation][Notes for character segmentation]]
+  - [[#text-extraction-and-recognition-method-for-license-plates][Text extraction and recognition method for license plates]]
+- [[#notes-for-character-recognition][Notes for character recognition]]
+  - [[#text-extraction-and-recognition-method-for-license-plates-1][Text extraction and recognition method for license plates]]
+
+* Notes for introduction
+
+* Notes for License Plate recognition
+** Localization of License Plate Using Morphological Operations
+1. This paper presents a new morphology based method for license plate location from car images. Morphological operations are used to fill the gaps between characters in edge image to make rectangular regions.
+2. The first objective of number plate recognition is to locate the number plate in the image. The purpose of this section is to identify possible candidate regions of the image in which the number plate might be contained.
+3. Characteristic features such as license plate width and height, character height and spacing are considered for defining structural elements for morphological operations.. Thresholding in a more formal way and extend it to techniques that are considerably more general.
+4. In photography and computing, a grayscale digital image is an image in which the value of each pixel is a single sample, that is, it carries only intensity information.
+5. In image processing, to smooth a data set is to create an approximating function that attempts to capture important patterns in the data, while leaving out noise or other fine-scale structures/rapid phenomena.
+6. Smoothing may be used in two important ways that can aid in data stem analysis (1) by being able to extract more information from the data as long as the assumption of smoothing is reasonable and (2) by being able to provide analyses that are both flexible and robust.
+7. The median filter is normally used to reduce noise in an image, somewhat like the mean filter. However, it often does a better job than the mean filter of preserving useful detail in the image.Like the mean filter, the median filter considers each pixel in the image in turn and looks at its nearby neighbors to decide whether or not it is representative of its surroundings. Instead of simply replacing the pixel value with the mean of neighboring pixel values, it replaces it with the median of those values.
+8. The Sobel operator performs a 2-D spatial gradient measurement on an image and so emphasizes regions of high spatial frequency that correspond to edges.
+9. These kernels are designed to respond maximally to edges running vertically and horizontally relative to the pixel grid, one kernel for each of the two perpendicular orientations. The kernels can be applied separately to the input image, to produce separate measurements of the gradient component in each orientation(call these Gx and Gy). These can then be combined together to find the absolute magnitude of the gradient at each point and the orientation of that gradient. The gradient magnitude is given by.
+
+
+
+* Notes for character segmentation
+** Text extraction and recognition method for license plates
+1. Image segmentation plays a crucial role in OCR systems. As we know,
+image segmentation is the process of splitting ([13], [15]) an image into a number of informative segments or divisions that will be simpler to study
+
+
+* Notes for character recognition
+** Text extraction and recognition method for license plates
+1. The Optophone, which was developed way back in 1914, is one of the earliest electric OCR machines ([6], [7]). It depended on selenium's unique capacity to conduct electricity differently in the light and the dark. The Optophone identified the black links of text and lighter vacant spaces as it scanned the words on a page.
+2. These days, the first thing that software does when scanning a document is to remove artifacts so that the text may be read clearly without distraction. In order to make the text easier to read, it attempts to eliminate dust and other distracting graphics, align the text correctly, and turn any colors or shades of grey in the image to black and white
+3.

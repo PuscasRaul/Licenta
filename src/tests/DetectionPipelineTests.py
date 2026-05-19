@@ -4,7 +4,8 @@ import os
 import shutil
 import random
 import cv2 as cv
-from src.filters import DetectionPipeline
+from src.license_plate_extraction import DetectionPipeline
+from src.helpers import HelperProcessingFunctions
 
 
 class DetectionPipelineTests(unittest.TestCase):
@@ -37,110 +38,31 @@ class DetectionPipelineTests(unittest.TestCase):
             except Exception:
                 print(f'Exception occured when reading {file}')
                 continue
-            thresh = self._pipeline.adaptive_thresholding(array=image)
+            thresh = HelperProcessingFunctions.binary_array(
+                array=image, thresh=[0, 128])
             cv.imwrite(os.path.join(output_path, file), thresh)
 
-    def test_ulea(self) -> None:
-        output_path = os.path.join(self._outputh_path, "ulea/")
+    def test_pipeline(self) -> None:
+        output_path = os.path.join(self._outputh_path, "lp_extraction")
+        lp_path = os.path.join(output_path, "lp")
+
         try:
             self._create_or_clear_directory(output_path)
+            self._create_or_clear_directory(lp_path)
+
         except Exception as e:
             print(f'Exception occured when creating file {e}')
             return
-
         for file in self._data:
             try:
-                image = cv.imread(
-                    os.path.join(self._data_path, file),
-                    cv.IMREAD_GRAYSCALE
-                )
+                image = cv.imread(os.path.join(self._data_path, file))
             except Exception:
                 print(f'Exception occured when reading {file}')
                 continue
-            thresh = self._pipeline.adaptive_thresholding(array=image)
-            ulea = self._pipeline.ulea(thresh)
-            cv.imwrite(os.path.join(output_path, file), ulea)
-
-    def test_veda(self) -> None:
-        output_path = os.path.join(self._outputh_path, "veda/")
-        output_path_binary = os.path.join(output_path, "binary/")
-        output_path_ulea = os.path.join(output_path, "ulea/")
-        try:
-            self._create_or_clear_directory(output_path)
-            self._create_or_clear_directory(output_path_binary)
-            self._create_or_clear_directory(output_path_ulea)
-        except Exception as e:
-            print(f'Exception occured when creating file {e}')
-            return
-
-        for file in self._data:
-            try:
-                image = cv.imread(
-                    os.path.join(self._data_path, file),
-                    cv.IMREAD_GRAYSCALE
-                )
-            except Exception:
-                print(f'Exception occured when reading {file}')
-                continue
-            thresh = self._pipeline.binary_array(image, [128, 255])
-            ulea = self._pipeline.ulea(thresh)
-            veda = self._pipeline.veda(ulea)
-            cv.imwrite(os.path.join(output_path_binary, file), thresh)
-            cv.imwrite(os.path.join(output_path_ulea, file), ulea)
-            cv.imwrite(os.path.join(output_path, file), veda)
-
-    def test_skip_image(self) -> None:
-        output_path = os.path.join(self._outputh_path, "skip_image/")
-        output_veda = os.path.join(output_path, "veda")
-        try:
-            self._create_or_clear_directory(output_path)
-            self._create_or_clear_directory(output_veda)
-        except Exception as e:
-            print(f'Exception occured when creating file {e}')
-            return
-
-        for file in self._data:
-            try:
-                image = cv.imread(
-                    os.path.join(self._data_path, file),
-                    cv.IMREAD_GRAYSCALE
-                )
-            except Exception:
-                print(f'Exception occured when reading {file}')
-                continue
-            thresh = self._pipeline.binary_array(image, [0, 128])
-            ulea = self._pipeline.ulea(thresh)
-            veda = self._pipeline.veda(ulea)
-            skip_image = self._pipeline.skip_image(veda)
-            cv.imwrite(os.path.join(output_path, file), skip_image)
-            cv.imwrite(os.path.join(output_veda, file), veda)
-        return
-
-    '''
-    def test_integral_image(self) -> None:
-        output_path = os.path.join(self._outputh_path, "integral_image/")
-        try:
-            self._create_or_clear_directory(output_path)
-        except Exception as e:
-            print(f'Exception occured when creating file {e}')
-            return
-
-        for file in self._data:
-            try:
-                image = cv.imread(
-                    os.path.join(self._data_path, file),
-                    cv.IMREAD_GRAYSCALE
-                )
-            except Exception:
-                print(f'Exception occured when reading {file}')
-                continue
-            thresh = self._pipeline.adaptive_thresholding(image)
-            ulea = self._pipeline.ulea(thresh)
-            veda = self._pipeline.veda(ulea)
-            skip_image = self._pipeline.skip_quantity(veda, np.shape(veda)[1])
-            integral_image = self._pipeline.integral_image(skip_image)
-            cv.imwrite(os.path.join(output_path, file), integral_image)
-    '''
+            lp = self._pipeline.extraction_pipeline(image)
+            if lp is not None:
+                cv.imwrite(os.path.join(lp_path, file), lp)
+            cv.imwrite(os.path.join(output_path, file), image)
 
     def _get_random_files(self) -> None:
         files = []
