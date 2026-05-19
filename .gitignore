@@ -15,4 +15,4 @@ src/.mypy*
 data/
 
 Documentatie/.auctex*
-Documentatie/chapter/.auctex*
+Documentatie/chapters/.auctex*
