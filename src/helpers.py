@@ -39,6 +39,19 @@ class HelperProcessingFunctions():
         return HelperProcessingFunctions.binary_array(array, thresh)
 
     @staticmethod
+    def otsu_thresholding(array: np.array) -> np.array:
+        '''
+        Binarize a grayscale image with Otsu's method.
+        Inverted (THRESH_BINARY_INV) so dark characters become
+        white foreground, as cv.findContours detects white blobs.
+        :param array: np 2D grayscale array
+        :return: Binary 2D array
+        '''
+        _, binary = cv.threshold(
+            array, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU)
+        return binary
+
+    @staticmethod
     def median_filter(array: np.array, ksize=3) -> np.array:
         return cv.medianBlur(array, ksize)
 
@@ -53,22 +66,15 @@ class HelperProcessingFunctions():
         return cv.dilate(array, kernel, iterations=3)
 
     @staticmethod
-    def find_countours(array: np.array, aspect_ratio_bounds=(2.0, 6),
-                       size_constraint=1000):
-        '''
-        Return the bounding box of the largest contour matching the
-        aspect ratio and size constraints.
-        :param array: binary 2D array
-        :param aspect_ratio_bounds: (min, max) width/height ratio, or None
-        :param size_constraint: minimum area in pixels, or None
-        :return: (x, y, w, h) bounding box, or None if nothing matches
-        '''
+    def find_countours(array, aspect_ratio_bounds=None, size_constraint=None):
+        if array is None:
+            return None
+
         contours, _ = cv.findContours(
             array,
             cv.RETR_EXTERNAL,
             cv.CHAIN_APPROX_SIMPLE)
-        max_area = -1
-        best_contour = None
+        boxes = []
 
         for cnt in contours:
             x, y, w, h = cv.boundingRect(cnt)
@@ -77,23 +83,20 @@ class HelperProcessingFunctions():
 
             area = h * w
             aspect_ratio = float(w) / h
-            is_plate_shape = (aspect_ratio_bounds is None or
-                              aspect_ratio_bounds[0] <= aspect_ratio
-                              <= aspect_ratio_bounds[1])
-            is_big_enough = (size_constraint is None or
-                             area >= size_constraint)
+            aspect_ratio_cond = (aspect_ratio_bounds is None or
+                                 (aspect_ratio_bounds[0] <= aspect_ratio <=
+                                  aspect_ratio_bounds[1]))
+            size_constraint_cond = (size_constraint is None or
+                                    area >= size_constraint)
 
-            if is_plate_shape and is_big_enough and area > max_area:
-                max_area = area
-                best_contour = cnt
+            if aspect_ratio_cond and size_constraint_cond:
+                boxes.append(cnt)
 
-        if best_contour is not None:
-            return cv.boundingRect(best_contour)
+        if len(boxes) > 0:
+            return [cv.boundingRect(cnt) for cnt in boxes]
         return None
 
     @staticmethod
     def crop_on_bounding_box(array, bounding_box):
-        if bounding_box is None:
-            return None
         (x, y, w, h) = bounding_box
         return array[y:y+h, x:x+w]

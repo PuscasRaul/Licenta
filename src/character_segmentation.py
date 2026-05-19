@@ -1,40 +1,26 @@
 import cv2 as cv
 import numpy as np
+from src.helpers import HelperProcessingFunctions as helper
 
 
 class CharacterSegmentation():
     def __init__(self) -> None:
         return
 
-    def find_countours(self, array: np.array):
-        contours, _ = cv.findContours(
-            array,
-            cv.RETR_EXTERNAL,
-            cv.CHAIN_APPROX_SIMPLE)
-        max_area = -1
-        character_contours = []
+    def character_segmentation(self, license_plate: np.array):
+        if license_plate is None:
+            return
+        greyscale = cv.cvtColor(license_plate, cv.COLOR_BGR2GRAY)
+        thresholded = helper.otsu_thresholding(greyscale)
+        contours = helper.find_countours(thresholded,
+                                         aspect_ratio_bounds=(0.15, 1))
 
-        '''
-        This should be the main algorithm, the problem now becomes
-        How to select the specific aspect ratio required for
-        Selecting a character from the cropped license plate,
-        So that if any other object does get found, it falls
-        '''
-        for cnt in contours:
-            x, y, w, h = cv.boundingRect(cnt)
-            if h == 0:
-                continue
+        if contours is None:
+            return
 
-            area = h * w
-            aspect_ratio = float(w) / h
-            is_plate_shape = 2.0 <= aspect_ratio <= 6
-            is_big_enough = area >= 1000
-
-            if is_plate_shape and is_big_enough:
-                character_contours.append(cnt)
-
-        if len(character_contours) <= 0:
-            return None
-
-        bounding_boxes = [cv.boundingRect(cnt) for cnt in character_contours]
-        return bounding_boxes.sort()
+        plate_height = thresholded.shape[0]
+        contours = [box for box in contours
+                    if 0.4 <= box[3] / plate_height <= 0.95]
+        sorted_cnt = sorted(contours, key=lambda b: b[0])  # sort on x-axis
+        return [helper.crop_on_bounding_box(license_plate, cnt)
+                for cnt in sorted_cnt]

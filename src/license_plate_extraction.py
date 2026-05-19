@@ -42,6 +42,9 @@ class DetectionPipeline():
         return abs_grad_x
 
     def extraction_pipeline(self, array: np.array):
+        if array is None:
+            return None
+
         greyscale = cv.cvtColor(array, cv.COLOR_BGR2GRAY)
         median = helper.median_filter(array=greyscale)
         sobel = self.sobel(median)
@@ -50,5 +53,8 @@ class DetectionPipeline():
         open_image = helper.opening(masked)
         dilated_image = helper.dilation(open_image)
         bounding_box = helper.find_countours(dilated_image, (2.0, 6), 1000)
-        lp = helper.crop_on_bounding_box(array, bounding_box)
+        if not bounding_box:
+            return None
+        biggest_bounding_box = max(bounding_box, key=lambda b: b[2] * b[3])
+        lp = helper.crop_on_bounding_box(array, biggest_bounding_box)
         return lp
