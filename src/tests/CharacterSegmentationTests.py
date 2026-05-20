@@ -23,32 +23,38 @@ class CharacterSegmentationTests(unittest.TestCase):
         self._segmentation = CharacterSegmentation()
 
     def test_segmentation(self) -> None:
-        output_path = os.path.join(self._outputh_path, "lp_extraction")
-        lp_path = os.path.join(output_path, "lp")
+        output_path = os.path.join(self._outputh_path,
+                                   "character_segmentation")
 
         try:
             self._create_or_clear_directory(output_path)
-            self._create_or_clear_directory(lp_path)
-
         except Exception as e:
             print(f'Exception occured when creating file {e}')
             return
+
         for file in self._data:
             try:
                 image = cv.imread(os.path.join(self._data_path, file))
-                segments = os.path.join(output_path, file)
-                self._create_or_clear_directory(segments)
+                image_path = os.path.join(output_path, file)
+                self._create_or_clear_directory(image_path)
             except Exception:
-                print(f'Exception occured when reading {file}')
+                print(f'Exception occured when reading/ \
+                        creating directory {file}')
                 continue
+
             lp = self._pipeline.extraction_pipeline(image)
-            segmented = self._segmentation.character_segmentation(lp)
-            if lp is not None:
-                cv.imwrite(os.path.join(lp_path, file), lp)
-            if (segmented is not None):
-                for segment in segmented:
-                    cv.imwrite(os.path.join(segments, file), segment)
+            if lp is None:
+                continue
+
+            characters = self._segmentation.character_segmentation(lp)
+            if characters is not None and len(characters) > 0:
+                for i, character in enumerate(characters):
+                    char_filename = f"char_{i}.png"
+                    full_save_path = os.path.join(image_path, char_filename)
+                    cv.imwrite(full_save_path, character)
+
             cv.imwrite(os.path.join(output_path, file), image)
+            cv.imwrite(os.path.join(image_path, file), lp)
 
     def _get_random_files(self) -> None:
         files = []

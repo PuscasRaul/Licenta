@@ -72,7 +72,7 @@ class HelperProcessingFunctions():
 
         contours, _ = cv.findContours(
             array,
-            cv.RETR_EXTERNAL,
+            cv.RETR_LIST,
             cv.CHAIN_APPROX_SIMPLE)
         boxes = []
 
