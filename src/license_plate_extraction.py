@@ -5,17 +5,18 @@ from src.helpers import HelperProcessingFunctions as helper
 
 class DetectionPipeline():
 
-    def __init__(self):
-        return
+    def __init__(self, lp_aspect_ratio, lp_min_size):
+        '''
+        :param lp_aspect_ratio :tuple aspect ratio for a contour to be
+        considered a license plate
+        :param lp_min_size minimum area size of a region to be considered
+        a candidate for lp
+        '''
+        self._lp_aspect_ratio = lp_aspect_ratio
+        self._lp_min_size = lp_min_size
 
     def mask_center(self, array: np.array) -> np.array:
         rows, cols = np.shape(array)
-        '''
-        Take around 50% of the image
-        50% from the top,
-        25% from left and
-        25% from right
-        '''
         mask_cols = int(cols / 6)
         mask_rows = int(rows / 2)
         top_left = (mask_cols, 0 + mask_rows)
@@ -48,13 +49,37 @@ class DetectionPipeline():
         greyscale = cv.cvtColor(array, cv.COLOR_BGR2GRAY)
         median = helper.median_filter(array=greyscale)
         sobel = self.sobel(median)
-        thresh = helper.thresholding(sobel)
-        masked = self.mask_center(thresh)
-        open_image = helper.opening(masked)
+        thresh = helper.otsu_thresholding(sobel)
+        thresh = cv.bitwise_not(thresh)
+        open_image = helper.opening(thresh)
         dilated_image = helper.dilation(open_image)
-        bounding_box = helper.find_countours(dilated_image, (2.0, 6), 1000)
-        if not bounding_box:
+        bounding_box = helper.find_countours(dilated_image,
+                                             self._lp_aspect_ratio,
+                                             self._lp_min_size)
+        if bounding_box is None or len(bounding_box) <= 0:
             return None
-        biggest_bounding_box = max(bounding_box, key=lambda b: b[2] * b[3])
-        lp = helper.crop_on_bounding_box(array, biggest_bounding_box)
+
+        ranked_bb = self._rank_bounding_boxes(bounding_box, thresh)
+        if ranked_bb is None or len(ranked_bb) <= 0:
+            return None
+
+        ranked_bb.sort(key=lambda item: item[1], reverse=True)
+        best_bb = ranked_bb[0][0]
+
+        lp = helper.crop_on_bounding_box(array, best_bb)
         return lp
+
+    def _rank_bounding_boxes(self, bb, otsu):
+        if bb is None:
+            return None
+
+        scored_boxes = []
+        for (x, y, w, h) in bb:
+            area = w * h
+
+            roi_edges = otsu[y:y+h, x:x+w]
+            edge_density = cv.countNonZero(roi_edges) / area
+            score = area * edge_density
+            scored_boxes.append(((x, y, w, h), score))
+
+        return scored_boxes
