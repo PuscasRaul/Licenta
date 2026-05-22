@@ -1,11 +1,11 @@
 import cv2 as cv
 import numpy as np
-from src.helpers import HelperProcessingFunctions as helper
+from src.helpers import HelperProcessingFunctions
 
 
 class DetectionPipeline():
 
-    def __init__(self, lp_aspect_ratio, lp_min_size):
+    def __init__(self, lp_aspect_ratio, lp_min_size, lp_roi=None):
         '''
         :param lp_aspect_ratio :tuple aspect ratio for a contour to be
         considered a license plate
@@ -14,6 +14,8 @@ class DetectionPipeline():
         '''
         self._lp_aspect_ratio = lp_aspect_ratio
         self._lp_min_size = lp_min_size
+        self._lp_roi = lp_roi
+        self._helper = HelperProcessingFunctions()
 
     def mask_center(self, array: np.array) -> np.array:
         rows, cols = np.shape(array)
@@ -46,16 +48,19 @@ class DetectionPipeline():
         if array is None:
             return None
 
+        if (self._lp_roi is not None):
+            array = self._helper.crop_on_bounding_box(array, self._lp_roi)
+
         greyscale = cv.cvtColor(array, cv.COLOR_BGR2GRAY)
-        median = helper.median_filter(array=greyscale)
+        median = self._helper.median_filter(array=greyscale)
         sobel = self.sobel(median)
-        thresh = helper.otsu_thresholding(sobel)
+        thresh = self._helper.otsu_thresholding(sobel)
         thresh = cv.bitwise_not(thresh)
-        open_image = helper.opening(thresh)
-        dilated_image = helper.dilation(open_image)
-        bounding_box = helper.find_countours(dilated_image,
-                                             self._lp_aspect_ratio,
-                                             self._lp_min_size)
+        open_image = self._helper.opening(thresh)
+        closed_image = self._helper.closing(open_image)
+        bounding_box = self._helper.find_countours(closed_image,
+                                                   self._lp_aspect_ratio,
+                                                   self._lp_min_size)
         if bounding_box is None or len(bounding_box) <= 0:
             return None
 
@@ -66,7 +71,7 @@ class DetectionPipeline():
         ranked_bb.sort(key=lambda item: item[1], reverse=True)
         best_bb = ranked_bb[0][0]
 
-        lp = helper.crop_on_bounding_box(array, best_bb)
+        lp = self._helper.crop_on_bounding_box(array, best_bb)
         return lp
 
     def _rank_bounding_boxes(self, bb, otsu):
@@ -79,7 +84,6 @@ class DetectionPipeline():
 
             roi_edges = otsu[y:y+h, x:x+w]
             edge_density = cv.countNonZero(roi_edges) / area
-            score = area * edge_density
-            scored_boxes.append(((x, y, w, h), score))
+            scored_boxes.append(((x, y, w, h), edge_density))
 
         return scored_boxes

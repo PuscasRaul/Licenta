@@ -20,7 +20,7 @@ class DetectionPipelineTests(unittest.TestCase):
 
     def setUp(self):
         self._get_random_files()
-        self._pipeline = DetectionPipeline()
+        self._pipeline = DetectionPipeline((2.0, 5), 1500)
         self._helper = HelperProcessingFunctions()
 
     def test_pipeline(self) -> None:

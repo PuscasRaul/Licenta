@@ -61,6 +61,11 @@ class HelperProcessingFunctions():
         return cv.morphologyEx(array, cv.MORPH_OPEN, kernel)
 
     @staticmethod
+    def closing(array, ksize=(3, 3)) -> np.array:
+        kernel = np.ones(ksize, np.uint8)
+        return cv.morphologyEx(array, cv.MORPH_CLOSE, kernel)
+
+    @staticmethod
     def dilation(array: np.array) -> np.array:
         kernel = np.ones((1, 8), np.uint8)
         return cv.dilate(array, kernel, iterations=3)
@@ -72,7 +77,7 @@ class HelperProcessingFunctions():
 
         contours, _ = cv.findContours(
             array,
-            cv.RETR_LIST,
+            cv.RETR_EXTERNAL,
             cv.CHAIN_APPROX_SIMPLE)
         boxes = []
 
