@@ -4,7 +4,6 @@ import os
 import shutil
 import random
 import cv2 as cv
-import numpy as np
 from src.license_plate_extraction import DetectionPipeline
 from src.helpers import HelperProcessingFunctions
 
@@ -20,7 +19,7 @@ class DetectionPipelineTests(unittest.TestCase):
 
     def setUp(self):
         self._get_random_files()
-        self._pipeline = DetectionPipeline((2.0, 5), 1500)
+        self._pipeline = DetectionPipeline((1.5, 8.0), 500)
         self._helper = HelperProcessingFunctions()
 
     def test_pipeline(self) -> None:
@@ -49,42 +48,34 @@ class DetectionPipelineTests(unittest.TestCase):
             if image is None:
                 continue
 
-            greyscale = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-            median = self._helper.median_filter(greyscale)
-            sobel = self._pipeline.sobel(median)
-            otsu = self._helper.otsu_thresholding(sobel)
-            otsu = cv.bitwise_not(otsu)
-            opening = self._helper.opening(otsu)
-            dilation = self._helper.dilation(opening)
-            bb = self._helper.find_countours(dilation, (2.0, 5), 1500)
+            lps, intermediates = self._pipeline.extraction_pipeline_with_intermediates(image)
+
             cv.imwrite(os.path.join(output_path, file), image)
-            cv.imwrite(os.path.join(thresholded_path, file), otsu)
-            cv.imwrite(os.path.join(closing_path, file), dilation)
-            if bb is not None:
-                ranked_bb = self._rank_bounding_boxes(bb, otsu)
-                if ranked_bb is None or len(ranked_bb) <= 0:
-                    return None
-
-                ranked_bb.sort(key=lambda item: item[1], reverse=True)
-                best_bb = ranked_bb[0][0]
-                (x, y, w, h) = best_bb
-                cv.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                cv.imwrite(os.path.join(bb_path, file), image)
-
-    def _rank_bounding_boxes(self, bb, otsu):
-        if bb is None:
-            return None
-
-        scored_boxes = []
-        for (x, y, w, h) in bb:
-            area = w * h
-
-            roi_edges = otsu[y:y+h, x:x+w]
-            edge_density = cv.countNonZero(roi_edges) / area
-            score = area * edge_density
-            scored_boxes.append(((x, y, w, h), score))
-
-        return scored_boxes
+            if 'thresh' in intermediates:
+                cv.imwrite(os.path.join(thresholded_path, file),
+                           intermediates['thresh'])
+            if 'dilated' in intermediates:
+                cv.imwrite(os.path.join(closing_path, file),
+                           intermediates['dilated'])
+            if 'top_bbs' in intermediates:
+                roi = self._pipeline._lp_roi
+                roi_x, roi_y = (roi[0], roi[1]) if roi else (0, 0)
+                annotated = image.copy()
+                colors = [(0, 255, 0), (0, 255, 255), (0, 165, 255),
+                          (255, 0, 255), (255, 255, 0)]
+                for i, (x, y, w, h) in enumerate(intermediates['top_bbs']):
+                    color = colors[i] if i < len(colors) else (255, 0, 0)
+                    cv.rectangle(annotated,
+                                 (x + roi_x, y + roi_y),
+                                 (x + roi_x + w, y + roi_y + h),
+                                 color, 2)
+                cv.imwrite(os.path.join(bb_path, file), annotated)
+            if lps:
+                name, ext = os.path.splitext(file)
+                for i, lp in enumerate(lps):
+                    suffix = '' if i == 0 else f"_{i}"
+                    cv.imwrite(os.path.join(lp_path, f"{name}{suffix}{ext}"),
+                               lp)
 
     def _get_random_files(self) -> None:
         files = []
@@ -116,6 +107,9 @@ class DetectionPipelineTests(unittest.TestCase):
             print(f"An error occurred: {e}")
             raise Exception
 
+    def compute_roi(self, image):
+        h, w = image.shape[:2]
+        return (w // 4, h // 2, w // 2, h // 2)
 
 if __name__ == '__main__':
     unittest.main()

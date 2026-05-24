@@ -1,28 +1,30 @@
 #!/usr/bin/env python3
 import os
 import cv2 as cv
+import shutil
 
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-input_path = os.path.join(project_root, 'data', 'romanian', 'unlabled')
-output_path = os.path.join(project_root, 'data', 'romanian', 'labeled')
+input_path = os.path.join(project_root, 'data', 'unlabled')
+output_path = os.path.join(project_root, 'data', 'labeled')
 
 bad_output = os.path.join(output_path, "bad")
 
 os.makedirs(bad_output, exist_ok=True)
 
 
-def create_dir(dir_name):
-    dir_path = os.path.join(output_path, dir_name)
-    os.makedirs(dir_path, exist_ok=True)
-
-
 def image_callback(image, key, filename):
     # for images without a character/ unrecognizable one
+    initial_location = os.path.join(input_path, filename)
+
     if key == '.':
-        cv.imwrite(os.path.join(bad_output, filename), image)
+        final_location = os.path.join(bad_output, filename)
+        shutil.move(initial_location, final_location)
+
     else:
-        create_dir(key)
-        cv.imwrite(os.path.join(output_path, key, filename), image)
+        dir_path = os.path.join(output_path, key)
+        os.makedirs(dir_path, exist_ok=True)
+        final_location = os.path.join(dir_path, filename)
+        shutil.move(initial_location, final_location)
 
 
 WINDOW = "label"
@@ -33,7 +35,8 @@ for (root, dirs, files) in os.walk(input_path):
     if quit_requested:
         break
     for file in files:
-        image = cv.imread(os.path.join(root, file))
+        filename = os.path.join(root, file)
+        image = cv.imread(filename)
         if image is None:
             continue
 
@@ -41,7 +44,7 @@ for (root, dirs, files) in os.walk(input_path):
         key = cv.waitKey(0) & 0xFF
 
         # ESC or q to quit
-        if key == 27 or key == ord('q'):
+        if key == 27 or key == ord('\\'):
             quit_requested = True
             break
 

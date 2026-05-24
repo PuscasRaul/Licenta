@@ -8,20 +8,20 @@ import numpy as np
 from sklearn import metrics, svm
 from sklearn.model_selection import train_test_split
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.license_plate_extraction import DetectionPipeline as DP
 from src.character_segmentation import CharacterSegmentation as CS
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 dataset_dirs = [
-    os.path.join(project_root, 'data', 'romanian', 'labeled'),
-    os.path.join(project_root, 'data', 'characters', 'labeled'),
+    os.path.join(project_root, 'data',  'labeled')
 ]
 
 IMG_SIZE = 28
 SKIP_LABELS = {'BAD'}
-MIN_SAMPLES_PER_CLASS = 2
+MIN_SAMPLES_PER_CLASS = 15
 
 
 def load_dataset(dirs):
@@ -69,12 +69,12 @@ def predict_from_path(clf, extraction_pipeline, segmentation_pipeline, path):
         print(f"Could not read image: {path}")
         return
 
-    lp = extraction_pipeline.extraction_pipeline(image)
-    if lp is None:
+    lps = extraction_pipeline.extraction_pipeline(image)
+    if lps is None or len(lps) == 0:
         print("No license plate detected")
         return
 
-    characters = segmentation_pipeline.character_segmentation(lp)
+    characters = segmentation_pipeline.character_segmentation(lps)
     if not characters:
         print("No characters segmented")
         return
@@ -83,7 +83,7 @@ def predict_from_path(clf, extraction_pipeline, segmentation_pipeline, path):
     preds = clf.predict(features)
     print(f"Predicted plate: {''.join(preds)}")
 
-    cv.imshow("license plate", lp)
+    cv.imshow("license plate", lps[0])
     for idx, ch in enumerate(characters):
         cv.imshow(f"{idx}:{preds[idx]}", ch)
     cv.waitKey(0)
@@ -115,7 +115,7 @@ print(f"\nAccuracy: {metrics.accuracy_score(y_test, predicted):.3f}")
 print("\nClassification report:")
 print(metrics.classification_report(y_test, predicted, zero_division=0))
 
-extraction_pipeline = DP()
+extraction_pipeline = DP((1.5, 8.0), 500)
 segmentation_pipeline = CS()
 
 print("\nReady. Enter an image path to extract and classify characters.")

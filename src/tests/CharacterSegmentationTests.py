@@ -11,7 +11,7 @@ from src.license_plate_extraction import DetectionPipeline
 class CharacterSegmentationTests(unittest.TestCase):
     _dirname = os.path.dirname(__file__)
     _data_path = os.path.abspath(os.path.join(
-        _dirname, '../../data/test/'))
+        _dirname, '../../data/valid/'))
     _outputh_path = os.path.abspath(os.path.join(
         _dirname, './output/pipeline/segmentation'))
     _sample_size = 15
@@ -19,7 +19,7 @@ class CharacterSegmentationTests(unittest.TestCase):
 
     def setUp(self):
         self._get_random_files()
-        self._pipeline = DetectionPipeline()
+        self._pipeline = DetectionPipeline((1.5, 8.0), 500)
         self._segmentation = CharacterSegmentation()
 
     def test_segmentation(self) -> None:
@@ -33,6 +33,8 @@ class CharacterSegmentationTests(unittest.TestCase):
             return
 
         for file in self._data:
+            if file.endswith("xml"):
+                continue
             try:
                 image = cv.imread(os.path.join(self._data_path, file))
                 image_path = os.path.join(output_path, file)
@@ -42,19 +44,30 @@ class CharacterSegmentationTests(unittest.TestCase):
                         creating directory {file}')
                 continue
 
-            lp = self._pipeline.extraction_pipeline(image)
-            if lp is None:
+            if (image is None):
+                print('image was None')
                 continue
 
-            characters = self._segmentation.character_segmentation(lp)
+            lps = self._pipeline.extraction_pipeline(image)
+            if lps is None or len(lps) == 0:
+                print('lp was none')
+                continue
+
+            characters = self._segmentation.character_segmentation(lps)
             if characters is not None and len(characters) > 0:
                 for i, character in enumerate(characters):
                     char_filename = f"char_{i}.png"
                     full_save_path = os.path.join(image_path, char_filename)
                     cv.imwrite(full_save_path, character)
+            else:
+                print('characters were none')
 
             cv.imwrite(os.path.join(output_path, file), image)
-            cv.imwrite(os.path.join(image_path, file), lp)
+            for i, lp in enumerate(lps):
+                suffix = '' if i == 0 else f"_cand{i}"
+                name, ext = os.path.splitext(file)
+                cv.imwrite(os.path.join(image_path, f"{name}{suffix}{ext}"),
+                           lp)
 
     def _get_random_files(self) -> None:
         files = []

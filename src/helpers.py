@@ -66,8 +66,16 @@ class HelperProcessingFunctions():
         return cv.morphologyEx(array, cv.MORPH_CLOSE, kernel)
 
     @staticmethod
-    def dilation(array: np.array) -> np.array:
-        kernel = np.ones((1, 8), np.uint8)
+    def dilation(array: np.array, kernel_width=None) -> np.array:
+        '''
+        Horizontal dilation to bridge gaps between adjacent characters.
+        Kernel width scales with image width when not given, so plates
+        of different sizes get a proportional bridge.
+        '''
+        if kernel_width is None:
+            width = array.shape[1] if array.ndim >= 2 else 8
+            kernel_width = max(4, width // 80)
+        kernel = np.ones((1, kernel_width), np.uint8)
         return cv.dilate(array, kernel, iterations=3)
 
     @staticmethod

@@ -17,13 +17,8 @@ splits = ["valid"]
 os.makedirs(output_path, exist_ok=True)
 os.makedirs(lp_path, exist_ok=True)
 
-extraction_pipeline = DP((3.0, 6.0), 2000)
+extraction_pipeline = DP((1.5, 8.0), 500)
 segmentation_pipeline = CS()
-
-
-def compute_roi(image):
-    h, w = image.shape[:2]
-    return (w // 4, h // 2, w // 2, h // 2)
 
 
 for split in splits:
@@ -37,18 +32,17 @@ for split in splits:
             if image is None:
                 continue
 
-            extraction_pipeline._lp_roi = compute_roi(image)
-            lp = extraction_pipeline.extraction_pipeline(image)
-            if lp is None:
+            lps = extraction_pipeline.extraction_pipeline(image)
+            if lps is None or len(lps) == 0:
                 continue
 
-            characters = segmentation_pipeline.character_segmentation(lp)
+            characters = segmentation_pipeline.character_segmentation(lps)
             if characters is None or len(characters) <= 0:
                 continue
 
             name, _ = os.path.splitext(file)
             lp_out = os.path.join(lp_path, file)
-            cv.imwrite(lp_out, lp)
+            cv.imwrite(lp_out, lps[0])
             for idx, character in enumerate(characters):
                 file_out = os.path.join(output_path, f"{name}_{idx}.png")
                 cv.imwrite(file_out, character)
