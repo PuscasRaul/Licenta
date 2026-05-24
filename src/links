@@ -1,0 +1,7 @@
+- FastAPI WebSockets: https://fastapi.tiangolo.com/advanced/websockets/ — covers WebSocket, receive_bytes(), receive_text(),
+  send_json(), and a connection-manager pattern for multiple clients.
+  - Starlette WebSockets (FastAPI is built on it, deeper API): https://www.starlette.io/websockets/
+  - Uvicorn WebSocket options (max size, ping interval): https://www.uvicorn.org/settings/#http
+  - FastAPI streaming responses (for the SSE-style results-back alternative):
+  https://fastapi.tiangolo.com/advanced/custom-response/#streamingresponse
+  - MDN WebSockets API (client side, browser): https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API

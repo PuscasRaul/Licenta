@@ -8,8 +8,8 @@ import numpy as np
 from sklearn import metrics, svm
 from sklearn.model_selection import train_test_split
 
-from src.license_plate_extraction import DetectionPipeline as DP
-from src.character_segmentation import CharacterSegmentation as CS
+from src.pipeline.CharacterSegmentation import CharacterSegmentation as CS
+from src.pipeline.LPExtraction import LPExtraction as LPE
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -115,7 +115,7 @@ print(f"\nAccuracy: {metrics.accuracy_score(y_test, predicted):.3f}")
 print("\nClassification report:")
 print(metrics.classification_report(y_test, predicted, zero_division=0))
 
-extraction_pipeline = DP((1.5, 8.0), 500)
+extraction_pipeline = LPE((1.5, 8.0), 500)
 segmentation_pipeline = CS()
 
 print("\nReady. Enter an image path to extract and classify characters.")

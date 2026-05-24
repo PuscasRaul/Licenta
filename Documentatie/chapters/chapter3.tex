@@ -1,28 +1,13 @@
 \chapter{Segmentarea caracterelor}
-\label{chap:ch3}
+Segmentarea caracterelor reprezintă o Etapa intermediară a procesului care presupune procesarea și divizarea regiunii extrase de către etapa anterioară în alte subregiuni, fiecare conținând un singur caracter.
 
-\par Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+În literatura de specialitate, pentru a atinge acest scop sunt propuse diverse tehnici~\cite{SOAReview}:
+\begin{itemize}
+        \item{Analiza conectivității pixelilor}
+        \item{Analiza proiecțiilor}
+        \item{Utilizarea informațiilor apriori privind aspectul caracterelor}
+        \item{Analiza conturului caracterelor}
+\end{itemize}
 
-
-\section{Sectiune}
-\label{sec:ch3sec1}
-
-\par Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
-
-
-\subsection{Subsectiune}
-\label{subsec:ch3sec1subsec1}
-
-\par Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
-
-\section{Sectiune}
-\label{sec:ch3sec2}
-
-\par Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
-
-
-\subsection{Subsectiune}
-\label{subsec:ch3sec2subsec1}
-
-\par Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
-
+\subsection{Conectivitatea pixelilor}
+Această abordare presupune binarizarea imaginii regiunii de interes extrase anterior, urmată de analiza componentelor conexe(CCA) și o structură decizională care să faciliteze selectarea regiunilor identificare de CCA. pe baza unor criterii ancorate în dimensiunile și proporțiile zonei selectate. Mai exact, zona extrasă de pasul anterior este binarizată, algoritmul de analiză a componentelor conexe este rulat, iar rezultatul acestuia este trecut printr-o structură decizională care va selecta regiunile cu mărimi și proporții similare. Din cauză că partea de filtrare are ca factor decisiv similitudinea proporțiilor și a dimensiunilor, dacă plăcuța de înmatriculare este parțial rotită, algoritmul va eșua segmentarea.

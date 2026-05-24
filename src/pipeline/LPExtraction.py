@@ -1,9 +1,9 @@
 import cv2 as cv
 import numpy as np
-from src.helpers import HelperProcessingFunctions
+from src.pipeline.HelperProcessingFunctions import HelperProcessingFunctions
 
 
-class DetectionPipeline():
+class LPExtraction():
 
     def __init__(self, lp_aspect_ratio, lp_min_size, lp_roi=None, top_k=5):
         '''

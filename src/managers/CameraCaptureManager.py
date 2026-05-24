@@ -1,43 +1,10 @@
 #!/usr/bin/env python3
 import cv2 as cv
-import numpy as np
+from ICaptureManager import ICaptureManager
+from src.domain.Frame import Frame
 
 
-class Frame(object):
-    def __init__(
-            self,
-            image_data: np.array,
-            timestamp: float,
-            metadata: dict = None
-    ) -> None:
-        self._image_data = image_data
-        self._timestap = timestamp
-        self._metadata = metadata
-
-    @property
-    def get_metadata(self) -> str:
-        return self._metadata
-
-    @property
-    def get_image_data(self):
-        return self._image_data
-
-    def get_timestamp(self):
-        return self._timestap
-
-
-class ICaptureManger(object):
-    def start(self) -> None:
-        pass
-
-    def get_latest_frame(self) -> Frame:
-        pass
-
-    def stop(self) -> None:
-        pass
-
-
-class CvCaptureManager(ICaptureManger):
+class CameraCaptureManager(ICaptureManager):
     def __init__(self, device_index=0):
         self._device_index = device_index
         self._video_capture = cv.VideoCapture(self._device_index)

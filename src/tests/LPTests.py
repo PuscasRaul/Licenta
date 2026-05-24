@@ -4,8 +4,9 @@ import os
 import shutil
 import random
 import cv2 as cv
-from src.license_plate_extraction import DetectionPipeline
-from src.helpers import HelperProcessingFunctions
+
+from src.pipeline.LPExtraction import LPExtraction as LPE
+from src.pipeline.HelperProcessingFunctions import HelperProcessingFunctions
 
 
 class DetectionPipelineTests(unittest.TestCase):
@@ -19,7 +20,7 @@ class DetectionPipelineTests(unittest.TestCase):
 
     def setUp(self):
         self._get_random_files()
-        self._pipeline = DetectionPipeline((1.5, 8.0), 500)
+        self._pipeline = LPE((1.5, 8.0), 500)
         self._helper = HelperProcessingFunctions()
 
     def test_pipeline(self) -> None:
@@ -110,6 +111,7 @@ class DetectionPipelineTests(unittest.TestCase):
     def compute_roi(self, image):
         h, w = image.shape[:2]
         return (w // 4, h // 2, w // 2, h // 2)
+
 
 if __name__ == '__main__':
     unittest.main()

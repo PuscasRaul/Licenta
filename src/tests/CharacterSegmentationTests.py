@@ -4,8 +4,8 @@ import os
 import cv2 as cv
 import random
 import shutil
-from src.character_segmentation import CharacterSegmentation
-from src.license_plate_extraction import DetectionPipeline
+from src.pipeline.CharacterSegmentation import CharacterSegmentation as CS
+from src.pipeline.LPExtraction import LPExtraction as LPE
 
 
 class CharacterSegmentationTests(unittest.TestCase):
@@ -19,8 +19,8 @@ class CharacterSegmentationTests(unittest.TestCase):
 
     def setUp(self):
         self._get_random_files()
-        self._pipeline = DetectionPipeline((1.5, 8.0), 500)
-        self._segmentation = CharacterSegmentation()
+        self._pipeline = LPE((1.5, 8.0), 500)
+        self._segmentation = CS()
 
     def test_segmentation(self) -> None:
         output_path = os.path.join(self._outputh_path,
