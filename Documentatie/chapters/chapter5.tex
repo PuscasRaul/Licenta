@@ -1,19 +1,56 @@
-\chapter{Overview al sistemului}
+\chapter{Capitole tehnice - e nevoie de alt titlu}
 \label{chap:ch3}
 
+Capitol tehnic in care descriu API-uri si tehnologii folosite pentru dezvoltare aplicatiei
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+Posibile api-uri pentru integrarea cu sisteme embedded, ce am facut pentru a acomoda genul asta de lucruri
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+\section{Tehnologii folosite}
+Tehnologii folosite pentru dezvoltarea pipeline-ului/ core-ul aplicatiei:
+\begin{itemize}
+  \item{python - {pin version}}
+  \item{openCv - {pin version}}
+  \item{numpy - {pin version}}
+  \item{scikit - {pin version}}
+\end{itemize}
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+Tehnologii aditionale folosite pentru dezvoltarea demo-ului:
+\begin{itemize}
+  \item{websocket - {pin version}}
+  \item{fastAPI - {pin version}}
+  \item{ce alte dependency se mai aduna intre timp }
+\end{itemize}
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+\section{Descrierea api-urilor folosite}
+\subsection {OpenCV apis}
+\subsubsection{Modulul de achizitie? a imaginilor}
+Pentru clasa de CameraCaptureManager(ICaptureManager) am folosit urmatoarele api-uri:
+\begin{itemize}
+        \item {Obiectul cv.VideoCapture}
+        \item {cv.VideoCapture.read()}
+\end{itemize}
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+Pentru a avea mereu latestFrame am setat cv.VideoCatpure.CAP\_PROP\_BUFFERSIZE = 1 astfel incat de fiecare data cand este apelata metoda de read, va fi latest frame si nu unul stale pastrat in buffer-ul intern al librariei
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+Pentru LPExtraction am folosit urmatoarele metode
+\begin{itemize}
+  \item{cv.cvtColor - conversie la greyscale}
+  \item{cv.medianBlur - filtrare mediana}
+  \item{cv.Sobel - operatorul sobel pentru edge detection}
+  \item{cv.threshold - binarize Otsu}
+  \item{cv.morphologyEx -> opening of the image}
+  \item{cv.dilate -> dilation of the image}
+  \item{cv.findContoures -> contour finding for the license plate}
+  \item{cv.Hough -> deskewing of the license plate}
+\end{itemize}
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+Pentru CharacterSegmentation TO BE FILLED, vreau sa testez algoritmul citit dintr-un research paper
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+Pentru OCR, am folosit urmatoarele apis:
+\begin{itemize}
+  \item svm.SVC(kernel='rbf', gamma='scale', C=10)
+  \item fit
+  \item predict
+\end{itemize}
+
+\section{Descrierea api-urilor expuse in demo?}

@@ -42,6 +42,12 @@ Tran~Duc Duan, TL~Hong Du, Tran~Vinh Phuoc, and Nguyen~Viet Hoang.
 \newblock In {\em Proc. Int. Conf. Comput. Sci. RIVF}, volume~1, pages 59--63,
   2005.
 
+\bibitem{SOAReview}
+Jithmi Shashirangana, Heshan Padmasiri, Dulani Meedeniya, and Charith Perera.
+\newblock Automated license plate recognition: a survey on methods and
+  techniques.
+\newblock {\em IEEE Access}, 9:11203--11225, 2020.
+
 \bibitem{lee1994automatic}
 Eun~Ryung Lee, Pyeoung~Kee Kim, and Hang~Joon Kim.
 \newblock Automatic recognition of a car license plate using color image

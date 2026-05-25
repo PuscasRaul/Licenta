@@ -1,13 +1,33 @@
-\chapter{Segmentarea caracterelor}
-Segmentarea caracterelor reprezintă o Etapa intermediară a procesului care presupune procesarea și divizarea regiunii extrase de către etapa anterioară în alte subregiuni, fiecare conținând un singur caracter.
+\chapter{Segmentarea imaginii}
+Segmentarea imaginii joacă un rol crucial în sistemele ALPR. Procesul presupune divizarea imaginii într-un anumit număr de segmente informative, sau regiuni care sunt mai simple de studiat.
 
-În literatura de specialitate, pentru a atinge acest scop sunt propuse diverse tehnici~\cite{SOAReview}:
+În literatura de specialitate, pentru a segmenta numărul de înmatriculare sunt propuse mai multe tehnici~\cite{SOAReview}:
 \begin{itemize}
-        \item{Analiza conectivității pixelilor}
+        \item{Analiza conectivității pixelilor \cite{kanayama1991development}}
         \item{Analiza proiecțiilor}
         \item{Utilizarea informațiilor apriori privind aspectul caracterelor}
         \item{Analiza conturului caracterelor}
 \end{itemize}
 
 \subsection{Conectivitatea pixelilor}
-Această abordare presupune binarizarea imaginii regiunii de interes extrase anterior, urmată de analiza componentelor conexe(CCA) și o structură decizională care să faciliteze selectarea regiunilor identificare de CCA. pe baza unor criterii ancorate în dimensiunile și proporțiile zonei selectate. Mai exact, zona extrasă de pasul anterior este binarizată, algoritmul de analiză a componentelor conexe este rulat, iar rezultatul acestuia este trecut printr-o structură decizională care va selecta regiunile cu mărimi și proporții similare. Din cauză că partea de filtrare are ca factor decisiv similitudinea proporțiilor și a dimensiunilor, dacă plăcuța de înmatriculare este parțial rotită, algoritmul va eșua segmentarea.
+Această abordare presupune binarizarea regiunii de interes extrase de modulul anterior, urmată de analiza componentelor conexe(CCA) și de aplicarea unei structuri decizionale pentru filtrarea regiunilor identificare de CCA. Selecția se bazează în principal pe criterii precum similitudinea dimensiunilor și a proporțiilor zonelor identificate de CCA.
+
+Principalul dezavantaj al acestei metode este sensibilitatea la rotație, selecția fiind realizată pe baza uniformității geometrice a regiunilor, numerele de înmatriculare rotite sau înclinate parțial sunt adesea segmentate în mod incorect.
+
+\subsection {Analiza proiecțiilor}
+Datorită contrastului ridicat dintre fundalul plăcuței și caractere, binarizarea imaginii va produce valori opuse pentru cele două. Prin urmare, numeroase metode de segmentare se bazează pe o combinație dintre analiza proiecțiilor verticale și orizontale.
+
+În mod concret,~\cite{duan2005building} propun un sistem în care etapa de localizare se folosește de transformarea Hough pentru a corecta variația de înclinare/ rotație a lp-ului. Această aliniere permite utilizarea proiecțiilor orizontale pentru determinarea rândurilor de text.
+
+Această abordare este extrem de utilă pentru segmentarea corectă a numerelor de înmatriculare dispuse pe mai multe rânduri(precum cele de motociclete). Separarea pe rânduri normalizează proporțiile caracterelor si dimensiunea relativă a caracterelor în raport cu sub-segmentul în care se află. În absența acestei etape, evaluare globală ar genera discrepanțe majore deoarece în cazul numerelor de înmatriculare pe un singur rând un caracter ar ocupa aproximativ 85\% din înălțimea imaginii, iar pentru o plăcuță pe două rânduri ar ocupa maxim 50\%.
+
+Ulterior divizării pe rânduri, se calculează proiecțiile verticale pentru a determina pozițiile de început și de final a fiecărui caracter. Segmentele rezultate sunt supuse unui număr de constrângeri pentru a elimina diferitele elemente care pot fi segmentate în mod incorect drept caracter.
+
+\subsection {Utilizarea informațiilor apriori privind aspectul caracterelor}
+Cunoștințe apriori în legătură cu aspectul caracterelor, font-ul, mărimea și proporțiile lor pot îmbunătăți în mod significant procesul de segmentare.
+În~\cite{paliy2004approach} numărul de înmatriculare este adus la o mărime standard în care pozițiile caracterelor sunt deja cunoscute. După redimensionare, caracterele sunt extrase conform pozițiilor definite.
+
+Această metodă presupune definirea unui modul de extrage a lp-ului robust și constant, deoarece orice deviație de la matrița definită pentru segmentare va duce la erori.
+
+\subsection {Analiza conturului caracterelor}
+O altă abordare are la bază detecția contururilor caracterelor. Pentru aceasta, în ~\cite{capar2006concurrent} este propus un proces compus din doi pași, fundamentat pe tehnici de segmentare ce utilizează metoda \textit{Fast Marching} ghidată de formă (shape-driven).
