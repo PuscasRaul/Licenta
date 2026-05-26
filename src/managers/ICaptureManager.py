@@ -6,7 +6,7 @@ class ICaptureManger(object):
     def start(self) -> None:
         pass
 
-    def get_latest_frame(self) -> Frame:
+    def get_frame(self) -> Frame:
         pass
 
     def stop(self) -> None:
