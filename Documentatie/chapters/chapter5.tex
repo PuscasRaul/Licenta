@@ -1,5 +1,4 @@
-\chapter{Implementarea sistemului}
-\label{chap:ch3}
+\chapter{Implementarea sistemului}\label{chap:ch3}
 Sistemul propus în lucrarea de față a fost construit pornind de la o arhitectură modulară formată din trei componente cheie: modulul de preluare a datelor (Input Module), fluxul de procesare (Processing Pipeline) și modulul de logică a aplicației (Application Logic Module). Pentru a oferi flexibilitate și a respecta principiile de proiectare extensibilă specifice conceptului de clean code~\cite{codecomplete}, modulul de intrare și cel de logică a aplicației utilizează polimorfismul prin expunerea unor interfețe abstracte.
 
 Această abordare decuplată permite diferitelor aplicații să integreze nucleul sistemului într-un mod elegant, implementând comportamente personalizate și adaptate la mediul de execuție, fără a modifica codul de bază. De exemplu, modulul de intrare poate fi extins pentru a prelua fluxuri video de la o cameră atașată contextului de execuție, fie prin intermediul socket-urilor. În mod similar, modulul de logică a aplicației poate fi personalizat pentru a declanșa acțiuni specifice precum trimiterea unor notificări automate prin e-mail, sau acționarea unor echipamente hardware (ridicarea unei bariere auto), în cazul unui sistem embedded.
@@ -32,3 +31,22 @@ După cum am menționat, dependențele necesare dezvoltării aplicației finale 
 \end{itemize}
 
 \section{Detalii tehnice}
+În cele ce urmează va fi prezentată o descriere detaliată a arhitecturii fiecărui modul, abordând aspecte precum interfețele de programare expuse, deciziile de proiectare și implementarea propriu-zisă.
+
+Pentru modulele extensibile, se va realiza o paralelă între implementarea în cadrul unui sistem embedded și implementarea concretă realizată în cadrul aplicației demonstrate.
+
+\subsection{Input}
+După cum am menționat anterior, extensibilitatea și portabilitatea au fost principalii factori care au ghidat proiectarea acestui modul. Așadar, am dezvoltat o interfață lipsită de dependențe care expune o singură metodă având semnătura:
+
+\begin{verbatim}
+    def get_frame(self) -> Frame:
+        pass
+\end{verbatim}
+
+\subsubsection{Sistem embedded}
+
+\subsubsection{Aplicație demo}
+
+\subsection{Fluxul de procesare}
+
+\subsection{Nivelul aplicație}
