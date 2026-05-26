@@ -48,6 +48,26 @@ Jithmi Shashirangana, Heshan Padmasiri, Dulani Meedeniya, and Charith Perera.
   techniques.
 \newblock {\em IEEE Access}, 9:11203--11225, 2020.
 
+\bibitem{kanayama1991development}
+Kenji Kanayama, Yoshimasa Fujikawa, Koichi Fujimoto, and Masanobu Horino.
+\newblock Development of vehicle-license number recognition system using
+  real-time image processing and its application to travel-time measurement.
+\newblock In {\em [1991 Proceedings] 41st IEEE Vehicular Technology
+  Conference}, pages 798--804. IEEE, 1991.
+
+\bibitem{duan2005building}
+Tran~Duc Duan, TL~Hong Du, Tran~Vinh Phuoc, and Nguyen~Viet Hoang.
+\newblock Building an automatic vehicle license plate recognition system.
+\newblock In {\em Proc. Int. Conf. Comput. Sci. RIVF}, volume~1, pages 59--63,
+  2005.
+
+\bibitem{capar2006concurrent}
+Abdulkerim Capar and Muhittin Gokmen.
+\newblock Concurrent segmentation and recognition with shape-driven fast
+  marching methods.
+\newblock In {\em 18th International Conference on Pattern Recognition
+  (ICPR'06)}, volume~1, pages 155--158. IEEE, 2006.
+
 \bibitem{lee1994automatic}
 Eun~Ryung Lee, Pyeoung~Kee Kim, and Hang~Joon Kim.
 \newblock Automatic recognition of a car license plate using color image
@@ -104,5 +124,9 @@ Kurt Hornik, Maxwell Stinchcombe, and Halbert White.
 David~E Rumelhart, Geoffrey~E Hinton, and Ronald~J Williams.
 \newblock Learning representations by back-propagating errors.
 \newblock {\em Nature}, 323(6088):533--536, 1986.
+
+\bibitem{codecomplete}
+{\em CODE COMPLETE 2nd Edition}.
+\newblock WP Publishers \& Distributors Pvt Limited, 2004.
 
 \end{thebibliography}

@@ -1,58 +1,34 @@
 \chapter{Implementarea sistemului}
 \label{chap:ch3}
-Sistemul propus în lucrarea de față a fost construit pornind de la o arhitectură modulară formată din trei componente cheie: modulul de preluare a datelor (Input Module), fluxul de procesare (Processing Pipeline) și modulul de logică a aplicației (Application Logic Module). Pentru a oferi flexibilitate și a respecta principiile de proiectare extensibilă specifice conceptului de clean code [aici pui citarea către carte, ex: McConnell, 2004], modulul de intrare și cel de logică a aplicației utilizează polimorfismul prin expunerea unor interfețe abstracte.
+Sistemul propus în lucrarea de față a fost construit pornind de la o arhitectură modulară formată din trei componente cheie: modulul de preluare a datelor (Input Module), fluxul de procesare (Processing Pipeline) și modulul de logică a aplicației (Application Logic Module). Pentru a oferi flexibilitate și a respecta principiile de proiectare extensibilă specifice conceptului de clean code~\cite{codecomplete}, modulul de intrare și cel de logică a aplicației utilizează polimorfismul prin expunerea unor interfețe abstracte.
 
 Această abordare decuplată permite diferitelor aplicații să integreze nucleul sistemului într-un mod elegant, implementând comportamente personalizate și adaptate la mediul de execuție, fără a modifica codul de bază. De exemplu, modulul de intrare poate fi extins pentru a prelua fluxuri video de la o cameră atașată contextului de execuție, fie prin intermediul socket-urilor. În mod similar, modulul de logică a aplicației poate fi personalizat pentru a declanșa acțiuni specifice precum trimiterea unor notificări automate prin e-mail, sau acționarea unor echipamente hardware (ridicarea unei bariere auto), în cazul unui sistem embedded.
 
 În contrast, fluxul de procesare este încapsulat ca o unitate de execuție independentă și de sine stătătoare, neexpunând nicio interfață publică destinată extinderii structurale.
 
+În continuare, acest capitol detaliază tehnologiile utilizate în implementarea aplicației prezentate, dar și o descriere tehnică a fiecărui modul.
 
-\section{Tehnologii folosite}
-Tehnologii folosite pentru dezvoltarea pipeline-ului/ core-ul aplicatiei:
+\section{Tehnologii}
+Alegerea limbajului a fost făcută pe considerente practice așadar, întreg sistemul a fos implementat în Python 3.14.4 în detrimenul unui limbaj compilat precum C++. Această decizie a fost motivată de gradulu ridicat de adopție a ecosistemului Python în cadrul sistemelelor de tip embedded, precum și de flexibilitatea și viteza de dezvoltare specifice oferite de un limbaj dinamic. De asemenea, librăriile necesare implementării modului de procesare se bazează pe nuclee scrise în C, optimizate la nivel de instrucțiune.
+
+Pentru a oferi o structură clară, tehnologiile utilizate au fost împărțite în două categorii: cele fundamentale, necesare dezvoltării nucleului sistemului (interfețele menționate anterior și fluxul de procesare), și cele adiționale, specifice dezvolării aplicației finale.
+
+\subsection{Nucleu}
+În etapa de proiectare și dezvoltare a nucleului s-a urmărit minimizarea numărului de dependențe externe. Acest principiu sprijină portabilitatea, permițând adoptarea sistemului în diferite contexte de rulare.
+
+Așadar, tehnologiile de bază sunt:
 \begin{itemize}
-  \item{python - {pin version}}
-  \item{openCv - {pin version}}
-  \item{numpy - {pin version}}
-  \item{scikit - {pin version}}
+  \item{OpenCV 4.13.0}
+  \item{numpy 2.4.2}
+  \item{scikit-learn 1.8.0}
+  \item{matplotlib-base 3.10.9}
 \end{itemize}
 
-Tehnologii aditionale folosite pentru dezvoltarea demo-ului:
+\subsection{Nivelul de aplicație}
+După cum am menționat, dependențele necesare dezvoltării aplicației finale sunt opționale, acestea depinzând strict de contextul aplicației dorite. Pentru aplicația propusă, dependențele sunt:
 \begin{itemize}
-  \item{websocket - {pin version}}
-  \item{fastAPI - {pin version}}
-  \item{ce alte dependency se mai aduna intre timp }
+  \item{fastapi 0.135.4}
+  \item{websockets 15.0.1}
 \end{itemize}
 
-\section{Descrierea api-urilor folosite}
-\subsection {OpenCV apis}
-\subsubsection{Modulul de achizitie? a imaginilor}
-Pentru clasa de CameraCaptureManager(ICaptureManager) am folosit urmatoarele api-uri:
-\begin{itemize}
-        \item {Obiectul cv.VideoCapture}
-        \item {cv.VideoCapture.read()}
-\end{itemize}
-
-Pentru a avea mereu latestFrame am setat cv.VideoCatpure.CAP\_PROP\_BUFFERSIZE = 1 astfel incat de fiecare data cand este apelata metoda de read, va fi latest frame si nu unul stale pastrat in buffer-ul intern al librariei
-
-Pentru LPExtraction am folosit urmatoarele metode
-\begin{itemize}
-  \item{cv.cvtColor - conversie la greyscale}
-  \item{cv.medianBlur - filtrare mediana}
-  \item{cv.Sobel - operatorul sobel pentru edge detection}
-  \item{cv.threshold - binarize Otsu}
-  \item{cv.morphologyEx -> opening of the image}
-  \item{cv.dilate -> dilation of the image}
-  \item{cv.findContoures -> contour finding for the license plate}
-  \item{cv.Hough -> deskewing of the license plate}
-\end{itemize}
-
-Pentru CharacterSegmentation TO BE FILLED, vreau sa testez algoritmul citit dintr-un research paper
-
-Pentru OCR, am folosit urmatoarele apis:
-\begin{itemize}
-  \item svm.SVC(kernel='rbf', gamma='scale', C=10)
-  \item fit
-  \item predict
-\end{itemize}
-
-\section{Descrierea api-urilor expuse in demo?}
+\section{Detalii tehnice}
