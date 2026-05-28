@@ -23,7 +23,7 @@
 \begin{document}
 
 \specialization{Informatică Română}
-\title{Lucrare Licență Pușcaș Raul}
+\title{Detectarea automată a numerelor de înmatriculare folosind tehnici clasice de vedere artificială și clasificatori statistici}
 \author{Pușcaș Raul-Andrei}
 \supervisor{Conferențiar, Dr. Bufnea Darius}
 				
@@ -43,13 +43,23 @@ ABSTRACT
 \vspace{0.5cm}	
 %\cleardoublepage
 
-% Structura: Cuprins -> Introducere(approx 1 + 1/2 pagini, despre ce e lucrarea, de ce am abordat, importanta si cum am abordat + 1/2 structura lucrarii in continuare) [Introducerea tradusa -> Abstract] -> Capitole Teoretice(fara cod) -> Capitole Tehnice(API, IoT devices, OpenCV, Aplicatii Existente etc.) -> Capitol pentru Aplicatie(Documentatie ISS, diagrame, actori) + Subcapitol de testare -> Concluzii + Biografie
+% Structura: Cuprins -> Introducere(approx 1 + 1/2 pagini, despre ce e lucrarea, de ce am abordat, importanta si cum am abordat  1/2 structura lucrarii in continuare) [Introducerea tradusa -> Abstract] -> Capitole Teoretice(fara cod) -> Capitole Tehnice(API, IoT devices, OpenCV, Aplicatii Existente etc.) -> Capitol pentru Aplicatie(Documentatie ISS, diagrame, actori) Subcapitol de testare -> Concluzii + Biografie
+
+% Introducere approx 1 pagina (contextul aplicatiei, ce aduce in plus[ce fac, de ce fac, cum fac, cat de important e] <- partea I)
+% Restul structurii pe capitole <- partea II TOT DIN INTRODUCERE
+
+% Evidentierea ca primele 3 capitole sunt teoretice ( general -> specific ) + alt titlu
+
+% Implementarea sistemului -> Nume mai specific, cu numele aplicatiei
+% Subcapitol de testare -> metrici
+% Subcapitol de experimente
+
 
 Recunoașterea automată a numerelor de înmatriculare reprezintă procesul de extragere si recunoaștere a caracterelor care formează identificatorul unic al unui vehicul.
 \paragraph{}
 Sistemul de recunoașterea captează imaginea prin intermediul unei camere (B/W, Infraroșu etc), pe care o trimite mai departe unei unități de procesare care execută un algoritm format din 3 etape: localizarea numărului de înmatriculare, segmenatarea caracterelor, recunoașterea caracterelor. Ulterior, informația extrasă poate fi folosită în cadrul unor servicii precum: securizarea parcărilor, monitorizarea traficului, etc.
 \paragraph{}
-Comparat cu abordările existente ale problemeoluția prezentată in această lucrare se evidențiază prin reziliența pe care o oferă față de diferiții factori care pot afecta calitatea sistemlui: condiții de lumină variabile, diferite formate ale plăcuței de înmatriculare, reziduuri care pot obscura caracterele. Dar și prin nivelul ridicat de optimizare adus întregului proces.
+Comparat cu abordările existente ale problemei soluția prezentată in această lucrare se evidențiază prin reziliența pe care o oferă față de diferiții factori care pot afecta calitatea sistemlui: condiții de lumină variabile, diferite formate ale plăcuței de înmatriculare, reziduuri care pot obscura caracterele. Dar și prin nivelul ridicat de optimizare adus întregului proces.
 \tableofcontents
 
 \newpage

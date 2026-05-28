@@ -1,5 +1,11 @@
 \begin{thebibliography}{10}
 
+\bibitem{SOAReview}
+Jithmi Shashirangana, Heshan Padmasiri, Dulani Meedeniya, and Charith Perera.
+\newblock Automated license plate recognition: a survey on methods and
+  techniques.
+\newblock {\em IEEE Access}, 9:11203--11225, 2020.
+
 \bibitem{shi2005automatic}
 Xifan Shi, Weizhong Zhao, and Yonghang Shen.
 \newblock Automatic license plate recognition system based on color image
@@ -12,12 +18,6 @@ Shyang-Lih Chang, Li-Shien Chen, Yun-Chung Chung, and Sei-Wan Chen.
 \newblock Automatic license plate recognition.
 \newblock {\em IEEE transactions on intelligent transportation systems},
   5(1):42--53, 2004.
-
-\bibitem{zunino2002vector}
-Rodolfo Zunino and Stefano Rovetta.
-\newblock Vector quantization for license-plate location and image coding.
-\newblock {\em IEEE Transactions on Industrial Electronics}, 47(1):159--167,
-  2002.
 
 \bibitem{luo2009efficient}
 Lin Luo, Hao Sun, Weiping Zhou, and Limin Luo.
@@ -42,11 +42,11 @@ Tran~Duc Duan, TL~Hong Du, Tran~Vinh Phuoc, and Nguyen~Viet Hoang.
 \newblock In {\em Proc. Int. Conf. Comput. Sci. RIVF}, volume~1, pages 59--63,
   2005.
 
-\bibitem{SOAReview}
-Jithmi Shashirangana, Heshan Padmasiri, Dulani Meedeniya, and Charith Perera.
-\newblock Automated license plate recognition: a survey on methods and
-  techniques.
-\newblock {\em IEEE Access}, 9:11203--11225, 2020.
+\bibitem{zunino2002vector}
+Rodolfo Zunino and Stefano Rovetta.
+\newblock Vector quantization for license-plate location and image coding.
+\newblock {\em IEEE Transactions on Industrial Electronics}, 47(1):159--167,
+  2002.
 
 \bibitem{kanayama1991development}
 Kenji Kanayama, Yoshimasa Fujikawa, Koichi Fujimoto, and Masanobu Horino.
@@ -55,11 +55,12 @@ Kenji Kanayama, Yoshimasa Fujikawa, Koichi Fujimoto, and Masanobu Horino.
 \newblock In {\em [1991 Proceedings] 41st IEEE Vehicular Technology
   Conference}, pages 798--804. IEEE, 1991.
 
-\bibitem{duan2005building}
-Tran~Duc Duan, TL~Hong Du, Tran~Vinh Phuoc, and Nguyen~Viet Hoang.
-\newblock Building an automatic vehicle license plate recognition system.
-\newblock In {\em Proc. Int. Conf. Comput. Sci. RIVF}, volume~1, pages 59--63,
-  2005.
+\bibitem{sanyuan2004car}
+Zhang Sanyuan, Zhang Mingli, and Ye~Xiuzi.
+\newblock Car plate character extraction under complicated environment.
+\newblock In {\em 2004 IEEE International Conference on Systems, Man and
+  Cybernetics (IEEE Cat. No. 04CH37583)}, volume~5, pages 4722--4726. IEEE,
+  2004.
 
 \bibitem{capar2006concurrent}
 Abdulkerim Capar and Muhittin Gokmen.
@@ -67,6 +68,12 @@ Abdulkerim Capar and Muhittin Gokmen.
   marching methods.
 \newblock In {\em 18th International Conference on Pattern Recognition
   (ICPR'06)}, volume~1, pages 155--158. IEEE, 2006.
+
+\bibitem{sarfraz2003saudi}
+Muhammad Sarfraz, Mohammed~Jameel Ahmed, and Syed~A Ghazi.
+\newblock Saudi arabian license plate recognition system.
+\newblock In {\em 2003 International conference on geometric modeling and
+  graphics, 2003. Proceedings}, pages 36--41. IEEE, 2003.
 
 \bibitem{lee1994automatic}
 Eun~Ryung Lee, Pyeoung~Kee Kim, and Hang~Joon Kim.

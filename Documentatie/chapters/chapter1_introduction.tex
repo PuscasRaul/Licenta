@@ -1,41 +1,58 @@
 \chapter{Introducere}
-
-%\chapter*{Introducere}
 \label{intro}
-\paragraph{}
-Datorită numărului din ce în ce mai crescut de autoturisme puse în circulație anual, crearea și dezvoltarea unui sistem de recunoaștere automată a numerelor de înmatriculare, a identificatorului unic atașat fiecărui vehicul este cu atât mai mare. Un astfel de sistem este are aplicații în securizarea parcărilor, blocarea accessului în interiorul zonelor protejate de lege și monitorizarea traficului. Un exemplu concret ar fi localizarea unui autoturism pierdut. Fără ajutorul unui sistem automat, pentru a reuși această misiune ar fi necesară intervenția și colaborarea a unui număr ridicat de persoane, care în ciuda efortului lor ar putea produce un rezultat eronat datorită faptului că este pur și simplu dificil să citim și să reținem numărul de înmatriculare al unui vehicul aflat în mișcare.
-\paragraph{}
-Sistemele de recunoaștere automată a numărului de înmatriculare (ALPR) sunt cunoscute și sub numele de: identificare automată a vehiculelor (AVI), recunoaștere optică a caracterelor (OCR) pentru autoturisme. Variația plăcuțelor și a mediului în care se face recunoașterea cauzează provocări procesului de detectare și identificare:
-\begin{enumerate}
-  \item{ Vaiații ale plăcuței }
-        \begin{itemize}
-          \item{ Locația: Plăcuțele pot apărea în diferite segmente ale imaginii }
-          \item{ Cantitatea: O imagine poate conține mai multe plăcuțe }
-          \item{ Mărimea: Plăcuțele pot avea mărimi diferite datorită diferitelor formate, dar și a distanței față de cameră }
-          \item{ Culoarea: Numerele de înmatriculare din diferite țări pot fi scrise pe diferite culori }
-          \item{ Fontul: Numerele de înmatriculare din diferite țări pot fi scrise folosind diferite fonturi }
-          \item{ Obscuare: Plăcuțele pot fi murdare }
-        \end{itemize}
-  \item{ Mediul înconjurător }
-        \begin{itemize}
-            \item{ Luminozitate: Cadrele capturate pot varia în nivelul de luminozitate în mare parte datorită luminii din mediul înconjurător și a celei de la faruri }
-            \item { Fundalul: Fundalul imaginii poate conține tipare similare cu cele găsite pe numărul de înmatriculare }
-        \end{itemize}
-    \end{enumerate}
-\paragraph{}
-Din punct de vedere arhitectural, se poate forma o taxonomie a acestor sisteme în care principalele 2 categorii sunt: sisteme de tip multi-etapă sau singură etapă/ procesare directă. Mai mult, în interiorul categoriilor mai pot fi făcute separări suplimentare: sistemele de tip multi etapă diferă prin diferitele tehnici aplicate în cadrul fiecărei etape a procesului: localizarea plăcuței de înmatriculare, segmentarea caracterelor si într-un final recunoașterea caracterelor; în cele de tip procesare directă diferențierea se face la nivelul arhitecturii modelului și a diferitelor tehnici de optimizare aplicate.
-\subsection {Contextul aplicației}
-Studiul prezentat în această lucrare a fost motivat de cerințele concrete ale dezvoltării unui sistem decontrol al accesului auto pentru o parcare situată pe teritoriul României. În acest scenariu, sistemul trebuie să fie capabil să recunoască în mod fiabil o varietate largă de plăcuțe de înmatriculare, întrucât în fluxul cotidian de trafic se regăsesc atât numere uzuale, de tip județ–două cifre–trei litere (de exemplu, CJ 12 ABC), cât și plăcuțe temporare cu serie roșie (format provizoriu), plăcuțe pentru autoturisme noi cu format CJ 123 ABC, plăcuțe diplomatice (cod CD, TC, CO), plăcuțe pentru vehicule speciale aparținând Ministerului Afacerilor Interne sau Ministerului Apărării Naționale, precum și plăcuțe străine ale autovehiculelor aflate în tranzit. Această diversitate ridicată în privința formatului, a paletei cromatice de fond, a dimensiunilor relative și a fontului caracterelor reprezintă un factor determinant în selectarea metodologiei de procesare. Tocmai din aceste motive, în prezenta lucrare a fost exclusă de la bun început orice abordare bazată pe segmentarea culorii (color-based segmentation), deși aceasta este frecvent utilizată în literatură pentru regiuni geografice cu plăcuțe standardizate cromatic. Lucrări reprezentative precum~\cite{shi2005automatic}, care exploatează caracteristicile cromatice ale plăcuțelor taiwaneze, sau~\cite{chang2004automatic} pentru spațiul autohton al insulei Taiwan, demonstrează eficacitatea acestor metode atunci când mediul de operare prezintă o uniformitate cromatică ridicată. Generalizarea acestor abordări către scenariul nostru ar fi necesitat menținerea unui catalog de paliete pentru fiecare format admis, ceea ce ar fi introdus o sursă suplimentară de erori și ar fi diminuat capacitatea de adaptare a sistemului la plăcuțele atipice sau la formatele nou introduse de către autorități. O a doua constrângere fundamentală a aplicației o reprezintă regimul de timp real în care sistemul trebuie să opereze. Deoarece bariera de acces trebuie acționată într-un interval de cel mult 1–2 secunde de la momentul în care vehiculul ajunge în fața camerei de captură, întregul flux de procesare – de la achiziția
-cadrului, localizarea plăcuței, segmentarea caracterelor și până la recunoașterea și validarea numărului împotriva bazei de date a abonaților – trebuie să se încadreze într-un buget temporal strict, măsurat în zeci
-de milisecunde. Aceste constrângeri elimină utilizarea directă a modelelor profunde neoptimizate, care, pe hardware modest, depășesc cu ușurință pragul acceptabil de latență, și impun fie o abordare clasică, fie utilizarea unor arhitecturi compacte, optimizate pentru platforma de execuție disponibilă la nivelul punctului de acces.
-Dincolo de scenariul concret descris, problema generală a sistemelor ALPR prezintă o importanță practică
-considerabilă într-o gamă largă de domenii. Aplicațiile tipice includ:
-\begin{itemize}
-  \item{Managementul parcărilor publice și private, prin automatizarea proceselor de tarifare, gestionare a abonamentelor și monitorizare a gradului de ocupare}
-  \item{Monitorizarea și controlul traficului urban, inclusiv aplicarea automată a sancțiunilor pentru depășirea vitezei legale sau pătrunderea în zone cu acces restricționat}
-  \item{Securizarea perimetrelor sensibile (instituții publice, unități militare, baze logistice, campusuri industriale), prin compararea automată a numărului identificat cu o listă de acces}
-  \item{Sistemele de taxare automată pe autostrăzi și poduri cu plată, prin asocierea numărului recunoscut cu un cont al utilizatorului}
-  \item{Gestionarea flotelor auto comerciale și logistice, prin urmărirea în timp real a vehiculelor în interiorul depozitelor și terminalelor}
-  \item{Identificarea autovehiculelor furate sau implicate în acțiuni infracționale, prin integrarea sistemelor de captură cu bazele de date ale autorităților }
-\end{itemize}
-Această diversitate de scenarii explică interesul susținut al comunității de cercetare pentru îmbunătățirea continuă a metodelor de detecție și recunoaștere, atât din perspectiva acurateții, cât și a eficienței computaționale și a robusteții în condiții reale de operare.
+
+Creșterea constantă a numărului de vehicule aflate în circulație a făcut ca
+identificarea automată a acestora să devină o componentă esențială în
+infrastructura modernă de transport. Lucrarea de față propune un sistem de
+recunoaștere automată a numerelor de înmatriculare (ALPR — Automatic License
+Plate Recognition) construit pe o arhitectură modulară, bazată exclusiv pe
+tehnici clasice de viziune artificială pentru etapele de procesare a imaginii și
+pe un clasificator statistic de tip SVM (Support Vector Machine) pentru
+recunoașterea caracterelor.
+
+Studiul a fost motivat de cerințele concrete ale unui sistem de control al
+accesului auto într-o parcare situată pe teritoriul României. Acest context
+impune două constrângeri determinante. În primul rând, sistemul trebuie să
+recunoască fiabil o varietate largă de formate: plăcuțe uzuale
+--două litere --două cifre --trei litere, plăcuțe provizorii cu serie roșie, plăcuțe pentru
+autoturisme noi în format extins, plăcuțe diplomatice (CD, TC, CO), plăcuțe
+ale Ministerului Afacerilor Interne și plăcuțe străine ale autovehiculelor aflate în tranzit.
+În al doilea rând, întregul flux de procesare, de la achiziția cadrului până la validarea
+numărului trebuie să aibă un timp de execuție redus, de ordinul sutelor de milisecunde,
+astfel încât bariera de acces să fie acționată în cel mult 1--2 secunde de
+la momentul sosirii vehiculului.
+
+Soluția propusă structurează procesul în trei etape secvențiale. Etapa de
+\emph{localizare} izolează regiunea plăcuței într-o imagine de intrare folosind
+operatorul Sobel pentru extragerea contururilor verticale, urmat de operații
+morfologice și filtre geometrice care elimină regiunile candidate
+necorespunzătoare. Etapa de \emph{segmentare} separă caracterele individuale
+prin proiecții orizontale și verticale ale imaginii binarizate. În final, etapa
+de \emph{recunoaștere} clasifică fiecare caracter segmentat printr-un model SVM
+multi-clasă antrenat pe un set de caractere etichetate. Întreg
+ansamblul este implementat fără a recurge la rețele neuronale profunde, ceea ce
+permite execuția pe hardware modest, fără accelerare GPU.
+
+În comparație existente, soluția prezentată se evidențiază prin două
+contribuții. Prima este reziliența la variațiile de mediu și de format precum
+diferențe de luminozitate, fonturi neomogene între seriile de plăcuțe, dimensiuni
+variabile și ocluzii parțiale, caracteristică obținută prin alegerea unor tehnici robuste în
+fiecare etapă a fluxului. A doua contribuție este nivelul de optimizare adus
+fiecărui modul, astfel încât sistemul să respecte constrângerea de timp real pe
+o platformă embedded.
+
+Lucrarea este organizată în șase capitole. Primele trei capitole au caracter
+teoretic și prezintă fundamentele necesare.
+Capitolul~\ref{chap:localizare} tratează problema localizării obiectelor de
+interes într-o imagine și introduce, ca aplicație particulară, metodele
+folosite în literatură pentru localizarea plăcuței de înmatriculare.
+Capitolul~\ref{chap:segmentare} prezintă tehnicile de segmentare a regiunilor
+identificate, cu accent pe separarea caracterelor.
+Capitolul~\ref{chap:recunoastere} discută clasificarea caracterelor, pornind
+de la metodele bazate pe șabloane și culminând cu fundamentele teoretice ale
+clasificatorului SVM. Capitolul~\ref{chap:implementare} constituie contribuția
+practică a lucrării: descrie arhitectura, deciziile de implementare și
+evaluarea experimentală a sistemului \textsc{IORA}, inclusiv metricile
+obținute pe setul de testare și rezultatele obținute în condiții reale de
+operare. Capitolul~\ref{chap:concluzii} sintetizează concluziile, evidențiază
+limitările soluției actuale și schițează direcțiile de dezvoltare ulterioară.

@@ -4,6 +4,6 @@
  "chapter2"
  (lambda ()
    (LaTeX-add-labels
-    "chap:ch1"))
+    "chap:localizare"))
  :latex)
 
