@@ -42,6 +42,20 @@ Tran~Duc Duan, TL~Hong Du, Tran~Vinh Phuoc, and Nguyen~Viet Hoang.
 \newblock In {\em Proc. Int. Conf. Comput. Sci. RIVF}, volume~1, pages 59--63,
   2005.
 
+\bibitem{bremananth2005robust}
+R~Bremananth, A~Chitra, Vivek Seetharaman, and Vidya Sudhan~L Nathan.
+\newblock A robust video based license plate recognition system.
+\newblock In {\em Proceedings of 2005 International Conference on Intelligent
+  Sensing and Information Processing, 2005.}, pages 175--180. IEEE, 2005.
+
+\bibitem{anagnostopoulos2006license}
+Christos Nikolaos~E Anagnostopoulos, Ioannis~E Anagnostopoulos, Vassilis
+  Loumos, and Eleftherios Kayafas.
+\newblock A license plate-recognition algorithm for intelligent transportation
+  system applications.
+\newblock {\em IEEE Transactions on Intelligent transportation systems},
+  7(3):377--392, 2006.
+
 \bibitem{zunino2002vector}
 Rodolfo Zunino and Stefano Rovetta.
 \newblock Vector quantization for license-plate location and image coding.
