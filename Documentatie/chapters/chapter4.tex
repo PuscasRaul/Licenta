@@ -10,9 +10,39 @@ Deși este eficientă din punct de vedere computațional datorită simplității
 
 Pentru a introduce un grad de robustețe și pentru a atenua sensibilitatea la zgomot sau mici distorsiuni, în locul unei suprapuneri binare perfecte, se utilizează algoritmi bazați pe calcularea distanțelor matematice între vectorii de trăsături: distanța Hamming~\cite{sarfraz2003saudi}, valoarea Jaccard~\cite{lee1994automatic}.
 
-Această metodă, deși eficientă din punct de vedere computațional, poate fi utilizată doar în situații în care regiunile de interes prezentând elementele pe care dorim să le identificăm oferă un rezultat de dimensiuni, font și caracteristici constante.
+În mod concret,~\cite{sarfraz2003saudi} prezintă un sistem de recunoaștere a caracterelor format din două etape: normalizarea caracterelor și potrivirea șabloanelor. Prima etapă presupune aducerea regiunilor de interes extrase în etapa anterioară la o dimensiune standard de $40\times40$ prin intermediul unei transformări afine care mapează pixelii din imaginea originală la cei ai regiunii determinate anterior.
 
-Pentru a remedia și pentru a oferi o anumită cantitate de robustozitate acestui proces, în loc de o potrivire unu la unu a elementului aflat în baza de date a matrițelor cu cel din regiunea de interes, pot fi folosiți diferiți algorimti care calculează distanțe: , Mahalanobis. Însă în continuare marja de eroare pe care etapa anterioară își permite să o facă este una minimă.
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.35\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/2003arabia_1.png}
+    \caption{}
+    \label{fig:2003arabia_a}
+  \end{subfigure}
+  \hspace{0.05\linewidth}
+  \begin{subfigure}[b]{0.35\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/2003arabia_2.png}
+    \caption{}
+    \label{fig:2003arabia_b}
+  \end{subfigure}
+  \caption{ (a) Caracterul original, (b) Caracterul normalizat la o dimensiune standard de $40\times40$~\cite{sarfraz2003saudi}.}
+  \label{fig:2003arabia}
+\end{figure}
+
+Pentru etapa de potrivire a șabloanelor, precum am menționat anterior, autorii se folosesc de distanța Hamming pentru a determina cel mai apropiat caracter. Formula acestei distanțe este descrisă de Ecuația 4.1.
+
+\begin{equation}
+  \begin{split}
+    & \sum_{i=1}^{\text{nrows}} \sum_{j=1}^{\text{ncols}} \text{mismatch}_{i,j} \\
+    & \text{mismatch}_{i,j} =
+      \begin{cases}
+        1, & \text{if } \text{original}_{i,j} \neq \text{extracted}_{i,j} \\
+        0, & \text{if } \text{original}_{i,j} = \text{extracted}_{i,j}
+      \end{cases}
+  \end{split}
+\end{equation}
 
 \section{Clasificatori statistici}
 Această metodă valorifică avansurile recente din domeniul inteligenței artificiale pentru a crea module de recunoaștere a caracterelor (OCR) robuste. Acestea prezintă o rezistența ridicată la variațiile de luminozitate, dimensiuni sau fonturi variate utilizate în creare numerelor de înmatriculare, etc. În literatura de specialitate, cele mai frecvent utilizate modele pentru această etapă a procesării imaginii sunt rețelele neuronale artificiale (ANN) și mașinile pe suport vectorial (SVM), ambele prezentând avantaje și limitări specifice.
@@ -20,7 +50,7 @@ Această metodă valorifică avansurile recente din domeniul inteligenței artif
 S-ar putea spune că există o oarecare similitudine între SVM și ANN deoarece ambele își au rădăcinile în algoritmul perceptronului~\cite{rosenblatt1958perceptron}, însă abordările matematice care precedă acest algoritm diferă fundamental.
 
 \section{Mașini pe suport vectorial}
-Algoritmul ce stă la baza mașinilor pe suport vectorial reprezintă o generalizare a algoritmului ”portret generalizat” dezvoltat la începutul anilor 1960~\cite{vapnik1963pattern},~\cite{vapnik1964note}.Fundamentele matematice ale regresiei/ clasficării vectoriale sunt ancorate în învățarea statistică și teoria VC, care oferă o măsură a capacității de învățare a unui algoritm de învățare automată~\cite{vapnik2015uniform}.
+Algoritmul ce stă la baza mașinilor pe suport vectorial reprezintă o generalizare a algoritmului ”portret generalizat” dezvoltat la începutul anilor 1960~\cite{vapnik1963pattern},~\cite{vapnik1964note}. Fundamentele matematice ale regresiei/ clasficării vectoriale sunt ancorate în învățarea statistică și teoria VC, care oferă o măsură a capacității de învățare a unui algoritm de învățare automată~\cite{vapnik2015uniform}.
 
 Este important de menționat că algoritmul perceptronului funcționează prin actualizarea vectorului de greutăți w pornind de la o valoare inițială arbitrară, de regulă vectorul nul. Acesta este modificat prin adunarea exemplelor pozitive clasificate în mod eronat ca fiind negative, sau prin scăderea exemplelor negative clasificate ca fiind pozitive. Așadar, rezultatul final va fi întotdeauna o combinație liniară a punctelor din setul de antrenament.
 \[ \mathbf{w} = \sum_{i=1}^{\ell} \alpha_i y_i \mathbf{x}_i, \]
