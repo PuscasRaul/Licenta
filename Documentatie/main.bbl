@@ -131,6 +131,11 @@ Nello Cristianini and John Shawe-Taylor.
   Kernel-based Learning Methods}.
 \newblock Cambridge University Press, 2000.
 
+\bibitem{valiant1984theory}
+Leslie~G Valiant.
+\newblock A theory of the learnable.
+\newblock {\em Communications of the ACM}, 27(11):1134--1142, 1984.
+
 \bibitem{cortes1995support}
 Corinna Cortes and Vladimir Vapnik.
 \newblock Support-vector networks.
