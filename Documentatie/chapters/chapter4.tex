@@ -2,7 +2,8 @@
 Ultima etapă, aceasta are ca scop identificarea și recunoașterea caracterelor prezente în regiunile selectate în etapa de segmentare.
 
 General vorbind, pentru a atinge acest scop există două variante
-\subsubsection{Potrivire de șabloane}
+
+\section{Potrivire de șabloane}
 Această abordare, cunoscută sub denumirea de template matching, reprezintă metoda clasică de recunoaștere a caracterelor prin compararea directă a pixelilor. Procesul presupune existența unei baze de date cu șabloane (matrice) predefinite pentru fiecare caracter (litere și cifre), care sunt comparate succesiv cu regiunea segmentată până la identificarea celei mai bune potriviri.
 
 Deși este eficientă din punct de vedere computațional datorită simplității algoritmice, această tehnică prezintă limitări severe în scenarii reale. Ea este aplicabilă cu succes doar atunci când caracterele extrase au dimensiuni, fonturi și grosimi constante, fiind extrem de sensibilă la variații geometrice.
@@ -13,12 +14,12 @@ Această metodă, deși eficientă din punct de vedere computațional, poate fi 
 
 Pentru a remedia și pentru a oferi o anumită cantitate de robustozitate acestui proces, în loc de o potrivire unu la unu a elementului aflat în baza de date a matrițelor cu cel din regiunea de interes, pot fi folosiți diferiți algorimti care calculează distanțe: , Mahalanobis. Însă în continuare marja de eroare pe care etapa anterioară își permite să o facă este una minimă.
 
-\subsubsection{Clasificatori statistici}
+\section{Clasificatori statistici}
 Această metodă valorifică avansurile recente din domeniul inteligenței artificiale pentru a crea module de recunoaștere a caracterelor (OCR) robuste. Acestea prezintă o rezistența ridicată la variațiile de luminozitate, dimensiuni sau fonturi variate utilizate în creare numerelor de înmatriculare, etc. În literatura de specialitate, cele mai frecvent utilizate modele pentru această etapă a procesării imaginii sunt rețelele neuronale artificiale (ANN) și mașinile pe suport vectorial (SVM), ambele prezentând avantaje și limitări specifice.
 
 S-ar putea spune că există o oarecare similitudine între SVM și ANN deoarece ambele își au rădăcinile în algoritmul perceptronului~\cite{rosenblatt1958perceptron}, însă abordările matematice care precedă acest algoritm diferă fundamental.
 
-\subsubsection{Mașini pe suport vectorial}
+\section{Mașini pe suport vectorial}
 Algoritmul ce stă la baza mașinilor pe suport vectorial reprezintă o generalizare a algoritmului ”portret generalizat” dezvoltat la începutul anilor 1960~\cite{vapnik1963pattern},~\cite{vapnik1964note}.Fundamentele matematice ale regresiei/ clasficării vectoriale sunt ancorate în învățarea statistică și teoria VC, care oferă o măsură a capacității de învățare a unui algoritm de învățare automată~\cite{vapnik2015uniform}.
 
 Este important de menționat că algoritmul perceptronului funcționează prin actualizarea vectorului de greutăți w pornind de la o valoare inițială arbitrară, de regulă vectorul nul. Acesta este modificat prin adunarea exemplelor pozitive clasificate în mod eronat ca fiind negative, sau prin scăderea exemplelor negative clasificate ca fiind pozitive. Așadar, rezultatul final va fi întotdeauna o combinație liniară a punctelor din setul de antrenament.
@@ -31,7 +32,7 @@ Datorită acestei reprezentări duale, este posibilă utilizarea kernel trick-ul
 $$ f(\mathbf{x}) = \text{sgn} \left( \sum_{i=1}^{\ell} \alpha_i y_i K(\mathbf{x}_i, \mathbf{x}) + b \right) $$
 unde $K(\mathbf{x}_i, \mathbf{x})$ reprezintă funcția kernel, definită ca produsul scalar al funcțiilor de mapare $\phi(\mathbf{x})$ (sau $\theta(\mathbf{x})$).
 
-\subsubsection{Teoria VC și clasificatori cu marjă maximală}
+\section{Teoria VC și clasificatori cu marjă maximală}
 Spre deosebire de algoritmul perceptronului, care se oprește în momentul în care identifică un hiperplan care separă corect punctele setului de antrenament, fără a oferi nicio garanție asupra performanței pe date nevăzute, mașinile pe suport vectorial sunt fundamentate teoretic pe principiul minimizării riscului structural derivat din teoria Vapnik-Chervonenkis (VC)~\cite{vapnik2015uniform}.
 
 Conceptul central al acestei teorii îl constituie dimensiunea VC, o măsură a capacității de exprimare a unei familii de funcții de clasificare. În mod formal, dimensiunea VC reprezintă cardinalitatea celui mai mare set de puncte care poate fi etichetat (pulverizat) în toate modurile binare posibile de către funcțiile clasei respective. O dimensiune VC ridicată indică un model cu o capacitate sporită de a se mula pe orice configurație a datelor, dar și un risc proporțional crescut de supra-învățare, deoarece marja garantată între eroarea empirică (pe setul de antrenament) și eroarea reală (așteptată pe distribuția datelor) crește odată cu dimensiunea VC. În consecință, controlul acestei dimensiuni reprezintă o cerință esențială pentru asigurarea capacității de generalizare a modelului.
@@ -50,7 +51,7 @@ Pentru a permite tratarea seturilor de date care nu sunt liniar separabile, form
 \]
 Parametrul $C$ controlează raportul dintre maximizarea marjei și tolerarea erorilor de clasificare, permițând astfel un compromis explicit între capacitatea modelului și riscul empiric. Combinat cu utilizarea funcțiilor kernel introduse prin~\cite{boser1992training}, acest cadru permite construirea unor clasificatori cu putere de discriminare ridicată, păstrând în același timp un control formal asupra capacității de generalizare.
 
-\subsubsection{Rețele neuronale artificiale}
+\section{Rețele neuronale artificiale}
 Rețelele neuronale artificiale (ANN) reprezintă cea de-a doua direcție majoră în recunoașterea caracterelor din cadrul plăcuțelor de înmatriculare. Spre deosebire de SVM, care își are fundamentul în teoria învățării statistice, ANN-urile sunt inspirate dintr-un model simplificat al activității neuronilor biologici și se bazează pe compunerea ierarhică a unităților elementare derivate din perceptronul lui Rosenblatt~\cite{rosenblatt1958perceptron}.
 
 Perceptronul multistrat (MLP), constă într-un strat de intrare, unul sau mai multe straturi ascunse și un strat de ieșire. Fiecare neuron $j$ dintr-un strat efectuează o transformare afină asupra activărilor stratului precedent, urmată de aplicarea unei funcții de activare neliniare $\sigma$:
