@@ -44,6 +44,8 @@ Pentru etapa de potrivire a șabloanelor, precum am menționat anterior, autorii
   \end{split}
 \end{equation}
 
+Unde nrows și ncols sunt sunt numărul de linii respectiv cel de coloane.
+
 \section{Clasificatori statistici}
 Această metodă valorifică avansurile recente din domeniul inteligenței artificiale pentru a crea module de recunoaștere a caracterelor (OCR) robuste. Acestea prezintă o rezistența ridicată la variațiile de luminozitate, dimensiuni sau fonturi variate utilizate în creare numerelor de înmatriculare, etc. În literatura de specialitate, cele mai frecvent utilizate modele pentru această etapă a procesării imaginii sunt rețelele neuronale artificiale (ANN) și mașinile pe suport vectorial (SVM), ambele prezentând avantaje și limitări specifice.
 
@@ -58,9 +60,29 @@ Este important de menționat că algoritmul perceptronului funcționează prin a
 Unde semnul ecuației este dat de clasificarea $y_i \in \{-1, 1\}$, iar valorile $\alpha_i$ sunt valori pozitive proporționale cu numărul de misclasificări făcute asupra punctului în timpul stagiului de antrenament. Punctele care au cauzat mai puține erori, vor avea un $\alpha_i$ mai mic, iar punctele dificile unul mai mare. Date fiind aceste valori, perceptronul poate fi rescris folosind următoarea formulă:
 \[ h(\mathbf{x}) = \operatorname{sgn} \left( \sum_{j=1}^{\ell} \alpha_j y_j \langle \mathbf{x}_j \cdot \mathbf{x} \rangle + b \right) \] numită și forma duală a perceptronului.
 
-Datorită acestei reprezentări duale, este posibilă utilizarea kernel trick-ului care ne permite maparea într-o dimensiune diferită a atributelor primite ca input. O astfel de mapare este benefică deoarece ne permite selectarea și rafinarea atributelor la un nivel mult mai granular. Cu ajutorul kernel trick-ului, algoritmul perceptronului în formă duală nu mai depinde de calcularea explicită a vectorului de greutăți în spațiul trăsăturilor, ci de evaluarea produsului scalar dintre vectorii de intrare mapați
-$$ f(\mathbf{x}) = \text{sgn} \left( \sum_{i=1}^{\ell} \alpha_i y_i K(\mathbf{x}_i, \mathbf{x}) + b \right) $$
-unde $K(\mathbf{x}_i, \mathbf{x})$ reprezintă funcția kernel, definită ca produsul scalar al funcțiilor de mapare $\phi(\mathbf{x})$ (sau $\theta(\mathbf{x})$).
+\subsection{Învățarea în spațiul trăsăturilor}
+
+Complexitatea funcției care trebuie aproximată de modelul de învățare depinde în mod direct de modul în care sunt reprezentate datele de intrare; astfel, dificultatea procesului de învățare poate varia semnificativ în funcție de această reprezentare. În mod ideal, se urmărește alegerea unei reprezentări adaptate specificului problemei de învățare. O metodă frecvent utilizată în acest scop o constituie transformarea reprezentării datelor printr-o funcție de mapare a trăsăturilor, care proiectează fiecare punct din spațiul de intrare într-un nou spațiu, denumit spațiul trăsăturilor:
+\[
+x = (x_1, x_2, \ldots, x_n) \;\mapsto\;
+\phi(x) = \bigl(\phi_1(x), \phi_2(x), \ldots, \phi_N(x)\bigr).
+\]
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{figures/svm_1.png}
+  \caption{O funcție de mapare a trăsăturilor poate simplifica problema de clasificare, transformând un set neliniar separabil într-unul liniar separabil~\cite{svmIntroduction}.}
+\end{figure}
+
+Datorită varietății mari a problemelor de învățare, spațiul trăsăturilor rezultat are, de regulă, o dimensiune mult mai mare decât spațiul de intrare (uneori chiar infinită). În consecință, maparea explicită a fiecărui punct în acest spațiu și rezolvarea directă a problemei de învățare, de forma
+\[ f(x) = \sum_{i=1}^{N} w_i\,\phi_i(x) + b, \]
+devin nefezabile din punct de vedere computațional, întrucât ar necesita calcularea și stocarea explicită a tuturor celor $N$ componente $\phi_i(x)$.
+
+Reprezentarea duală introdusă anterior permite însă rescrierea problemei de învățare în spațiul trăsăturilor sub forma:
+\[ f(x) = \sum_{i=1}^{\ell} \alpha_i\, y_i\, \langle \phi(x_i),\, \phi(x) \rangle + b. \]
+În această formulare, datele de intrare apar exclusiv prin intermediul produsului scalar $\langle \phi(x_i),\, \phi(x) \rangle$ din spațiul trăsăturilor. Prin urmare, dacă acest produs scalar ar putea fi calculat direct, ca o funcție definită pe punctele din spațiul de intrare, fără a construi explicit maparea $\phi$, atunci cei doi pași (maparea datelor și rezolvarea problemei de învățare) ar putea fi combinați, obținând mașini de învățare capabile să separe date care nu sunt liniar separabile în spațiul original.
+
+O astfel de funcție de mapare implicită din spațiul de intrare în cel al trăsăturilor se numește funcție nucleu (\textit{kernel}) și stă la baza dezvoltării mașinilor pe suport vectorial, pas numit în literatura de specialitate \textit{kernel trick}.
 
 \section{Teoria VC și clasificatori cu marjă maximală}
 Spre deosebire de algoritmul perceptronului, care se oprește în momentul în care identifică un hiperplan care separă corect punctele setului de antrenament, fără a oferi nicio garanție asupra performanței pe date nevăzute, mașinile pe suport vectorial sunt fundamentate teoretic pe principiul minimizării riscului structural derivat din teoria Vapnik-Chervonenkis (VC)~\cite{vapnik2015uniform}.
