@@ -1,4 +1,5 @@
 \chapter{Segmentarea imaginii}\label{chap:segmentare}
+\indent\par
 Segmentarea imaginii joacă un rol crucial în sistemele ALPR. Procesul presupune divizarea imaginii într-un anumit număr de segmente informative, sau regiuni care sunt mai simple de studiat.
 
 În literatura de specialitate, pentru a segmenta numărul de înmatriculare sunt propuse mai multe tehnici~\cite{SOAReview}:
@@ -10,11 +11,13 @@ Segmentarea imaginii joacă un rol crucial în sistemele ALPR. Procesul presupun
 \end{itemize}
 
 \subsection{Conectivitatea pixelilor}
+\indent\par
 Această abordare presupune binarizarea regiunii de interes extrase de modulul anterior, urmată de analiza componentelor conexe (CCA) și de aplicarea unei structuri decizionale pentru filtrarea regiunilor identificare de CCA. Selecția se bazează în principal pe criterii precum similitudinea dimensiunilor și a proporțiilor zonelor identificate de CCA.
 
 Principalul dezavantaj al acestei metode este sensibilitatea la rotație, selecția fiind realizată pe baza uniformității geometrice a regiunilor, numerele de înmatriculare rotite sau înclinate parțial sunt adesea segmentate în mod incorect.
 
 \subsection{Analiza proiecțiilor}
+\indent\par
 Contrastul ridicat dintre fundalul plăcuței și caractere face ca, în urma binarizării, cele două să fie reprezentate prin valori opuse. Această proprietate stă la baza unei familii largi de metode de segmentare, care exploatează distribuția pixelilor prin combinarea analizei proiecțiilor verticale și orizontale.
 
 O proiecție se obține prin construirea unei histograme a densității pixelilor activi de-a lungul uneia dintre cele două axe de coordonate, un pixel fiind considerat activ atunci când valoarea sa aparține unui interval predefinit. În cazul, frecvent întâlnit în literatura de specialitate, al imaginilor binarizate, pixelii activi iau una dintre valorile $0$ sau $255$.
@@ -39,6 +42,7 @@ După divizarea pe rânduri, proiecțiile verticale sunt utilizate pentru a dete
 \end{figure}
 
 \subsection{Utilizarea informațiilor apriori privind aspectul caracterelor}
+\indent\par
 Cunoștințe apriori în legătură cu aspectul caracterelor, font-ul, mărimea și proporțiile lor pot îmbunătăți în mod semnificativ procesul de segmentare.
 
 În~\cite{sanyuan2004car} este propusă o abordare similară cu cea prezentată anterior în~\cite{HoughTransformation} în care numărul de înmatriculare este adus la o mărime și înclinare standard, iar etapa de segmentare este realizată folosind proiecții orizontale și verticale. Spre deosebire de metoda amintită în mod anterior, autorii se folosesc pe parcursul etapei de segmentare de o structură decizională care va ajuta la eliminarea rezultatelor fals-pozitive.
@@ -63,6 +67,7 @@ Folosind aceste cunoștințe apriori, procesul de extragere a caracterelor parcu
 Acest proces adițional de selecție a regiunilor candidat sporește întreaga fiabilitate a sistemului deoarece elementele plăcuței care nu aparțin în-sine de numărul de înmatriculare precum șuruburile de fixare extrase în fig.~\ref{fig:HoughSegmentation} nu vor fi considerate mai departe drept zone de interes.
 
 \subsection{Analiza conturului caracterelor}
+\indent\par
 O altă abordare are la bază detecția contururilor caracterelor. Pentru aceasta, în~\cite{capar2006concurrent} este propus un proces compus din doi pași, fundamentat pe tehnici de segmentare ce utilizează metoda \textit{Fast Marching} ghidată de formă (shape-driven).
 
 Metoda \textit{Fast Marching}, introdusă de Sethian~\cite{sethian1996fastmarching}, este un algoritm numeric folosit pentru a urmări evoluția unui front (a unei curbe) care se propagă monoton într-o singură direcție, dinspre o regiune inițială către exterior. Algoritmul este o particularizare a metodelor de tip \textit{level-set}, în care viteza de propagare este strict pozitivă, astfel încât odată ce frontul a depășit un punct nu se mai poate întoarce.

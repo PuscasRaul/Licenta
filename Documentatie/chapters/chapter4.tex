@@ -1,9 +1,11 @@
 \chapter{Recunoașterea caracterelor}~\label{chap:recunoastere}
+\indent\par
 Ultima etapă, aceasta are ca scop identificarea și recunoașterea caracterelor prezente în regiunile selectate în etapa de segmentare.
 
 General vorbind, pentru a atinge acest scop există două variante
 
 \section{Potrivire de șabloane}
+\indent\par
 Această abordare, cunoscută sub denumirea de template matching, reprezintă metoda clasică de recunoaștere a caracterelor prin compararea directă a pixelilor. Procesul presupune existența unei baze de date cu șabloane (matrice) predefinite pentru fiecare caracter (litere și cifre), care sunt comparate succesiv cu regiunea segmentată până la identificarea celei mai bune potriviri.
 
 Deși este eficientă din punct de vedere computațional datorită simplității algoritmice, această tehnică prezintă limitări severe în scenarii reale. Ea este aplicabilă cu succes doar atunci când caracterele extrase au dimensiuni, fonturi și grosimi constante, fiind extrem de sensibilă la variații geometrice.
@@ -47,11 +49,13 @@ Pentru etapa de potrivire a șabloanelor, precum am menționat anterior, autorii
 Unde nrows și ncols sunt sunt numărul de linii respectiv cel de coloane.
 
 \section{Clasificatori statistici}
+\indent\par
 Această metodă valorifică avansurile recente din domeniul inteligenței artificiale pentru a crea module de recunoaștere a caracterelor (OCR) robuste. Acestea prezintă o rezistența ridicată la variațiile de luminozitate, dimensiuni sau fonturi variate utilizate în creare numerelor de înmatriculare, etc. În literatura de specialitate, cele mai frecvent utilizate modele pentru această etapă a procesării imaginii sunt rețelele neuronale artificiale (ANN) și mașinile pe suport vectorial (SVM), ambele prezentând avantaje și limitări specifice.
 
 S-ar putea spune că există o oarecare similitudine între SVM și ANN deoarece ambele își au rădăcinile în algoritmul perceptronului~\cite{rosenblatt1958perceptron}, însă abordările matematice care precedă acest algoritm diferă fundamental.
 
-\section{Mașini pe suport vectorial}
+\subsection{Mașini pe suport vectorial}
+\indent\par
 Algoritmul ce stă la baza mașinilor pe suport vectorial reprezintă o generalizare a algoritmului ”portret generalizat” dezvoltat la începutul anilor 1960~\cite{vapnik1963pattern},~\cite{vapnik1964note}. Fundamentele matematice ale regresiei/ clasficării vectoriale sunt ancorate în învățarea statistică și teoria VC, care oferă o măsură a capacității de învățare a unui algoritm de învățare automată~\cite{vapnik2015uniform}.
 
 Este important de menționat că algoritmul perceptronului funcționează prin actualizarea vectorului de greutăți w pornind de la o valoare inițială arbitrară, de regulă vectorul nul. Acesta este modificat prin adunarea exemplelor pozitive clasificate în mod eronat ca fiind negative, sau prin scăderea exemplelor negative clasificate ca fiind pozitive. Așadar, rezultatul final va fi întotdeauna o combinație liniară a punctelor din setul de antrenament.
@@ -60,7 +64,7 @@ Este important de menționat că algoritmul perceptronului funcționează prin a
 Unde semnul ecuației este dat de clasificarea $y_i \in \{-1, 1\}$, iar valorile $\alpha_i$ sunt valori pozitive proporționale cu numărul de misclasificări făcute asupra punctului în timpul stagiului de antrenament. Punctele care au cauzat mai puține erori, vor avea un $\alpha_i$ mai mic, iar punctele dificile unul mai mare. Date fiind aceste valori, perceptronul poate fi rescris folosind următoarea formulă:
 \[ h(\mathbf{x}) = \operatorname{sgn} \left( \sum_{j=1}^{\ell} \alpha_j y_j \langle \mathbf{x}_j \cdot \mathbf{x} \rangle + b \right) \] numită și forma duală a perceptronului.
 
-\subsection{Învățarea în spațiul trăsăturilor}
+\subsubsection{Învățarea în spațiul trăsăturilor}
 
 Complexitatea funcției care trebuie aproximată de modelul de învățare depinde în mod direct de modul în care sunt reprezentate datele de intrare; astfel, dificultatea procesului de învățare poate varia semnificativ în funcție de această reprezentare. În mod ideal, se urmărește alegerea unei reprezentări adaptate specificului problemei de învățare. O metodă frecvent utilizată în acest scop o constituie transformarea reprezentării datelor printr-o funcție de mapare a trăsăturilor, care proiectează fiecare punct din spațiul de intrare într-un nou spațiu, denumit spațiul trăsăturilor:
 \[
@@ -84,16 +88,32 @@ Reprezentarea duală introdusă anterior permite însă rescrierea problemei de 
 
 O astfel de funcție de mapare implicită din spațiul de intrare în cel al trăsăturilor se numește funcție nucleu (\textit{kernel}) și stă la baza dezvoltării mașinilor pe suport vectorial, pas numit în literatura de specialitate \textit{kernel trick}.
 
-\subsection{Teoria VC și clasificatori cu marjă maximală}
+\subsubsection{Teoria VC și clasificatori cu marjă maximală}
 Maparea implicită în spațiul trăsăturilor, realizată prin intermediul funcțiilor nucleu, permite mașinilor pe suport vectorial să definească soluții în spații de dimensiune foarte mare, eventual chiar infinită. Această flexibilitate constituie însă o sabie cu două tăișuri: cu cât familia de funcții pe care modelul o poate reprezenta este mai bogată, cu atât crește și riscul ca acesta să se muleze perfect pe setul de antrenament memorându-l în întregime fără a surprinde structura reală a datelor și, prin urmare, fără a generaliza la exemple noi. Se ridică astfel problema fundamentală a cuantificării capacității unui model, cu scopul de a controla echilibrul dintre fidelitatea față de datele de antrenament și capacitatea de generalizare.
 
 Această problemă este abordată de teoria Vapnik-Chervonenkis (VC), dezvoltată în strânsă legătură cu cadrul învățării \textit{probabil aproximativ corecte} (\textit{Probably Approximately Correct}, PAC)~\cite{valiant1984theory}, care formalizează tocmai noțiunea de învățare cu garanții asupra generalizării. Tocmai pentru că oferă instrumentele necesare controlului capacității unui model, teoria VC reprezintă fundamentul teoretic indispensabil al mașinilor pe suport vectorial.
 
 Conceptul central al acestei teorii îl constituie dimensiunea VC, o măsură a capacității de exprimare a unei familii de funcții de clasificare. În mod formal, dimensiunea VC reprezintă cardinalitatea celui mai mare set de puncte care poate fi etichetat (pulverizat) în toate modurile binare posibile de către funcțiile clasei respective. O dimensiune VC ridicată indică un model cu o capacitate sporită de a se mula pe orice configurație a datelor, dar și un risc proporțional crescut de supra-învățare, deoarece marja garantată între eroarea empirică (pe setul de antrenament) și eroarea reală (așteptată pe distribuția datelor) crește odată cu dimensiunea VC. În consecință, controlul acestei dimensiuni reprezintă o cerință esențială pentru asigurarea capacității de generalizare a modelului.
 
-Astfel, capacitatea de învățare a unei clase de funcții poate fi mărginită de către următoarea ecuație
+Pe baza acestei mărimi, teoria VC stabilește o legătură cantitativă între eroarea măsurată pe setul de antrenament și eroarea așteptată pe întreaga distribuție a datelor. Astfel, pentru orice ipoteză $h$ aparținând clasei de funcții analizate, capacitatea de generalizare poate fi mărginită superior, cu o probabilitate de cel puțin $1-\delta$, prin următoarea inegalitate:
+  \begin{equation}
+    err_{D}(h) \leq \epsilon(l, H, \delta) = \frac{2k}{l} + \frac{4}{l} \left( d\log{\frac{2el}{d}} + \log{\frac{4}{\delta}} \right),
+  \end{equation}
+unde semnificația fiecărui termen este următoarea:
+\begin{itemize}
+  \item $err_{D}(h)$ --- eroarea reală (de generalizare) a ipotezei $h$, definită ca probabilitatea ca aceasta să clasifice greșit un exemplu extras aleator din distribuția $D$ a datelor;
+  \item $\epsilon(l, H, \delta)$ --- marginea superioară garantată asupra erorii de generalizare, exprimată în funcție de dimensiunea setului de antrenament, de complexitatea clasei de funcții și de nivelul de încredere impus;
+  \item $l$ --- numărul de exemple din setul de antrenament; pe măsură ce $l$ crește, marginea descrește, reflectând faptul că un volum mai mare de date conduce la garanții mai stricte asupra generalizării;
+  \item $H$ --- clasa de funcții de clasificare (ipoteze) din care este selectată soluția;
+  \item $d$ --- dimensiunea VC a clasei $H$, care cuantifică capacitatea de exprimare a acesteia; o valoare mare a lui $d$ mărește marginea, semnalând un risc sporit de supra-învățare;
+  \item $k$ --- numărul de exemple clasificate eronat pe setul de antrenament (eroarea empirică), care exprimă fidelitatea ipotezei față de datele observate;
+  \item $\delta$ --- nivelul de încredere: inegalitatea este satisfăcută cu o probabilitate de cel puțin $1-\delta$, astfel încât $\delta$ reprezintă probabilitatea (mică) ca marginea să nu fie respectată;
+  \item $e$ --- baza logaritmului natural (constanta lui Euler).
+\end{itemize}
 
-În cazul particular al hiperplanelor în spațiul $\mathbb{R}^n$, dimensiunea VC este, în general, $n+1$. Totuși, dacă restrângem familia clasificatorilor la submulțimea hiperplanelor care separă datele cu o marjă $\gamma$ și presupunem că punctele de antrenament sunt incluse într-o sferă de rază $R$, atunci dimensiunea VC efectivă a clasei rezultate este mărginită superior de raportul $R^2/\gamma^2$~\cite{vapnik2015uniform},~\cite{svmIntroduction}. Această observație fundamentală oferă justificarea teoretică pentru abordarea adoptată de SVM: prin maximizarea marjei $\gamma$, se reduce implicit dimensiunea VC a familiei de funcții utilizate, ceea ce conduce la limite superioare mai stricte asupra erorii de generalizare, independent de dimensionalitatea spațiului trăsăturilor.
+Structura acestei margini evidențiază compromisul fundamental dintre fidelitatea față de datele de antrenament și capacitatea de generalizare: primul termen, $2k/l$, penalizează erorile empirice, în timp ce al doilea termen crește odată cu dimensiunea VC $d$, penalizând astfel complexitatea excesivă a clasei de funcții. Minimizarea simultană a celor doi termeni constituie esența principiului minimizării riscului structural, pe care se fundamentează mașinile pe suport vectorial.
+
+În mod concret, mașinile pe suport vectorial restrâng familia clasificatorilor și dimensiunea VC a acestora prin adăugarea următoarei constrângeri: hiperplanul care separă elementele din setul de antrenament trebuie să fie unul cu marja maximală. Adăugând această constrângere și presupunând că punctele de antrenament sunt incluse într-o sferă de rază $R$, atunci dimensiunea VC efectivă a clasei rezultate este mărginită superior de raportul $R^2/\gamma^2$~\cite{svmIntroduction}, unde $\gamma$ reprezintă.
 
 Formal, problema clasificatorului cu marjă maximală se reduce la rezolvarea problemei de optimizare convexă:
 \[
@@ -105,9 +125,24 @@ Pentru a permite tratarea seturilor de date care nu sunt liniar separabile, form
 \[
 \min_{\mathbf{w}, b, \xi} \frac{1}{2} \|\mathbf{w}\|^2 + C \sum_{i=1}^{\ell} \xi_i \quad \text{cu restricția} \quad y_i(\mathbf{w}^\top \mathbf{x}_i + b) \geq 1 - \xi_i, \quad \xi_i \geq 0.
 \]
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{0.4\linewidth}
+    \includegraphics[width=\linewidth]{figures/svm_2.png}
+    \caption{}
+  \end{subfigure}
+  \begin{subfigure}{0.4\linewidth}
+    \includegraphics[width=\linewidth]{figures/svm_3.png}
+    \caption{}
+  \end{subfigure}
+  \caption{(a) Variabila de relaxare pentru exemple liniar separabile, (b) Variabila de relaxare pentru exemple non-liniar separabile}
+\end{figure}
+
 Parametrul $C$ controlează raportul dintre maximizarea marjei și tolerarea erorilor de clasificare, permițând astfel un compromis explicit între capacitatea modelului și riscul empiric. Combinat cu utilizarea funcțiilor kernel introduse prin~\cite{boser1992training}, acest cadru permite construirea unor clasificatori cu putere de discriminare ridicată, păstrând în același timp un control formal asupra capacității de generalizare.
 
+
 \section{Rețele neuronale artificiale}
+\indent\par
 Rețelele neuronale artificiale (ANN) reprezintă cea de-a doua direcție majoră în recunoașterea caracterelor din cadrul plăcuțelor de înmatriculare. Spre deosebire de SVM, care își are fundamentul în teoria învățării statistice, ANN-urile sunt inspirate dintr-un model simplificat al activității neuronilor biologici și se bazează pe compunerea ierarhică a unităților elementare derivate din perceptronul lui Rosenblatt~\cite{rosenblatt1958perceptron}.
 
 Perceptronul multistrat (MLP), constă într-un strat de intrare, unul sau mai multe straturi ascunse și un strat de ieșire. Fiecare neuron $j$ dintr-un strat efectuează o transformare afină asupra activărilor stratului precedent, urmată de aplicarea unei funcții de activare neliniare $\sigma$:
