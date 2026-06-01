@@ -391,7 +391,7 @@ A functional margin of 1 represents that:
         ⟨w × x⁺ + b\rangle = 1
         ⟨w × x⁻ + b\rangle = -1
 While to compute the geometric margin we must normalise w. The geometric margin γ is then the functional margin of the resulting classifier
-        γ = 1/2 (⟨w/∥w∥₂ × x+\rangle ⟨w/∥w∥₂ × x-\rangle) -
+        γ = 1/2 (⟨w/∥w∥₂ × x+\rangle ⟨w/∥w∥₂ × x- \rangle) -
         γ = 1/ (2 * ∥w∥₂) × (⟨w × x+\rangle ⟨w × x-⟩)
         γ = 1/∥w∥₂
 Hence the geometric margin is equal to 1/∥w∥₂.

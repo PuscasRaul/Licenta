@@ -37,4 +37,17 @@ image segmentation is the process of splitting ([13], [15]) an image into a numb
 ** Text extraction and recognition method for license plates
 1. The Optophone, which was developed way back in 1914, is one of the earliest electric OCR machines ([6], [7]). It depended on selenium's unique capacity to conduct electricity differently in the light and the dark. The Optophone identified the black links of text and lighter vacant spaces as it scanned the words on a page.
 2. These days, the first thing that software does when scanning a document is to remove artifacts so that the text may be read clearly without distraction. In order to make the text easier to read, it attempts to eliminate dust and other distracting graphics, align the text correctly, and turn any colors or shades of grey in the image to black and white
-3.
+3. WHY ARTIFICIAL NEURAL NETWORKS? The long course of evolution has given the human brain many desirable characteristics not present invon Neumann or modern parallel computers. These include
+   - massive parallelism,
+   - distributed representation and computation,
+   - learning ability,
+   - generalization ability,
+   - adaptivity,
+   - inherent contextual information processing,
+   - fault tolerance, and
+   - low energy consumption.
+4. Inspired by biological neural networks, ANNs are massively parallel computing systemsconsistingof an exremelylarge number of simple processorswith many interconnections.
+5. There is a crude analogy here to a biological neuron: wires and interconnections model axons and dendrites, connection weights represent synapses, and the threshold function approximates the activity in a soma.
+6.  ANNs can be viewed as weighted directed graphs in which artificial neurons are nodes and directed edges (with weights) are connections between neuron outputs and neuron inputs.
+7. In general, a standard L-layer feed-forward network (we adopt the convention that the input nodes are not counted as a layer) consists of an input stage, (L-1) hidden layers, and an output layer of units successivelyconnected (fully locally) in a feed-forward fashion with no connections between units in the same layer and no feedback connections between layers
+8. The most popular class of multilayer feed-forward networks is multilayer perceptrons in which each computational unit employs either the thresholding function or the sigmoid function. Multilayer perceptrons can form arbitrarily complex decision boundaries and represent any Boolean function.6 The development of the back-propagation learning algorithm for determining weights in a multilayer perceptron has made these networks the most popular among researchers and users of neural networks.

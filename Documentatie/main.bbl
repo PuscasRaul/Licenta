@@ -56,12 +56,6 @@ Christos Nikolaos~E Anagnostopoulos, Ioannis~E Anagnostopoulos, Vassilis
 \newblock {\em IEEE Transactions on Intelligent transportation systems},
   7(3):377--392, 2006.
 
-\bibitem{zunino2002vector}
-Rodolfo Zunino and Stefano Rovetta.
-\newblock Vector quantization for license-plate location and image coding.
-\newblock {\em IEEE Transactions on Industrial Electronics}, 47(1):159--167,
-  2002.
-
 \bibitem{kanayama1991development}
 Kenji Kanayama, Yoshimasa Fujikawa, Koichi Fujimoto, and Masanobu Horino.
 \newblock Development of vehicle-license number recognition system using
@@ -146,6 +140,11 @@ Bernhard~E Boser, Isabelle~M Guyon, and Vladimir~N Vapnik.
 \newblock A training algorithm for optimal margin classifiers.
 \newblock In {\em Proceedings of the fifth annual workshop on Computational
   learning theory}, pages 144--152, 1992.
+
+\bibitem{jain1996artificial}
+Anil~K Jain, Jianchang Mao, and K~Moidin Mohiuddin.
+\newblock Artificial neural networks: A tutorial.
+\newblock {\em Computer}, 29(3):31--44, 1996.
 
 \bibitem{hornik1989multilayer}
 Kurt Hornik, Maxwell Stinchcombe, and Halbert White.

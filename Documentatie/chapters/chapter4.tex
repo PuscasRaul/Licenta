@@ -1,8 +1,8 @@
 \chapter{Recunoașterea caracterelor}~\label{chap:recunoastere}
 \indent\par
-Ultima etapă, aceasta are ca scop identificarea și recunoașterea caracterelor prezente în regiunile selectate în etapa de segmentare.
+Optofonul, dezvoltat în anul 1914, a fost unul dintre primele aparate electronice destinate citirii automate a textului tipărit. Funcționarea sa se baza pe proprietatea seleniului de a conduce curentul electric în mod diferit în funcție de intensitatea luminii: pe măsură ce dispozitivul scana o pagină, distingea zonele întunecate, corespunzătoare textului, de spațiile albe dintre cuvinte.
 
-General vorbind, pentru a atinge acest scop există două variante
+De la optofon și până astăzi, domeniul recunoașterii automate a caracterelor (OCR) a cunoscut progrese remarcabile, evoluând de la simpla detecție a contrastului către modele capabile să interpreteze caractere în condiții reale, cu variații de font, dimensiune și iluminare. În cele ce urmează sunt prezentate fundamentele teoretice ale celor mai importante abordări, de la metoda clasică a potrivirii de șabloane până la clasificatorii statistici, cu accent pe aplicarea acestora în recunoașterea numerelor de înmatriculare.
 
 \section{Potrivire de șabloane}
 \indent\par
@@ -33,7 +33,7 @@ Pentru a introduce un grad de robustețe și pentru a atenua sensibilitatea la z
   \label{fig:2003arabia}
 \end{figure}
 
-Pentru etapa de potrivire a șabloanelor, precum am menționat anterior, autorii se folosesc de distanța Hamming pentru a determina cel mai apropiat caracter. Formula acestei distanțe este descrisă de Ecuația 4.1.
+Pentru etapa de potrivire a șabloanelor, precum am menționat anterior, autorii se folosesc de distanța Hamming pentru a determina cel mai apropiat caracter. Formula acestei distanțe este descrisă de Ecuația \ref{eq:hamming}.
 
 \begin{equation}
   \begin{split}
@@ -44,6 +44,7 @@ Pentru etapa de potrivire a șabloanelor, precum am menționat anterior, autorii
         0, & \text{if } \text{original}_{i,j} = \text{extracted}_{i,j}
       \end{cases}
   \end{split}
+  \label{eq:hamming}
 \end{equation}
 
 Unde nrows și ncols sunt sunt numărul de linii respectiv cel de coloane.
@@ -52,7 +53,7 @@ Unde nrows și ncols sunt sunt numărul de linii respectiv cel de coloane.
 \indent\par
 Această metodă valorifică avansurile recente din domeniul inteligenței artificiale pentru a crea module de recunoaștere a caracterelor (OCR) robuste. Acestea prezintă o rezistența ridicată la variațiile de luminozitate, dimensiuni sau fonturi variate utilizate în creare numerelor de înmatriculare, etc. În literatura de specialitate, cele mai frecvent utilizate modele pentru această etapă a procesării imaginii sunt rețelele neuronale artificiale (ANN) și mașinile pe suport vectorial (SVM), ambele prezentând avantaje și limitări specifice.
 
-S-ar putea spune că există o oarecare similitudine între SVM și ANN deoarece ambele își au rădăcinile în algoritmul perceptronului~\cite{rosenblatt1958perceptron}, însă abordările matematice care precedă acest algoritm diferă fundamental.
+S-ar putea spune că există o oarecare similitudine între SVM și ANN deoarece ambele își au rădăcinile în algoritmul perceptronului~\cite{rosenblatt1958perceptron}, însă abordările matematice care succedă acest algoritm diferă fundamental.
 
 \subsection{Mașini pe suport vectorial}
 \indent\par
@@ -113,7 +114,7 @@ unde semnificația fiecărui termen este următoarea:
 
 Structura acestei margini evidențiază compromisul fundamental dintre fidelitatea față de datele de antrenament și capacitatea de generalizare: primul termen, $2k/l$, penalizează erorile empirice, în timp ce al doilea termen crește odată cu dimensiunea VC $d$, penalizând astfel complexitatea excesivă a clasei de funcții. Minimizarea simultană a celor doi termeni constituie esența principiului minimizării riscului structural, pe care se fundamentează mașinile pe suport vectorial.
 
-În mod concret, mașinile pe suport vectorial restrâng familia clasificatorilor și dimensiunea VC a acestora prin adăugarea următoarei constrângeri: hiperplanul care separă elementele din setul de antrenament trebuie să fie unul cu marja maximală. Adăugând această constrângere și presupunând că punctele de antrenament sunt incluse într-o sferă de rază $R$, atunci dimensiunea VC efectivă a clasei rezultate este mărginită superior de raportul $R^2/\gamma^2$~\cite{svmIntroduction}, unde $\gamma$ reprezintă.
+În mod concret, mașinile pe suport vectorial restrâng familia clasificatorilor și dimensiunea VC a acestora prin adăugarea următoarei constrângeri: hiperplanul care separă elementele din setul de antrenament trebuie să fie unul cu marja maximală. Adăugând această constrângere și presupunând că punctele de antrenament sunt incluse într-o sferă de rază $R$, atunci dimensiunea VC efectivă a clasei rezultate este mărginită superior de raportul $R^2/\gamma^2$~\cite{svmIntroduction}, unde $\gamma$ reprezintă marja geometrică a hiperplanului separator.
 
 Formal, problema clasificatorului cu marjă maximală se reduce la rezolvarea problemei de optimizare convexă:
 \[
@@ -141,17 +142,43 @@ Pentru a permite tratarea seturilor de date care nu sunt liniar separabile, form
 Parametrul $C$ controlează raportul dintre maximizarea marjei și tolerarea erorilor de clasificare, permițând astfel un compromis explicit între capacitatea modelului și riscul empiric. Combinat cu utilizarea funcțiilor kernel introduse prin~\cite{boser1992training}, acest cadru permite construirea unor clasificatori cu putere de discriminare ridicată, păstrând în același timp un control formal asupra capacității de generalizare.
 
 
-\section{Rețele neuronale artificiale}
+\subsection{Rețele neuronale artificiale}
 \indent\par
-Rețelele neuronale artificiale (ANN) reprezintă cea de-a doua direcție majoră în recunoașterea caracterelor din cadrul plăcuțelor de înmatriculare. Spre deosebire de SVM, care își are fundamentul în teoria învățării statistice, ANN-urile sunt inspirate dintr-un model simplificat al activității neuronilor biologici și se bazează pe compunerea ierarhică a unităților elementare derivate din perceptronul lui Rosenblatt~\cite{rosenblatt1958perceptron}.
+Rețelele neuronale artificiale (ANN) reprezintă cea de-a doua direcție majoră în recunoașterea caracterelor din cadrul plăcuțelor de înmatriculare. Spre deosebire de SVM, care își are fundamentul în teoria învățării statistice, ANN-urile sunt inspirate dintr-un model simplificat al activității neuronilor biologici.
 
-Perceptronul multistrat (MLP), constă într-un strat de intrare, unul sau mai multe straturi ascunse și un strat de ieșire. Fiecare neuron $j$ dintr-un strat efectuează o transformare afină asupra activărilor stratului precedent, urmată de aplicarea unei funcții de activare neliniare $\sigma$:
+Această abordare inspirată din anatomia umană nu poate părea evidentă în mod inițial, însă de-a lungul istoriei evoluția a conferit creierului uman o multitudine de caracteristici de dorit care nu sunt prezente într-o mașină von Neumann sau o mașină de calcul modernă:
+\begin{itemize}
+  \item{Paralelism uriaș}
+  \item{Capacitatea de învățare}
+  \item{Capacitatea de generalizare}
+  \item{Adaptabilitate}
+\end{itemize}
+
+și se bazează pe compunerea ierarhică a unităților elementare derivate din perceptronul lui Rosenblatt~\cite{rosenblatt1958perceptron}.
+
+Din punct de vedere structural, o rețea neuronală artificială poate fi modelată ca un graf orientat și ponderat, în care nodurile corespund neuronilor artificiali, iar muchiile descriu conexiunile prin care ieșirea unui neuron devine intrare pentru un altul. Fiecărei conexiuni îi este asociată o pondere ce reglează intensitatea semnalului transmis, ponderi care sunt ajustate pe parcursul procesului de învățare.
+
+Perceptronul multistrat (MLP) este alcătuit dintr-un strat de intrare, unul sau mai multe straturi ascunse și un strat de ieșire; adoptând convenția uzuală conform căreia nodurile de intrare nu sunt considerate un strat propriu-zis, o rețea cu $L$ straturi cuprinde $L-1$ straturi ascunse și un strat de ieșire. Fiecare neuron $j$ dintr-un strat efectuează o transformare afină asupra activărilor stratului precedent, urmată de aplicarea unei funcții de activare neliniare $\sigma$:
 \[
 a_j = \sigma\left( \sum_{i} w_{ji} x_i + b_j \right).
 \]
+O interpretare geometrică intuitivă a acestei arhitecturi evidențiază rolul fiecărui strat în construirea frontierei de decizie: fiecare unitate din primul strat ascuns definește un hiperplan care separă spațiul de intrare, neuronii celui de-al doilea strat combină aceste hiperplane în regiuni de decizie, iar stratul de ieșire le reunește, printr-o operație de tip conjuncție (AND) a separărilor obținute, într-o regiune de decizie finală de formă arbitrară.
+
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{figures/ann_2.png}
+  \caption{O interpretare geometrică a rolului straturile ascunse~\cite{jain1996artificial}}
+\end{figure}
+
 Compoziția acestor transformări permite rețelei să construiască, în mod implicit, reprezentări ale datelor de complexitate crescândă. Justificarea teoretică pentru această abordare este oferită de teorema aproximării universale, care stabilește că o rețea cu un singur strat ascuns și un număr suficient de neuroni poate aproxima, cu precizie arbitrară, orice funcție continuă definită pe un domeniu compact~\cite{hornik1989multilayer}.
 
-Antrenarea ANN-urilor este realizată prin algoritmul de retropropagare a erorii~\cite{rumelhart1986learning}, urmat de o actualizare iterativă a acestora prin metode bazate pe coborârea gradientului. În contextul recunoașterii caracterelor de pe plăcuțele de înmatriculare, intrarea este, în mod tipic, o imagine segmentată corespunzătoare unui singur caracter, normalizată la o rezoluție fixă, iar ieșirea reprezintă o distribuție de probabilitate peste setul de clase posibile (literele alfabetului și cifrele 0--9), obținută prin aplicarea funcției softmax.
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{figures/ann_1.png}
+  \caption{Arhitectura unei rețele de tip MLP cu 3 straturi~\cite{jain1996artificial}}
+\end{figure}
+
+Antrenarea ANN-urilor este realizată prin algoritmul de retropropagare a erorii~\cite{rumelhart1986learning}, urmat de o actualizare iterativă a acestora prin metode bazate pe coborârea gradientului.
+
+În contextul recunoașterii caracterelor de pe plăcuțele de înmatriculare, intrarea este, în mod tipic, o imagine segmentată corespunzătoare unui singur caracter, normalizată la o rezoluție fixă, iar ieșirea reprezintă o distribuție de probabilitate peste setul de clase posibile (literele alfabetului și cifrele 0--9), obținută prin aplicarea funcției softmax.
 
 Comparativ cu SVM, ANN-urile prezintă avantajul de a învăța automat reprezentări intermediare ale datelor, fără a necesita o etapă explicită de inginerie a trăsăturilor. Acest fapt este deosebit de util în prezența variațiilor de font, grosime a caracterelor sau ușoare deformări geometrice. Pe de altă parte, antrenarea ANN-urilor necesită seturi de date considerabil mai voluminoase, este sensibilă la inițializarea parametrilor și nu beneficiază de garanții de generalizare la fel de stricte precum cele derivate din teoria VC pentru SVM-urile cu marjă maximală.
 
