@@ -156,6 +156,8 @@ Această abordare inspirată din anatomia umană nu poate părea evidentă în m
 
 și se bazează pe compunerea ierarhică a unităților elementare derivate din perceptronul lui Rosenblatt~\cite{rosenblatt1958perceptron}.
 
+\subsubsection{Arhitectura perceptronului multistrat}
+\indent\par
 Din punct de vedere structural, o rețea neuronală artificială poate fi modelată ca un graf orientat și ponderat, în care nodurile corespund neuronilor artificiali, iar muchiile descriu conexiunile prin care ieșirea unui neuron devine intrare pentru un altul. Fiecărei conexiuni îi este asociată o pondere ce reglează intensitatea semnalului transmis, ponderi care sunt ajustate pe parcursul procesului de învățare.
 
 Perceptronul multistrat (MLP) este alcătuit dintr-un strat de intrare, unul sau mai multe straturi ascunse și un strat de ieșire; adoptând convenția uzuală conform căreia nodurile de intrare nu sunt considerate un strat propriu-zis, o rețea cu $L$ straturi cuprinde $L-1$ straturi ascunse și un strat de ieșire. Fiecare neuron $j$ dintr-un strat efectuează o transformare afină asupra activărilor stratului precedent, urmată de aplicarea unei funcții de activare neliniare $\sigma$:
@@ -176,9 +178,35 @@ Compoziția acestor transformări permite rețelei să construiască, în mod im
   \caption{Arhitectura unei rețele de tip MLP cu 3 straturi~\cite{jain1996artificial}}
 \end{figure}
 
-Antrenarea ANN-urilor este realizată prin algoritmul de retropropagare a erorii~\cite{rumelhart1986learning}, urmat de o actualizare iterativă a acestora prin metode bazate pe coborârea gradientului.
+\subsubsection{Antrenarea prin retropropagarea erorii}
+\indent\par
+Spre deosebire de mașinile pe suport vectorial, a căror antrenare se reduce la o problemă de optimizare convexă cu soluție unică, antrenarea unei rețele neuronale presupune minimizarea unei funcții de eroare puternic neliniare în raport cu ponderile, ceea ce conduce, în general, la o suprafață de eroare cu numeroase minime locale.
 
-În contextul recunoașterii caracterelor de pe plăcuțele de înmatriculare, intrarea este, în mod tipic, o imagine segmentată corespunzătoare unui singur caracter, normalizată la o rezoluție fixă, iar ieșirea reprezintă o distribuție de probabilitate peste setul de clase posibile (literele alfabetului și cifrele 0--9), obținută prin aplicarea funcției softmax.
+Procesul de învățare pornește de la definirea unei funcții de cost (sau de eroare) care cuantifică discrepanța dintre ieșirile produse de rețea și valorile țintă asociate exemplelor de antrenament. O alegere uzuală o constituie eroarea pătratică:
+\[
+E = \frac{1}{2} \sum_{k} (t_k - y_k)^2,
+\]
+unde $t_k$ reprezintă valoarea dorită, iar $y_k$ ieșirea efectivă a neuronului $k$ din stratul de ieșire. Antrenarea revine astfel la ajustarea iterativă a ponderilor în direcția care reduce această eroare, folosind metoda coborârii gradientului: fiecare pondere este modificată proporțional cu gradientul negativ al erorii în raport cu ea,
+\[
+w_{ji} \leftarrow w_{ji} - \eta\, \frac{\partial E}{\partial w_{ji}},
+\]
+unde $\eta$ este rata de învățare, un hiperparametru care controlează amplitudinea pasului de actualizare.
 
-Comparativ cu SVM, ANN-urile prezintă avantajul de a învăța automat reprezentări intermediare ale datelor, fără a necesita o etapă explicită de inginerie a trăsăturilor. Acest fapt este deosebit de util în prezența variațiilor de font, grosime a caracterelor sau ușoare deformări geometrice. Pe de altă parte, antrenarea ANN-urilor necesită seturi de date considerabil mai voluminoase, este sensibilă la inițializarea parametrilor și nu beneficiază de garanții de generalizare la fel de stricte precum cele derivate din teoria VC pentru SVM-urile cu marjă maximală.
+Dificultatea principală constă în calcularea derivatelor parțiale $\partial E / \partial w_{ji}$ pentru ponderile situate în straturile ascunse, unde contribuția la eroarea finală nu este una directă. Algoritmul de retropropagare a erorii~\cite{rumelhart1986learning} rezolvă această problemă aplicând în mod sistematic regula de derivare în lanț, distribuind eroarea de la ieșire înapoi către straturile anterioare. El se desfășoară în două etape:
+\begin{itemize}
+  \item o etapă de propagare înainte (\textit{forward pass}), în care exemplul de intrare traversează rețeaua strat cu strat, producând activările tuturor neuronilor și, în final, ieșirea rețelei;
+  \item o etapă de propagare înapoi (\textit{backward pass}), în care eroarea calculată la nivelul stratului de ieșire este propagată în sens invers, dinspre ieșire spre intrare, atribuind fiecărui neuron o cotă de responsabilitate pentru eroarea totală și permițând astfel calcularea gradientului pentru fiecare pondere.
+\end{itemize}
 
+Cele două etape se repetă pentru exemplele setului de antrenament până la convergența erorii către un minim. Deoarece suprafața de eroare nu este convexă, algoritmul nu garantează atingerea minimului global, putând rămâne blocat într-un minim local; în practică, însă, soluțiile obținute oferă o capacitate de generalizare satisfăcătoare. Eficiența și stabilitatea procesului depind în mod esențial de alegerea ratei de învățare și de strategia de actualizare a ponderilor, care poate fi aplicată după fiecare exemplu, pe loturi reduse de exemple (\textit{mini-batch}) sau asupra întregului set de antrenament.
+
+\subsubsection{Paradigme de utilizare în recunoașterea caracterelor}
+\indent\par
+Figura ~\ref{fig:ann_4} prezintă principalele două paradigme de utilizare a rețelelor neuronale în cadrul sistemelor de recunoaștere a caracterelor. Prima dintre ele implică un extractor de trăsături explicit, care transmite mai departe rezultatele sale la stratul de intrare al rețelei neuronale. Paradigma alternativă nu extrage în mod explicit trăsăturile caracterelor, acest lucru se întâmplă în mod implicit în cadrul straturilor ascunse. O proprietate avantajoasă a acestei paradigme este faptul că extragerea trăsăturilor și clasificarea sunt antrenate în mod simultan pentru a produce rezultate optime.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.75]{figures/ann_4.png}
+  \caption{Două variante pentru folosirea ANN-urilor în contextul OCR-ului~\cite{jain1996artificial}}
+  \label{fig:ann_4}
+\end{figure}
