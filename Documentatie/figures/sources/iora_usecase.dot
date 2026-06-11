@@ -1,0 +1,82 @@
+/*
+ * IORA - diagrama cazurilor de utilizare.
+ * Actorul uman (operatorul) configureaza si monitorizeaza sistemul; actorii
+ * automati (sistemul de bariera, serviciul de notificare, clientul extern)
+ * consuma rezultatele recunoasterii. Granita sistemului delimiteaza cazurile
+ * de utilizare interne.
+ */
+digraph IORA_UseCase {
+  rankdir=LR;
+  fontname="Helvetica";
+  splines=curved;
+  newrank=true;
+  nodesep=0.3;
+  ranksep=1.6;
+  graph [pad="0.3"];
+  edge [fontname="Helvetica", color="#3B4A6B", arrowhead=none];
+
+  /* ----- actor stick-figure nodes ----- */
+  node [shape=none, fontname="Helvetica", fontsize=11, margin="0"];
+  operator [label=<
+    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0">
+      <TR><TD><FONT POINT-SIZE="34">&#9737;</FONT></TD></TR>
+      <TR><TD>Operator</TD></TR>
+    </TABLE>>];
+  barrier [label=<
+    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0">
+      <TR><TD><FONT POINT-SIZE="34">&#9737;</FONT></TD></TR>
+      <TR><TD>Sistem de bariera</TD></TR>
+    </TABLE>>];
+  notify [label=<
+    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0">
+      <TR><TD><FONT POINT-SIZE="34">&#9737;</FONT></TD></TR>
+      <TR><TD>Serviciu de notificare</TD></TR>
+    </TABLE>>];
+  client [label=<
+    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0">
+      <TR><TD><FONT POINT-SIZE="34">&#9737;</FONT></TD></TR>
+      <TR><TD>Client extern (WebSocket)</TD></TR>
+    </TABLE>>];
+
+  /* ----- system boundary ----- */
+  subgraph cluster_system {
+    label = "Sistem IORA";
+    labeljust = "c";
+    labelloc = "t";
+    style = "rounded";
+    color = "#3B4A6B";
+    penwidth = 1.6;
+    fontname = "Helvetica";
+    fontsize = 12;
+
+    node [shape=ellipse, style="filled", fillcolor="#F4F6FB",
+          color="#3B4A6B", fontname="Helvetica", fontsize=10,
+          width=2.0, height=0.9, margin="0.15,0.06"];
+
+    uc_config [label="Configureaza\nsistemul"];
+    uc_monitor [label="Monitorizeaza\nfluxul video"];
+    uc_recognize [label="Recunoaste\nnumarul de\ninmatriculare"];
+    uc_barrier [label="Ridica bariera"];
+    uc_notify [label="Emite notificare"];
+    uc_stream [label="Transmite rezultatul\ncatre client"];
+  }
+
+  /* ----- actor associations ----- */
+  operator -> uc_config;
+  operator -> uc_monitor;
+  uc_barrier -> barrier;
+  uc_notify -> notify;
+  uc_stream -> client;
+
+  /* ----- include / extend ----- */
+  edge [arrowhead=open, style=dashed, fontsize=9,
+        fontcolor="#3B4A6B"];
+  uc_monitor -> uc_recognize [label="«include»"];
+  uc_recognize -> uc_barrier [label="«extend»"];
+  uc_recognize -> uc_notify [label="«extend»"];
+  uc_recognize -> uc_stream [label="«extend»"];
+
+  /* ----- layout hints ----- */
+  { rank=same; operator; }
+  { rank=same; barrier; notify; client; }
+}

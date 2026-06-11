@@ -71,7 +71,7 @@ class CharacterSegmentation():
 
         characters = [self._helper.crop_on_bounding_box(license_plate, cnt)
                       for cnt in selected_cnt]
-        return characters, selected_cnt
+        return (characters, selected_cnt)
 
     def _score(self, bboxes, lp_height):
         '''

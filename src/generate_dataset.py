@@ -5,8 +5,8 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import cv2 as cv
-from src.license_plate_extraction import DetectionPipeline as DP
-from src.character_segmentation import CharacterSegmentation as CS
+from src.pipeline.LPExtraction import LPExtraction as DP
+from src.pipeline.CharacterSegmentation import CharacterSegmentation as CS
 
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 input_path = os.path.join(project_root, 'data')

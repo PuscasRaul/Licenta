@@ -4,11 +4,11 @@ class Frame(object):
     def __init__(
             self,
             image_data,
-            timestamp,
+            timestamp=None,
             metadata=None
     ) -> None:
         self._image_data = image_data
-        self._timestap = timestamp
+        self._timestamp = timestamp
         self._metadata = metadata
 
     @property
@@ -20,4 +20,4 @@ class Frame(object):
         return self._image_data
 
     def get_timestamp(self):
-        return self._timestap
+        return self._timestamp

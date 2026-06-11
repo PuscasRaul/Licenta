@@ -1,0 +1,170 @@
+/*
+ * IORA - diagrama de clase.
+ * Interfetele extensibile (ICaptureManager, IApplicationLogic), implementarile
+ * lor concrete pentru sistemul integrat si pentru aplicatia demo, tipurile de
+ * date din domeniu (Frame, RecognitionResult) si nucleul de procesare cu cele
+ * trei etape pe care le agrega.
+ */
+digraph IORA_Clase {
+  rankdir=LR;
+  fontname="Helvetica";
+  compound=true;
+  splines=ortho;
+  nodesep=0.35;
+  ranksep=1.0;
+  graph [pad="0.3"];
+
+  node [shape=plaintext, fontname="Helvetica"];
+  edge [fontname="Helvetica", color="#3B4A6B"];
+
+  /* ----- domain ----- */
+  Frame [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5"
+           BGCOLOR="#FFFFFF" COLOR="#3B4A6B">
+      <TR><TD BGCOLOR="#E7ECF7"><B>Frame</B></TD></TR>
+      <TR><TD ALIGN="LEFT">- image_data<BR ALIGN="LEFT"/>
+                            - timestamp<BR ALIGN="LEFT"/>
+                            - metadata<BR ALIGN="LEFT"/></TD></TR>
+      <TR><TD ALIGN="LEFT">+ get_image_data<BR ALIGN="LEFT"/>
+                            + get_timestamp()<BR ALIGN="LEFT"/>
+                            + get_metadata<BR ALIGN="LEFT"/></TD></TR>
+    </TABLE>>];
+
+  RecognitionResult [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5"
+           BGCOLOR="#FFFFFF" COLOR="#3B4A6B">
+      <TR><TD BGCOLOR="#E7ECF7"><B>RecognitionResult</B></TD></TR>
+      <TR><TD ALIGN="LEFT">- plate : str<BR ALIGN="LEFT"/>
+                            - timestamp<BR ALIGN="LEFT"/>
+                            - metadata : dict<BR ALIGN="LEFT"/></TD></TR>
+      <TR><TD ALIGN="LEFT">+ plate<BR ALIGN="LEFT"/>
+                            + timestamp<BR ALIGN="LEFT"/>
+                            + metadata<BR ALIGN="LEFT"/></TD></TR>
+    </TABLE>>];
+
+  /* ----- input edge ----- */
+  ICaptureManager [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5"
+           BGCOLOR="#FFFFFF" COLOR="#3B4A6B">
+      <TR><TD BGCOLOR="#EAF2FB"><I>&#171;interface&#187;</I><BR/><B>ICaptureManager</B></TD></TR>
+      <TR><TD ALIGN="LEFT">+ start()<BR ALIGN="LEFT"/>
+                            + get_latest_frame() : Frame<BR ALIGN="LEFT"/>
+                            + stop()<BR ALIGN="LEFT"/></TD></TR>
+    </TABLE>>];
+
+  CameraCaptureManager [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5"
+           BGCOLOR="#FFFFFF" COLOR="#3B4A6B">
+      <TR><TD BGCOLOR="#EAF2FB"><B>CameraCaptureManager</B></TD></TR>
+      <TR><TD ALIGN="LEFT">- _video_capture<BR ALIGN="LEFT"/>
+                            - _fps<BR ALIGN="LEFT"/>
+                            - _size<BR ALIGN="LEFT"/>
+                            - _lock<BR ALIGN="LEFT"/>
+                            - _latest_frame<BR ALIGN="LEFT"/></TD></TR>
+      <TR><TD ALIGN="LEFT">+ start()<BR ALIGN="LEFT"/>
+                            + get_latest_frame() : Frame<BR ALIGN="LEFT"/>
+                            + stop()<BR ALIGN="LEFT"/></TD></TR>
+    </TABLE>>];
+
+  WebSocketCaptureManager [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5"
+           BGCOLOR="#FFFFFF" COLOR="#3B4A6B">
+      <TR><TD BGCOLOR="#EAF2FB"><B>WebSocketCaptureManager</B></TD></TR>
+      <TR><TD ALIGN="LEFT">- _lock<BR ALIGN="LEFT"/>
+                            - _latest_frame<BR ALIGN="LEFT"/>
+                            - _frame_count<BR ALIGN="LEFT"/></TD></TR>
+      <TR><TD ALIGN="LEFT">+ start()<BR ALIGN="LEFT"/>
+                            + submit(bytes)<BR ALIGN="LEFT"/>
+                            + get_latest_frame() : Frame<BR ALIGN="LEFT"/>
+                            + stop()<BR ALIGN="LEFT"/></TD></TR>
+    </TABLE>>];
+
+  /* ----- pipeline ----- */
+  ProcessingPipeline [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5"
+           BGCOLOR="#FFFFFF" COLOR="#7A5C2E">
+      <TR><TD BGCOLOR="#FDF6E3"><B>ProcessingPipeline</B></TD></TR>
+      <TR><TD ALIGN="LEFT">- _extraction<BR ALIGN="LEFT"/>
+                            - _segmentation<BR ALIGN="LEFT"/>
+                            - _recognition<BR ALIGN="LEFT"/></TD></TR>
+      <TR><TD ALIGN="LEFT">+ process(frame : Frame) : RecognitionResult<BR ALIGN="LEFT"/></TD></TR>
+    </TABLE>>];
+
+  LPExtraction [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5"
+           BGCOLOR="#FFFFFF" COLOR="#7A5C2E">
+      <TR><TD BGCOLOR="#FDF6E3"><B>LPExtraction</B></TD></TR>
+      <TR><TD ALIGN="LEFT">- _lp_aspect_ratio<BR ALIGN="LEFT"/>
+                            - _lp_min_size<BR ALIGN="LEFT"/>
+                            - _lp_roi<BR ALIGN="LEFT"/>
+                            - _top_k<BR ALIGN="LEFT"/></TD></TR>
+      <TR><TD ALIGN="LEFT">+ extraction_pipeline(image) : list&lt;array&gt;<BR ALIGN="LEFT"/></TD></TR>
+    </TABLE>>];
+
+  CharacterSegmentation [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5"
+           BGCOLOR="#FFFFFF" COLOR="#7A5C2E">
+      <TR><TD BGCOLOR="#FDF6E3"><B>CharacterSegmentation</B></TD></TR>
+      <TR><TD ALIGN="LEFT">- _expected_chars : int<BR ALIGN="LEFT"/></TD></TR>
+      <TR><TD ALIGN="LEFT">+ character_segmentation(lps) : list&lt;array&gt;<BR ALIGN="LEFT"/></TD></TR>
+    </TABLE>>];
+
+  CharacterRecognition [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5"
+           BGCOLOR="#FFFFFF" COLOR="#7A5C2E">
+      <TR><TD BGCOLOR="#FDF6E3"><B>CharacterRecognition</B></TD></TR>
+      <TR><TD ALIGN="LEFT">- _clf : SVC(rbf)<BR ALIGN="LEFT"/>
+                            - _trained : bool<BR ALIGN="LEFT"/></TD></TR>
+      <TR><TD ALIGN="LEFT">+ train(X, y)<BR ALIGN="LEFT"/>
+                            + predict(chars) : str<BR ALIGN="LEFT"/>
+                            + save(path)<BR ALIGN="LEFT"/>
+                            + load(path)<BR ALIGN="LEFT"/></TD></TR>
+    </TABLE>>];
+
+  /* ----- application edge ----- */
+  IApplicationLogic [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5"
+           BGCOLOR="#FFFFFF" COLOR="#2F6B3A">
+      <TR><TD BGCOLOR="#EFF7EE"><I>&#171;interface&#187;</I><BR/><B>IApplicationLogic</B></TD></TR>
+      <TR><TD ALIGN="LEFT">+ handle(result : RecognitionResult)<BR ALIGN="LEFT"/></TD></TR>
+    </TABLE>>];
+
+  AccessControlApplicationLogic [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5"
+           BGCOLOR="#FFFFFF" COLOR="#2F6B3A">
+      <TR><TD BGCOLOR="#EFF7EE"><B>AccessControlApplicationLogic</B></TD></TR>
+      <TR><TD ALIGN="LEFT">- _authorized : set&lt;str&gt;<BR ALIGN="LEFT"/>
+                            - _raise_barrier : callable<BR ALIGN="LEFT"/>
+                            - _notify : callable<BR ALIGN="LEFT"/></TD></TR>
+      <TR><TD ALIGN="LEFT">+ handle(result)<BR ALIGN="LEFT"/></TD></TR>
+    </TABLE>>];
+
+  WebSocketApplicationLogic [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5"
+           BGCOLOR="#FFFFFF" COLOR="#2F6B3A">
+      <TR><TD BGCOLOR="#EFF7EE"><B>WebSocketApplicationLogic</B></TD></TR>
+      <TR><TD ALIGN="LEFT">- _websocket<BR ALIGN="LEFT"/></TD></TR>
+      <TR><TD ALIGN="LEFT">+ handle(result) : async<BR ALIGN="LEFT"/></TD></TR>
+    </TABLE>>];
+
+  /* ----- realization / inheritance ----- */
+  CameraCaptureManager -> ICaptureManager [arrowhead=empty, style=dashed];
+  WebSocketCaptureManager -> ICaptureManager [arrowhead=empty, style=dashed];
+  AccessControlApplicationLogic -> IApplicationLogic [arrowhead=empty, style=dashed];
+  WebSocketApplicationLogic -> IApplicationLogic [arrowhead=empty, style=dashed];
+
+  /* ----- composition / aggregation ----- */
+  ProcessingPipeline -> LPExtraction [arrowhead=odiamond, dir=back];
+  ProcessingPipeline -> CharacterSegmentation [arrowhead=odiamond, dir=back];
+  ProcessingPipeline -> CharacterRecognition [arrowhead=odiamond, dir=back];
+
+  /* ----- dependencies on domain types ----- */
+  ICaptureManager -> Frame [style=dashed, arrowhead=open,
+                             xlabel="produce"];
+  ProcessingPipeline -> Frame [style=dashed, arrowhead=open,
+                                xlabel="consuma"];
+  ProcessingPipeline -> RecognitionResult [style=dashed, arrowhead=open,
+                                            xlabel="produce"];
+  IApplicationLogic -> RecognitionResult [style=dashed, arrowhead=open,
+                                           xlabel="consuma"];
+}

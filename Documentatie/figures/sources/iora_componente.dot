@@ -1,0 +1,80 @@
+/*
+ * IORA - diagrama de componente.
+ * Trei niveluri logice: Input -> Pipeline -> Application Logic.
+ * Frame strabate Input -> Pipeline, RecognitionResult strabate
+ * Pipeline -> Application Logic.
+ */
+digraph IORA_Componente {
+  rankdir=LR;
+  fontname="Helvetica";
+  compound=true;
+  splines=curved;
+  newrank=true;
+  nodesep=0.4;
+  ranksep=1.1;
+  graph [pad="0.3"];
+  node [shape=box, style="filled,rounded", fontname="Helvetica",
+        fillcolor="#F4F6FB", color="#3B4A6B", penwidth=1.2,
+        margin="0.18,0.10"];
+  edge [fontname="Helvetica", color="#3B4A6B"];
+
+  subgraph cluster_input {
+    label = "Modulul de intrare (Input)";
+    labeljust = "l";
+    style = "rounded,filled";
+    fillcolor = "#EAF2FB";
+    color = "#3B4A6B";
+    penwidth = 1.4;
+
+    icapture [label="«interface»\nICaptureManager\n+ start()\n+ get_latest_frame() : Frame\n+ stop()",
+              fillcolor="#FFFFFF"];
+    camera [label="CameraCaptureManager\n(sistem integrat)"];
+    websock_in [label="WebSocketCaptureManager\n(aplicatie demo)"];
+
+    camera -> icapture [arrowhead=empty, style=dashed];
+    websock_in -> icapture [arrowhead=empty, style=dashed];
+  }
+
+  subgraph cluster_pipeline {
+    label = "Fluxul de procesare (Processing Pipeline)";
+    labeljust = "l";
+    style = "rounded,filled";
+    fillcolor = "#FDF6E3";
+    color = "#7A5C2E";
+    penwidth = 1.4;
+
+    pipeline [label="ProcessingPipeline\n+ process(Frame) : RecognitionResult",
+              fillcolor="#FFFFFF"];
+    extraction [label="LPExtraction\n(localizare placuta)"];
+    segmentation [label="CharacterSegmentation\n(segmentare caractere)"];
+    recognition [label="CharacterRecognition\n(SVM cu nucleu RBF)"];
+
+    pipeline -> extraction [arrowhead=odiamond];
+    pipeline -> segmentation [arrowhead=odiamond];
+    pipeline -> recognition [arrowhead=odiamond];
+  }
+
+  subgraph cluster_app {
+    label = "Modulul de logica a aplicatiei (Application Logic)";
+    labeljust = "l";
+    style = "rounded,filled";
+    fillcolor = "#EFF7EE";
+    color = "#2F6B3A";
+    penwidth = 1.4;
+
+    iapp [label="«interface»\nIApplicationLogic\n+ handle(result : RecognitionResult)",
+          fillcolor="#FFFFFF"];
+    access [label="AccessControlApplicationLogic\n(bariera + notificare)"];
+    websock_out [label="WebSocketApplicationLogic\n(stream catre client)"];
+
+    access -> iapp [arrowhead=empty, style=dashed];
+    websock_out -> iapp [arrowhead=empty, style=dashed];
+  }
+
+  icapture -> pipeline [xlabel="Frame", penwidth=1.8,
+                         color="#1F3B70", fontcolor="#1F3B70"];
+  pipeline -> iapp [xlabel="RecognitionResult", penwidth=1.8,
+                    color="#1F3B70", fontcolor="#1F3B70"];
+
+  { rank=same; icapture; pipeline; iapp; }
+}
