@@ -12,6 +12,15 @@ IMG_SIZE = 28
 SKIP_LABELS = {'BAD'}
 MIN_SAMPLES_PER_CLASS = 15
 
+# HOG descriptor over a 28x28 char window with 7x7 cells and 14x14 blocks
+# at 7-pixel stride: 9 blocks x 4 cells x 9 bins = 324 features per char.
+_HOG = cv.HOGDescriptor(
+    _winSize=(IMG_SIZE, IMG_SIZE),
+    _blockSize=(14, 14),
+    _blockStride=(7, 7),
+    _cellSize=(7, 7),
+    _nbins=9)
+
 
 class CharacterRecognition():
 
@@ -28,7 +37,7 @@ class CharacterRecognition():
         if img.ndim == 3:
             img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         img = cv.resize(img, (IMG_SIZE, IMG_SIZE))
-        return (img.astype(np.float32) / 255.0).flatten()
+        return _HOG.compute(img).flatten().astype(np.float32)
 
     @staticmethod
     def load_dataset(dirs, min_samples=MIN_SAMPLES_PER_CLASS):
