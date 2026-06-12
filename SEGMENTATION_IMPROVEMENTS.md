@@ -5,6 +5,7 @@ Baseline commit: `9e7990d` (main)
 Commits on this branch:
 - `c41672c` — segmentation improvements
 - `1ed1001` — position-aware OCR decoding
+- `7562f47` — HOG features for the SVM
 
 ## Branch progression at a glance
 
@@ -12,9 +13,10 @@ Commits on this branch:
 |---|---|---|---|---|---|
 | Baseline (`main`) | `9e7990d` | 48.9 % | 0.768 | 0.809 | 0.588 |
 | + Segmentation rebuild | `c41672c` | 59.7 % | 0.801 | 0.839 | 0.588 |
-| + Position-aware decoding | `1ed1001` | **64.5 %** | 0.801 | 0.839 | 0.588 |
+| + Position-aware decoding | `1ed1001` | 64.5 % | 0.801 | 0.839 | 0.588 |
+| + HOG features for SVM | `7562f47` | **66.7 %** | 0.807 | 0.839 | 0.588 |
 
-Branch total: **+15.6 pp E2E** (91 → 120 correctly read plates out of 186).
+Branch total: **+17.8 pp E2E** (91 → 124 correctly read plates out of 186).
 
 ---
 
@@ -168,3 +170,71 @@ The fix for that tail needs a smarter LP scoring or per-candidate recovery pass,
 - The leading-character clipping (LP localization issue) still produces about 30 same-length-different-leading-character predictions that the format prior cannot correct, because the segmenter never saw the missing character.
 - Substitutions where both candidates are letters (or both digits) remain: `Y -> T`, `Y -> J`, `5 -> P`, `5 -> A`, `9 -> J`, `1 -> 5`. These need a stronger per-character classifier (HOG features or aspect-preserving preprocessing followed by SVM retrain).
 - The format prior is dataset-specific. If the test set composition changes, the prior would have to be re-derived; otherwise it could over-correct.
+
+---
+
+# Part 3 — HOG features for the SVM classifier
+
+Commit: `7562f47` (cumulative on top of `1ed1001`).
+
+## Context
+
+Up to this point the SVM was trained on raw 28×28 grayscale pixel intensities (784-dimensional vectors). With this representation the classifier was sensitive to lighting and contrast variations — segmented characters in production differed from the training set in those aspects, producing systemic substitutions like `D -> 0`, `4 -> F`, and `Y -> T/J` that the format prior could only partially mask.
+
+Literature on classical ALPR consistently reports that switching from raw pixels to HOG (Histogram of Oriented Gradients) as the SVM feature representation produces large per-character accuracy gains (typically reported as 95–98 % on similar tasks). HOG captures edge-orientation distributions which are largely invariant to brightness and small geometric perturbations.
+
+## Results
+
+| Metric | Before (`1ed1001`) | After (`7562f47`) | Δ |
+|---|---|---|---|
+| **E2E exact match** | **64.5 %** | **66.7 %** | **+2.2 pp** |
+| E2E correct plates | 120 / 186 | 124 / 186 | +4 |
+| OCR Levenshtein similarity | 0.801 | 0.807 | +0.006 |
+| Segmentation count agreement | 0.839 | 0.839 | 0 |
+| Localization IoU | 0.588 | 0.588 | 0 |
+| Confusion matrix size | 82 pairs | **70 pairs** | -12 |
+| SVM held-out accuracy | (n/a) | 97 % | — |
+
+The OCR similarity barely moved because only ~30 character predictions changed in total. But the changes are *concentrated in the substitution categories* — the confusion matrix shrank from 82 to 70 unique error patterns, meaning the residual errors are more deterministic and easier to attack next.
+
+Selected concrete improvements in the confusion matrix:
+- `4` correct count: 57 → 69 (+12)
+- `1` correct count: 229 → 236 (+7)
+- `D -> 0` substitutions: 4 → 2
+- `D -> D` appears for the first time (the old model could not classify `D` reliably at all)
+
+## Change
+
+A single change in `src/pipeline/CharacterRecognition.preprocess_char()`. Instead of returning the flattened, normalized pixel grid, the function now runs the input through an OpenCV `HOGDescriptor` configured for the 28×28 character window:
+
+| HOG parameter | Value |
+|---|---|
+| `winSize` | (28, 28) |
+| `blockSize` | (14, 14) |
+| `blockStride` | (7, 7) |
+| `cellSize` | (7, 7) |
+| `nbins` | 9 |
+
+This produces 9 blocks × 4 cells/block × 9 bins = **324-dimensional feature vectors** per character, a 2.4× compression compared to the 784-d raw-pixel representation, while preserving the discriminative edge-orientation signal.
+
+Because the feature dimensionality changed (784 → 324), the saved SVM model was no longer compatible and had to be retrained. The training script `src/pipeline/svm.py` already routes every sample through `CharacterRecognition.preprocess_char`, so the only operational change was re-running it:
+
+```
+conda run -n licenta python -m src.pipeline.svm
+```
+
+The old raw-pixel model is preserved as `data/svm_model_raw28.joblib.bak` (not git-tracked) in case a regression check is needed.
+
+## Why the gain is smaller than the SVM held-out accuracy implies
+
+The retrained model scores 97 % on its own held-out split. Per-character accuracy in the end-to-end pipeline is necessarily lower because:
+
+1. Segmented characters at runtime have slight boundary artefacts (extra pixels picked up from adjacent characters, or a clipped stroke) that the training set does not contain.
+2. The 28×28 resize destroys aspect-ratio information — a `1` (w/h ≈ 0.1) gets stretched to a square, losing the discriminative "narrow" feature.
+
+Point (2) is the natural next improvement: pad to square before resize, then retrain. Documented in the analysis but not implemented yet to keep the contribution of this change isolated.
+
+## Known remaining issues (after Part 3)
+
+- The substitutions `Y -> M (3)`, `F -> 6 (3)`, `G -> 4 (3)` are the most concentrated remaining same-position errors — likely fixable by aspect-preserving preprocessing or additional augmented training data.
+- All Part 2 residuals still apply: leading-character clipping (LP-stage), and the small set of letter-vs-letter / digit-vs-digit substitutions that the format prior cannot disambiguate.
