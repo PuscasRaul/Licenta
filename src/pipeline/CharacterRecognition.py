@@ -36,6 +36,20 @@ class CharacterRecognition():
     def preprocess_char(img):
         if img.ndim == 3:
             img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+        h, w = img.shape[:2]
+        if h != w:
+            size = max(h, w)
+            pad_v = size - h
+            pad_h = size - w
+            top = pad_v // 2
+            bottom = pad_v - top
+            left = pad_h // 2
+            right = pad_h - left
+            corners = (int(img[0, 0]), int(img[0, -1]),
+                       int(img[-1, 0]), int(img[-1, -1]))
+            fill = int(np.median(corners))
+            img = cv.copyMakeBorder(img, top, bottom, left, right,
+                                    cv.BORDER_CONSTANT, value=fill)
         img = cv.resize(img, (IMG_SIZE, IMG_SIZE))
         return _HOG.compute(img).flatten().astype(np.float32)
 
