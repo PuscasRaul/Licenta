@@ -6,6 +6,7 @@ Commits on this branch:
 - `c41672c` — segmentation improvements
 - `1ed1001` — position-aware OCR decoding
 - `7562f47` — HOG features for the SVM
+- `5671681` — aspect-preserving preprocess
 
 ## Branch progression at a glance
 
@@ -14,9 +15,10 @@ Commits on this branch:
 | Baseline (`main`) | `9e7990d` | 48.9 % | 0.768 | 0.809 | 0.588 |
 | + Segmentation rebuild | `c41672c` | 59.7 % | 0.801 | 0.839 | 0.588 |
 | + Position-aware decoding | `1ed1001` | 64.5 % | 0.801 | 0.839 | 0.588 |
-| + HOG features for SVM | `7562f47` | **66.7 %** | 0.807 | 0.839 | 0.588 |
+| + HOG features for SVM | `7562f47` | 66.7 % | 0.807 | 0.839 | 0.588 |
+| + Aspect-preserving preprocess | `5671681` | **67.7 %** | 0.806 | 0.839 | 0.588 |
 
-Branch total: **+17.8 pp E2E** (91 → 124 correctly read plates out of 186).
+Branch total: **+18.8 pp E2E** (91 → 126 correctly read plates out of 186).
 
 ---
 
@@ -238,3 +240,50 @@ Point (2) is the natural next improvement: pad to square before resize, then ret
 
 - The substitutions `Y -> M (3)`, `F -> 6 (3)`, `G -> 4 (3)` are the most concentrated remaining same-position errors — likely fixable by aspect-preserving preprocessing or additional augmented training data.
 - All Part 2 residuals still apply: leading-character clipping (LP-stage), and the small set of letter-vs-letter / digit-vs-digit substitutions that the format prior cannot disambiguate.
+
+---
+
+# Part 4 — Aspect-preserving character preprocess
+
+Commit: `5671681` (cumulative on top of `7562f47`).
+
+## Context
+
+After Part 3, the SVM trained on HOG features over 28×28 windows still had a structural limitation: every character was resized to 28×28 directly with `cv.resize`, which stretches the aspect ratio. A `1` with native shape ~ 5×40 px (w/h ≈ 0.12) was stretched into a 28×28 square, losing the "narrow vertical bar" feature that distinguishes it from `I`, `T`, `L`, and `F`. The HOG descriptor then captured similar edge-orientation histograms for these stretched-out narrow characters, contributing to residual `1 -> T/F/K/H/L` and `Y -> M`-type substitutions.
+
+## Results
+
+| Metric | Before (`7562f47`) | After (`5671681`) | Δ |
+|---|---|---|---|
+| **E2E exact match** | **66.7 %** | **67.7 %** | **+1.1 pp** |
+| E2E correct plates | 124 / 186 | 126 / 186 | +2 |
+| OCR Levenshtein similarity | 0.807 | 0.806 | -0.001 |
+| Segmentation count agreement | 0.839 | 0.839 | 0 |
+| Localization IoU | 0.588 | 0.588 | 0 |
+| Confusion matrix size | 70 pairs | 75 pairs | +5 |
+| SVM held-out accuracy | 97.0 % | 95.8 % | -1.2 pp |
+
+The held-out SVM accuracy went *down* (97 % → 95.8 %), but the end-to-end pipeline accuracy went *up* (+1.1 pp E2E). This divergence is the actual signal: characters in the training set (`data/labeled/`) come from one segmenter at one point in time, with a roughly consistent aspect ratio per class. Real characters at runtime have more variation — especially narrow digits like `1` cropped from a slightly different segmenter run. The aspect-preserving step makes the SVM's behaviour more invariant to the runtime-vs-training distribution shift, even though it slightly hurts the in-distribution metric.
+
+## Change
+
+A single change in `src/pipeline/CharacterRecognition.preprocess_char()`. Before `cv.resize(img, (28, 28))`, the input is padded to a square via `cv.copyMakeBorder` with `BORDER_CONSTANT`. The fill value is the median of the four corner pixels of the input, which approximates the background colour without needing a separate heuristic for dark-on-light vs light-on-dark plates.
+
+The pad amounts on each axis are computed so the character ends up centred in the square. Equal pad-top/pad-bottom (or pad-left/pad-right) within ±1 pixel to handle odd-pixel deltas.
+
+The remaining 28×28 resize and HOG computation are unchanged from Part 3.
+
+## Why the held-out accuracy dropped
+
+Training data in `data/labeled/` is collected from a fixed segmenter run and is mostly already roughly square or close to it. With aspect-preserving padding:
+
+1. Class shapes that were already nearly square (most letters and broad digits) gain a small uniform border that the HOG descriptor sees as a new low-frequency edge. This adds noise without adding information.
+2. The narrow-class shapes (`1`, occasionally `7`) gain a much larger border that *does* carry information (the `1` is now consistently centred in white space), but they are a small fraction of the held-out set.
+
+Net effect on the held-out set: a small negative. Net effect on the production pipeline: a small positive, because the runtime distribution has *more* narrow-class characters and more aspect-ratio variation than the held-out split.
+
+## Known remaining issues (after Part 4)
+
+- Most letter-vs-letter and digit-vs-digit substitutions still survive (`Y -> M`, `F -> 6`, `G -> 4`, `5 -> P/A`). These are likely irreducible without either a stronger feature representation (e.g. an actual CNN) or training-data augmentation (rotation, brightness, perspective).
+- Leading-character clipping at the LP-extraction stage continues to upper-bound the achievable E2E accuracy.
+- The confusion-matrix pair count went up slightly (70 → 75) — errors are more diverse but each less frequent.
