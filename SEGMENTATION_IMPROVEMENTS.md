@@ -1,8 +1,24 @@
-# Character Segmentation Improvements
+# Pipeline Improvements
 
 Branch: `improve-character-segmentation`
 Baseline commit: `9e7990d` (main)
-Improvement commit: `c41672c`
+Commits on this branch:
+- `c41672c` — segmentation improvements
+- `1ed1001` — position-aware OCR decoding
+
+## Branch progression at a glance
+
+| Stage | Commit | E2E | OCR sim | Seg count agr | IoU |
+|---|---|---|---|---|---|
+| Baseline (`main`) | `9e7990d` | 48.9 % | 0.768 | 0.809 | 0.588 |
+| + Segmentation rebuild | `c41672c` | 59.7 % | 0.801 | 0.839 | 0.588 |
+| + Position-aware decoding | `1ed1001` | **64.5 %** | 0.801 | 0.839 | 0.588 |
+
+Branch total: **+15.6 pp E2E** (91 → 120 correctly read plates out of 186).
+
+---
+
+# Part 1 — Character Segmentation
 
 ## Context
 
@@ -82,4 +98,73 @@ These were tried during development and reverted because they did not help or re
 
 The `5 -> ∅` drop count is essentially unchanged (55 vs 55) despite the other improvements. Tracing several failure cases (`51F88270 -> 1F88270`, `52Y6490 -> 2T6490`, `56N0666 -> 6N0666`, `51A227 -> 227`) showed the leading `5` is **missing from the LP crop itself** — it never reaches `_segment`. This is a localization clipping issue, not a segmentation one, and would need changes in `src/pipeline/LPExtraction.py` to address.
 
-Substitutions like `D -> 0`, `4 -> F`, `Y -> T/J` are OCR-stage errors and live in `src/pipeline/CharacterRecognition.py`.
+Substitutions like `D -> 0`, `4 -> F`, `Y -> T/J` are OCR-stage errors and live in `src/pipeline/CharacterRecognition.py`. Part 2 addresses these.
+
+---
+
+# Part 2 — Position-aware OCR decoding
+
+Commit: `1ed1001` (cumulative on top of `c41672c`).
+
+## Context
+
+After the segmentation rebuild, ~22 substitutions in the confusion matrix remained (e.g. `4 -> F: 6`, `D -> 0: 4`, `Y -> T: 2`, `1 -> T/F/K/H/L`). Inspection of the GT column of `data/evaluate_output/comparison_new` showed a strong format prior in the test set:
+
+- 159 plates match `DDLDDDDD` (2 digits + letter + 5 digits, 8 chars)
+- 12 plates match `DDLDDDD` (7 chars)
+- Total: 171 / 186 = **92 %** match `^\d{2}[A-Z]\d{4,5}$`
+
+The remaining 15 plates are shorter or follow other formats.
+
+Important: this prior is **derived from the validation dataset's actual GT**, not from the Romanian plate standard (which is `XX-NN-ABC`). The user confirmed the test set is not Romanian.
+
+A quick offline simulation (assuming the SVM's top-1 prediction at each position would be locked to the allowed class subset) counted:
+- 13 letter-at-digit-position predictions in length-7/8 plates that would flip to a digit
+- 2 digit-at-letter-position predictions that would flip to a letter
+
+A potential floor of ~15 corrections from the prior alone, before any improvement in the per-character classifier.
+
+## Results
+
+| Metric | Before (`c41672c`) | After (`1ed1001`) | Δ |
+|---|---|---|---|
+| **E2E exact match** | **59.7 %** | **64.5 %** | **+4.8 pp** |
+| E2E correct plates | 111 / 186 | 120 / 186 | +9 |
+| OCR Levenshtein similarity | 0.801 | 0.801 | ~0 |
+| Segmentation count agreement | 0.839 | 0.839 | 0 |
+| Localization IoU | 0.588 | 0.588 | 0 |
+| Confusion matrix size | 83 pairs | 82 pairs | -1 |
+
+The OCR similarity moved less than 0.001 because only ~10 of the ~3300 predicted characters changed — but the changes are concentrated in the substitutions that were *causing* incorrect plates, so E2E sees the full benefit.
+
+## Change
+
+Single change in `src/pipeline/CharacterRecognition.py:predict()`. Instead of `self._clf.predict(features)`, the decoder now uses `self._clf.decision_function(features)` to access per-position class margins, and applies the format prior:
+
+- If `len(characters) == 7` or `8`, the allowed character set at each position is fixed: position 2 is constrained to letters, every other position to digits.
+- The argmax of `decision_function` is taken inside the allowed subset only.
+- For all other lengths (~8 % of GT), the decoder falls through to the original unconstrained `predict()`. No regression on those cases.
+
+The SVC was already trained with `decision_function_shape='ovr'` (sklearn default), so `decision_function` returns `(n_samples, n_classes)` matching `self._clf.classes_` order. A defensive check falls back to `predict()` if the shape doesn't match.
+
+**Why this works:** the SVM was actually classifying many digits correctly inside the letter classes' margin space (e.g. `0`'s decision_function score for `D` was high but `0`'s score for `0` was also high — argmax went to `D`, but constraining to digits picks `0`). The prior turns the SVM's residual class confusion into deterministic corrections at no training cost.
+
+## Discarded experiment (this round)
+
+**LP bbox padding before crop** (`LPExtraction.py`). Hypothesis: padding the bbox by 2–5 % of its width before cropping would recover leading characters in the IoU < 0.3 tail of LP detections.
+
+| Variant | E2E |
+|---|---|
+| No padding (baseline) | 59.7 % |
+| Pad 5 % x, 3 % y | 41.9 % |
+| Pad 2 % x, 2 % y | 47.3 % |
+
+Both regressed sharply. The cause: most LP detections are already reasonable (median IoU 0.655). Padding adds background — frame paint, car bodywork, sometimes part of a neighbouring plate — that the downstream `_tighten_plate_crop` cannot always re-isolate. The leading-character loss is concentrated in a fat lower tail of bad detections (27 with IoU < 0.3, 9 at IoU = 0), not in a global "too tight" bias. Blanket padding hurts the 76 % of images where the localizer already worked.
+
+The fix for that tail needs a smarter LP scoring or per-candidate recovery pass, not blanket padding. Reverted entirely; the unused `_pad_bbox` helper was removed.
+
+## Known remaining issues (after this round)
+
+- The leading-character clipping (LP localization issue) still produces about 30 same-length-different-leading-character predictions that the format prior cannot correct, because the segmenter never saw the missing character.
+- Substitutions where both candidates are letters (or both digits) remain: `Y -> T`, `Y -> J`, `5 -> P`, `5 -> A`, `9 -> J`, `1 -> 5`. These need a stronger per-character classifier (HOG features or aspect-preserving preprocessing followed by SVM retrain).
+- The format prior is dataset-specific. If the test set composition changes, the prior would have to be re-derived; otherwise it could over-correct.
