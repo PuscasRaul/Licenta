@@ -51,6 +51,7 @@ class CharacterSegmentation():
 
         min_height = 0.40 * license_plate.shape[0]
         max_height = 0.90 * license_plate.shape[0]
+        min_w_h = 0.15  # rejects border slivers and thin noise
 
         stds = []
         for cnt in contours:
@@ -66,7 +67,9 @@ class CharacterSegmentation():
 
         selected_cnt = sorted(
             (c for c, s in zip(contours, stds)
-             if s > thr and min_height <= c[3] <= max_height),
+             if s > thr
+             and min_height <= c[3] <= max_height
+             and c[2] / c[3] >= min_w_h),
             key=lambda bb: bb[0])
 
         characters = [self._helper.crop_on_bounding_box(license_plate, cnt)

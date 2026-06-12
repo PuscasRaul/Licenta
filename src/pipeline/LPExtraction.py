@@ -86,6 +86,9 @@ class LPExtraction():
             intermediates['candidates'] = bounding_box
             return None, intermediates
 
+        bounding_box = self._merge_candidates(bounding_box)
+        intermediates['candidates'] = bounding_box
+
         ranked_bb = self._rank_bounding_boxes(bounding_box, thresh)
         if ranked_bb is None or len(ranked_bb) <= 0:
             return None, intermediates
@@ -145,6 +148,86 @@ class LPExtraction():
                              flags=cv.INTER_LINEAR,
                              borderMode=cv.BORDER_REPLICATE)
     '''
+
+    def _overlap(self, b1, b2):
+        '''
+        Returns true if 2 bounding boxes are overlapping
+        '''
+        tl1, br1 = b1
+        tl2, br2 = b2
+        if tl1[0] >= br2[0] or tl2[0] >= br1[0]:
+            return False
+        if tl1[1] >= br2[1] or tl2[1] >= br1[1]:
+            return False
+        return True
+
+    def _tup(self, point):
+        return (point[0], point[1])
+
+    def _to_tl_br(self, bounding_box):
+        '''
+        Converts from coordinates to [top-left, bottom-right]
+        '''
+        x, y, w, h = bounding_box
+        return [[x, y], [x + w, y + h]]
+
+    def _to_xywh(self, tlbr):
+        '''
+        Converts from [top-left, bottom-right] to [x,y, w, h]
+        '''
+        tl, br = tlbr
+        return (tl[0], tl[1], br[0] - tl[0], br[1] - tl[1])
+
+    def _get_all_overlaps(self, boxes, bounds, index):
+        '''
+        Get all overlaps for a bounding box
+        '''
+        overlaps = []
+        for a in range(len(boxes)):
+            if a != index:
+                if self._overlap(bounds, boxes[a]):
+                    overlaps.append(a)
+        return overlaps
+
+    def _merge_candidates(self, boxes, merge_margin=15):
+        '''
+        Merge boxes that overlap after expanding each side by
+        merge_margin pixels.
+        '''
+
+        if not boxes or len(boxes) < 2:
+            return list(boxes)
+
+        result = [self._to_tl_br(b) for b in boxes]
+
+        finished = False
+        while not finished:
+            finished = True
+            index = len(result) - 1
+            while index >= 0:
+                curr = result[index]
+                expanded = [
+                    [curr[0][0] - merge_margin, curr[0][1] - merge_margin],
+                    [curr[1][0] + merge_margin, curr[1][1] + merge_margin],
+                ]
+                overlaps = self._get_all_overlaps(result, expanded, index)
+                if overlaps:
+                    overlaps.append(index)
+                    con = []
+                    for ind in overlaps:
+                        tl, br = result[ind]
+                        con.append([tl])
+                        con.append([br])
+                    x, y, w, h = cv.boundingRect(np.array(con))
+                    merged = [[x, y], [x + w, y + h]]
+                    for ind in sorted(overlaps, reverse=True):
+                        del result[ind]
+                    result.append(merged)
+                    finished = False
+                    break
+                index -= 1
+
+        return [self._to_xywh(b) for b in result]
 
     def _rank_bounding_boxes(self, bb, otsu):
         if bb is None:
