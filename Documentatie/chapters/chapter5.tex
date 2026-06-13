@@ -388,3 +388,56 @@ Reducerea valorii \texttt{top\_k} de la $5$ la $1$ produce cea mai mare scădere
 \end{table}
 
 Comparația dintre cele două metode de segmentare oferă un rezultat aparent contraintuitiv: pe setul de date utilizat, abordarea bazată pe contururi obține o rată end-to-end de $4{,}3\%$, comparativ cu $0{,}5\%$ pentru cea bazată pe proiecții. O analiză posibilă a acestei discrepanțe este aceea că setul \texttt{data/LP-characters/} conține preponderent plăcuțe cu un fundal uniform, în care contururile caracterelor sunt bine separate, scenariu favorabil abordării bazate pe contururi. Avantajele teoretice ale proiecțiilor (robusteța la zgomot și la pragurile dificil de calibrat) s-ar manifesta probabil mai pregnant pe un set mai eterogen, observație care motivează extinderea ulterioară a setului de evaluare.
+
+\subsection{Îmbunătățiri progresive ale fluxului de recunoaștere}\label{sec:imbunatatiri}
+\indent\par
+Plecând de la configurația de bază descrisă în secțiunile anterioare, au fost adoptate, succesiv, patru intervenții incrementale care vizează etapele de segmentare, decodare și clasificare. Evaluarea s-a făcut pe setul \texttt{data/VALIDATE/} (186 de imagini cu adevăr de referință al șirului de caractere), iar metricile raportate sunt rata end-to-end (egalitate exactă), similaritatea Levenshtein a OCR-ului, acordul la nivel de număr de caractere segmentate și IoU-ul localizării. Tabelul~\ref{tab:imbunatatiri} sintetizează contribuția cumulativă a fiecărei intervenții.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{lcccc}
+    \hline
+    Configurație & End-to-end & OCR sim. & Acord seg. & IoU \\
+    \hline
+    Bază & 0{,}489 & 0{,}768 & 0{,}809 & 0{,}588 \\
+    \quad + reconstrucția segmentării  & 0{,}597 & 0{,}801 & 0{,}839 & 0{,}588 \\
+    \quad + decodare condiționată de format & 0{,}645 & 0{,}801 & 0{,}839 & 0{,}588 \\
+    \quad + trăsături HOG pentru SVM & 0{,}667 & 0{,}807 & 0{,}839 & 0{,}588 \\
+    \quad + pre-procesare cu conservarea proporțiilor & \textbf{0{,}677} & 0{,}806 & 0{,}839 & 0{,}588 \\
+    \hline
+  \end{tabular}
+  \caption{Contribuția cumulativă a celor patru intervenții. Fiecare linie include modificările liniilor anterioare. Cumulat, rata end-to-end a crescut cu $18{,}8$ puncte procentuale ($91 \to 126$ plăcuțe corecte din $186$).}
+  \label{tab:imbunatatiri}
+\end{table}
+
+\subsubsection{Reconstrucția etapei de segmentare}
+\indent\par
+Înainte de intervenție, decupajul de plăcuță era binarizat direct, iar contururile externe erau filtrate exclusiv prin raportul de aspect $w/h$, cu un prag inferior de $0{,}15$. Matricea de confuzii a arătat două surse sistematice de erori: aproximativ $250$ de caractere lipsă (dominate de $5\to\emptyset$ cu $55$ de cazuri, $1\to\emptyset$ cu $48$ de cazuri) și aproximativ $30$ de caractere inserate fals ($\emptyset\to A$, $\emptyset\to T$, $\emptyset\to H$). Caracterul \texttt{1}, cu un raport real $w/h$ între $0{,}07$ și $0{,}12$, era respins în întregime de pragul geometric, iar reziduurile cadrului plăcuței (banda UE, șuruburile de prindere) produceau contururi care imitau caractere reale.
+
+Soluția a constat în (1) restrângerea decupajului la cea mai mare componentă conexă deschisă din interiorul plăcuței, eliminând cadrul înainte de binarizare; (2) coborârea pragului $w/h$ la $0{,}08$, recuperând caracterul \texttt{1}; (3) respingerea contururilor care ating marginile laterale ale plăcuței tăiate, anulând patternul de inserții; (4) o trecere de consistență pe înălțimi, care elimină casetele aflate în afara intervalului $[0{,}55\,m, 1{,}45\,m]$, unde $m$ este înălțimea mediană a supraviețuitorilor; (5) un divizor de blocuri largi care, pentru casete cu $w > 1{,}2\,h$, taie la coloana cu cea mai joasă proiecție verticală, recuperând caracterele lipite. Inserțiile au scăzut de la $\sim 30$ la $\sim 5$, iar rata end-to-end a urcat cu $10{,}8$ puncte procentuale.
+
+Au fost respinse explicit aplicarea unei închideri morfologice $3\times3$, care, pe plăcuțe de $\sim 27$ de pixeli înălțime, a unit caracterele adiacente (numărul de contururi crude a scăzut de la $23$ la $4$ într-un caz observat), și varianta verticală $(2,1)$, cu același efect în formă atenuată.
+
+\subsubsection{Decodare condiționată de format}
+\indent\par
+Analiza confuziilor reziduale a indicat substituții sistematice între clase vizual similare (\texttt{4}$\to$\texttt{F}, \texttt{D}$\to$\texttt{0}, \texttt{Y}$\to$\texttt{T}) generate de ambiguitatea internă a SVM-ului. Adevărul de referință al setului \texttt{data/VALIDATE/} respectă în $92\%$ din cazuri unul dintre formatele \texttt{DDLDDDDD} (8 caractere) sau \texttt{DDLDDDD} (7 caractere); aceste formate sunt derivate strict din distribuția setului, întrucât testul nu conține plăcuțe românești.
+
+Modificarea, localizată în metoda \texttt{predict} a clasei \texttt{CharacterRecognition}, înlocuiește predicția top-1 a SVM-ului cu \texttt{decision\_function} și restrânge argmax-ul fiecărei poziții la setul de caractere admis (cifre pentru toate pozițiile cu excepția poziției $2$, literă pentru poziția $2$). Pentru lungimi care nu corespund vreunui prior, decodarea revine la varianta neconstrânsă, evitând orice regresie. Acțiunea selectivă a priorului asupra ambiguităților SVM a urcat rata end-to-end cu $4{,}8$ puncte procentuale, fără modificarea similarității Levenshtein (doar $\sim 10$ predicții de caracter s-au schimbat, dar exact cele care invalidau șirul întreg).
+
+Tot în acest studiu a fost respinsă o margine adițională la decupajul plăcuței, intenționată să recupereze caracterele tăiate la localizare: padding-uri de $2\%$ și $5\%$ au regresat rata end-to-end la $47{,}3\%$, respectiv $41{,}9\%$. Cauza este că majoritatea decupajelor erau deja corecte (IoU median $0{,}655$), iar adăugarea de margine introducea fragmente de caroserie sau de plăcuțe vecine; pierderea de caractere inițiale se concentrează într-o coadă a distribuției IoU (sub $0{,}3$), nu într-un bias sistematic al localizatorului, pe care un padding uniform nu îl poate corecta.
+
+\subsubsection{Trăsături HOG pentru clasificator}
+\indent\par
+Reprezentarea pe $784$ de dimensiuni (intensitățile brute ale pixelilor $28\times28$) a fost înlocuită cu un descriptor HOG configurat peste aceeași fereastră, cu celule de $7\times7$, blocuri de $14\times14$ și un pas de $7$ pixeli, producând un vector de $324$ de componente. HOG-ul captează distribuția orientărilor muchiilor, în mare măsură invariantă la iluminare și la mici perturbații geometrice — direcția exactă în care reprezentarea pe pixeli bruți era fragilă, întrucât caracterele segmentate la rulare prezintă variații de contrast și de margini față de cele din setul de antrenare.
+
+Modelul a fost re-antrenat fără alte modificări ale scriptului \texttt{src/pipeline/svm.py}, atingând o acuratețe de $97\%$ pe subsetul independent. În pipeline-ul integrat, rata end-to-end a urcat cu $2{,}2$ puncte procentuale (la $66{,}7\%$). Mai semnificativ, matricea de confuzii s-a contractat de la $82$ la $70$ de perechi unice de erori, indicând o concentrare a erorilor reziduale în categorii mai bine definite și mai ușor de atacat în continuare.
+
+\subsubsection{Conservarea proporțiilor caracterului}
+\indent\par
+Ultima intervenție vizează o limitare structurală a etapei de pregătire a caracterului: redimensionarea directă la $28\times28$ deforma raportul de aspect al claselor înguste. Un caracter \texttt{1}, cu $w/h \approx 0{,}12$ la segmentare, devenea un pătrat, iar descriptorul HOG raporta o distribuție de orientări similară cu cea a unui \texttt{I}, \texttt{T} sau \texttt{L}. Modificarea, în \texttt{preprocess\_char}, completează imaginea cu o margine constantă (mediana celor patru colțuri, care aproximează fundalul plăcuței) până la un pătrat, înainte de redimensionarea la $28\times28$.
+
+Această intervenție a oferit și o ilustrare a problemei reprezentativității setului de date: acuratețea pe subsetul independent al setului de antrenare a scăzut ușor ($97\% \to 95{,}8\%$), în timp ce rata end-to-end a urcat cu $1{,}1$ puncte procentuale (la $67{,}7\%$). Diferența reflectă faptul că setul \texttt{data/labeled/} provine de la o singură rulare a segmenterului și conține preponderent caractere deja aproape pătrate; la rulare, în schimb, pipeline-ul întâlnește o variație mai mare a raporturilor de aspect, pe care padding-ul o normalizează.
+
+\subsubsection{Bilanț}
+\indent\par
+Cumulat, cele patru intervenții au urcat rata end-to-end de la $48{,}9\%$ la $67{,}7\%$, cu $18{,}8$ puncte procentuale, sau $35$ de plăcuțe corecte suplimentare din cele $186$ adnotate. Două limitări reziduale rămân vizibile: tăierea caracterului inițial al plăcuței, cauzată în etapa de localizare (vizibilă în patternul $5\to\emptyset$, care s-a păstrat la $\sim 55$ de cazuri pe tot parcursul ramurii, întrucât caracterul nu mai ajunge la segmenter), și un set restrâns de substituții vizual ambigue dintre litere sau dintre cifre (\texttt{Y}$\to$\texttt{M}, \texttt{F}$\to$\texttt{6}, \texttt{G}$\to$\texttt{4}), pe care priorul de format nu le poate corecta și care reprezintă, probabil, limita reprezentării HOG pe ferestre de $28\times28$.
