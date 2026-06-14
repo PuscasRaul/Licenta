@@ -112,20 +112,19 @@ class CharacterRecognition():
         '''
         Predict the label of each segmented character image and return the
         concatenated plate string. When the segmenter produces a count
-        matching a Romanian plate format, per-position decoding restricts
-        each label to the allowed class subset using the SVM's
-        decision_function margins. For length 7 (ambiguous between county
-        LLDDLLL and Bucharest LDDDLLL), both priors are scored and the
-        higher-summed-margin one wins.
+        matching a Thai plate format, per-position decoding restricts each
+        label to the allowed class subset using the SVM's
+        decision_function margins. For length 7 (ambiguous between the
+        common DDLDDDD and the leading-letter DLDDDDD), both priors are
+        scored and the higher-summed-margin one wins.
 
         Off-by-one repair: when the segmenter over-shoots (8 chars instead
-        of 7), each drop-one sub-sequence is also tried against length-7
-        priors. The lengths are compared by mean per-position margin so a
-        longer string cannot win on accumulated terms alone; a real 7-char
-        plate with an over-segmented W picks up the fix because the
-        dropped fragment scores near zero and the LLDDLLL prior matches
-        cleanly, both beating the forced LLDDDDDD length-8 prior that
-        misclassifies real letters as digits.
+        of 7), each drop-one sub-sequence is also tried against the
+        shorter priors. The lengths are compared by mean per-position
+        margin so a longer string cannot win on accumulated terms alone; a
+        real 7-char plate with an over-segmented stroke picks up the fix
+        because the dropped fragment scores near zero and the DDLDDDD
+        prior matches cleanly.
         '''
         if not self._trained:
             raise RuntimeError("CharacterRecognition has not been trained")
@@ -187,22 +186,22 @@ class CharacterRecognition():
     @classmethod
     def _format_priors_for_length(cls, n):
         '''
-        Romanian plate formats by length:
-          6  LDDLLL    Bucharest, 2-digit
-          7  LLDDLLL   County standard          (caller scores both)
-          7  LDDDLLL   Bucharest, 3-digit       (and picks the winner)
-          8  LLDDDDDD  CD diplomatic / DJ utility
+        Thai plate formats by length:
+          7  DDLDDDD    common, 4 trailing digits   (caller scores both)
+          7  DLDDDDD    single leading digit variant (and picks the winner)
+          8  DDLDDDDD   common, 5 trailing digits
+          9  DDLLDDDDD  two-letter series, 5 trailing digits
         Other lengths return None -> unconstrained argmax.
         '''
         L = cls.LETTER_SET
         D = cls.DIGIT_SET
-        if n == 6:
-            return [[L, D, D, L, L, L]]
         if n == 7:
-            return [[L, L, D, D, L, L, L],
-                    [L, D, D, D, L, L, L]]
+            return [[D, D, L, D, D, D, D],
+                    [D, L, D, D, D, D, D]]
         if n == 8:
-            return [[L, L, D, D, D, D, D, D]]
+            return [[D, D, L, D, D, D, D, D]]
+        if n == 9:
+            return [[D, D, L, L, D, D, D, D, D]]
         return None
 
     def save(self, path):

@@ -56,6 +56,43 @@ def best_iou(predicted_boxes, gt_boxes):
     return max(iou(p, g) for p in predicted_boxes for g in gt_boxes)
 
 
+def coverage(pred, gt):
+    '''
+    Fraction of the GT box covered by the predicted box: inter / area(gt).
+    Unlike IoU, this ignores how much the prediction overflows the plate, so
+    it measures whether the plate is fully contained in the proposed region.
+    '''
+    ax, ay, aw, ah = pred
+    bx, by, bw, bh = gt
+    ix1 = max(ax, bx)
+    iy1 = max(ay, by)
+    ix2 = min(ax + aw, bx + bw)
+    iy2 = min(ay + ah, by + bh)
+    inter = max(0, ix2 - ix1) * max(0, iy2 - iy1)
+    gt_area = bw * bh
+    return inter / gt_area if gt_area > 0 else 0.0
+
+
+def best_localization(predicted_boxes, gt_boxes):
+    '''
+    Pick the predicted/GT pair with the highest IoU and return
+    (iou, coverage) for that pair. Coverage is tied to the best-IoU box so a
+    single oversized candidate cannot inflate it.
+    '''
+    if not predicted_boxes or not gt_boxes:
+        return 0.0, 0.0
+    best_pair = None
+    best_score = -1.0
+    for p in predicted_boxes:
+        for g in gt_boxes:
+            s = iou(p, g)
+            if s > best_score:
+                best_score = s
+                best_pair = (p, g)
+    p, g = best_pair
+    return best_score, coverage(p, g)
+
+
 def levenshtein(a, b):
     '''Edit distance between two strings.'''
     if a == b:
@@ -162,6 +199,27 @@ def collect_localization_iou(output_dir):
     return ious
 
 
+def collect_localization_boxes(output_dir):
+    '''
+    {image_name: (predicted_boxes, gt_boxes)} from per-image bboxes.json and
+    gt.json. Images missing either sidecar are skipped.
+    '''
+    boxes = {}
+    for entry in os.scandir(output_dir):
+        if not entry.is_dir():
+            continue
+        pred_file = os.path.join(entry.path, 'bboxes.json')
+        gt_file = os.path.join(entry.path, 'gt.json')
+        if not (os.path.exists(pred_file) and os.path.exists(gt_file)):
+            continue
+        with open(pred_file, 'r') as f:
+            pred = json.load(f)
+        with open(gt_file, 'r') as f:
+            gt = json.load(f)
+        boxes[entry.name] = (pred, gt)
+    return boxes
+
+
 def collect_segmentation_counts(output_dir):
     '''{image_name: number of segmented character images}.'''
     counts = {}
@@ -203,9 +261,11 @@ def regenerate_csv(csv_path, output_dir):
 
 def compute_metrics(rows, output_dir):
     ious = collect_localization_iou(output_dir)
+    loc_boxes = collect_localization_boxes(output_dir)
     seg_counts = collect_segmentation_counts(output_dir)
 
     iou_vals = []
+    coverage_vals = []
     lev_vals = []
     seg_agreement = []
     e2e_correct = 0
@@ -218,6 +278,11 @@ def compute_metrics(rows, output_dir):
 
         if filename in ious:
             iou_vals.append(ious[filename])
+
+        if filename in loc_boxes:
+            pred_boxes, gt_boxes = loc_boxes[filename]
+            _, cov = best_localization(pred_boxes, gt_boxes)
+            coverage_vals.append(cov)
 
         if not gt:
             continue
@@ -239,9 +304,17 @@ def compute_metrics(rows, output_dir):
     def avg(xs):
         return sum(xs) / len(xs) if xs else 0.0
 
+    def detection_rate(xs, threshold):
+        return (sum(1 for v in xs if v >= threshold) / len(xs)
+                if xs else 0.0)
+
     return {
         'localization_iou_mean': avg(iou_vals),
         'localization_iou_count': len(iou_vals),
+        'localization_detection_rate_0.5': detection_rate(iou_vals, 0.5),
+        'localization_detection_rate_0.7': detection_rate(iou_vals, 0.7),
+        'localization_coverage_mean': avg(coverage_vals),
+        'localization_coverage_count': len(coverage_vals),
         'segmentation_count_agreement_mean': avg(seg_agreement),
         'segmentation_count_agreement_count': len(seg_agreement),
         'ocr_levenshtein_similarity_mean': avg(lev_vals),

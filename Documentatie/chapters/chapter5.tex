@@ -286,23 +286,23 @@ Prima etapă este reprezentată de adnotarea imaginilor cu numărul de înmatric
 
 \subsection{Setul de antrenare a clasificatorului SVM}
 \indent\par
-Antrenarea clasificatorului de caractere necesită un set de date format din imagini de caractere individuale, fiecare asociată cu eticheta sa. Construirea acestui set a urmat o strategie hibridă pe două surse: caractere generate automat prin aplicarea pipeline-ului de procesare asupra imaginilor de antrenare din setul~\cite{roboflow-lp-dataset} de plăcuțe, urmate de etichetare manuală prin intermediul unei aplicație software dedicată, și un set extern de caractere individuale extrase din imagini naturale, cu o mare diversitate de fonturi, scale și condiții de captură~\cite{deCampos09}. Combinarea celor două surse urmărește, pe de o parte, alinierea distribuției datelor de antrenare la caracteristicile particulare ale caracterelor segmentate de sistemul propriu și, pe de altă parte, asigurarea unui volum și a unei diversități tipografice suficiente.
+Antrenarea clasificatorului de caractere necesită un set de date format din imagini de caractere individuale, fiecare asociată cu eticheta sa. Construirea acestui set a urmat o strategie pe două surse: caractere generate automat prin aplicarea pipeline-ului de procesare asupra imaginilor de antrenare din setul~\cite{roboflow-lp-dataset} de plăcuțe, urmate de etichetare manuală prin intermediul unei aplicații \textit{software} dedicate, și un set extern de caractere individuale extrase din imagini naturale, cu o mare diversitate de fonturi, scale și condiții de captură~\cite{deCampos09}. Combinarea celor două surse urmărește, pe de o parte, alinierea distribuției datelor de antrenare la caracteristicile particulare ale caracterelor segmentate de sistemul propriu și, pe de altă parte, asigurarea unui volum și a unei diversități tipografice suficiente.
 
 \subsubsection{Generarea automată prin fluxul de procesare}
 \indent\par
 Prima sursă de data este generată prin intermediul sistemului cu ajutorul utilitarului~\textit{software} \texttt{generate\_dataset.py}
 
-Acesta aplică, asupra imaginilor de antrenare din componenta internațională a setului de plăcuțe, etapele de localizare și segmentare descrise anterior, salvând caracterele segmentate drept imagini individuale, neetichetate. Integrarea acestui subset autogenerat în datele de antrenament a fost motivată de considerente practice esențiale: exemplele astfel obținute reflectă cu maximă fidelitate particularitățile și imperfecțiunile specifice extracției reale din sistem. Astfel, clasificatorul este expus la condiții veridice de operare, învățând să gestioneze variații ale unghiului de rotație, artefacte de segmentare sau caractere trunchiate.
+Acesta aplică asupra imaginilor de antrenare din componenta internațională a setului de plăcuțe etapele de localizare și segmentare descrise anterior, salvând caracterele segmentate drept imagini individuale, neetichetate. Integrarea acestui subset autogenerat în datele de antrenament a fost motivată de considerente practice: exemplele astfel obținute reflectă cu maximă fidelitate particularitățile și imperfecțiunile specifice extracției reale din sistem. Astfel, clasificatorul este expus la condiții realiste de operare, învățând să gestioneze variații ale unghiului de rotație, artefacte de segmentare sau caractere trunchiate.
 
 \subsubsection{Sursă externă de caractere}
 \indent\par
 A doua sursă de date o constituie setul public Chars74K~\cite{deCampos09}, introdus de de Campos și colaboratorii pentru problema recunoașterii caracterelor în imagini naturale. Dintre componentele acestui set a fost utilizat subsetul \texttt{EnglishImg}, care reunește $7705$ caractere segmentate din scene naturale, distribuite în $62$ de clase corespunzătoare cifrelor și literelor latine majuscule și minuscule (\texttt{0-9}, \texttt{A-Z}, \texttt{a-z}). Spre deosebire de caracterele produse de propriul pipeline, aceste mostre provin din imagini reale, prezentând o variabilitate ridicată a fontului, a scalei și a condițiilor de iluminare, întrucât autorii au păstrat rezoluția originală a fiecărui caracter așa cum apare în imaginea-sursă.
 
-Setul este distribuit deja etichetat și organizat ca un arbore de directoare, cu câte un director per clasă, fiecare caracter fiind salvat ca o imagine PNG individuală, însoțită de o mască binară de segmentare. Această structură permite integrarea directă a mostrelor în setul de antrenare, fără efort manual de adnotare. Rolul acestei surse este de a completa diversitatea tipografică a caracterelor autogenerate: în timp ce prima sursă aliniază distribuția datelor la particularitățile segmenterului propriu, Chars74K introduce o varietate mai amplă de forme și de fonturi întâlnite în condiții reale, contribuind la capacitatea de generalizare a clasificatorului.
+Setul este distribuit deja etichetat și organizat ca un arbore de directoare, cu câte un director per clasă, fiecare caracter fiind salvat ca o imagine PNG individuală. Această structură permite integrarea directă a mostrelor în setul de antrenare, fără efort manual de adnotare. Rolul acestei surse este de a completa diversitatea tipografică a caracterelor autogenerate: în timp ce prima sursă aliniază distribuția datelor la particularitățile segmenterului propriu, Chars74K introduce o varietate mai amplă de forme și de fonturi întâlnite în condiții reale, contribuind la capacitatea de generalizare a clasificatorului.
 
 \subsubsection{Etichetarea manuală}
 \indent\par
-Etichetarea mostrelor generate automat este realizată prin scriptul \texttt{label\_dataset.py}, care oferă o interfață minimală de etichetare asistată, construită cu ajutorul bibliotecii OpenCV. Fiecare imagine neetichetată este afișată succesiv, iar operatorul atribuie eticheta prin apăsarea tastei corespunzătoare caracterului; imaginea este mutată automat în directorul clasei respective. Tasta dedicată permite marcarea mostrelor nevalide (caractere nerecunoscute sau segmentate eronat) prin mutarea lor într-un director special, în timp ce o altă tastă permite ignorarea unei mostre.
+Etichetarea mostrelor generate automat este realizată prin scriptul \texttt{label\_dataset.py}, care oferă o interfață minimală de etichetare asistată, construită cu ajutorul bibliotecii OpenCV. Fiecare imagine neetichetată este afișată succesiv, iar operatorul atribuie eticheta prin apăsarea tastei corespunzătoare caracterului. Apoi, imaginea este mutată automat în directorul clasei respective. Tasta dedicată permite marcarea mostrelor nevalide (caractere nerecunoscute sau segmentate eronat) prin mutarea lor într-un director special, în timp ce o altă tastă permite ignorarea unei mostre.
 
 \subsubsection{Augmentarea setului prin rotații}
 \indent\par
@@ -325,11 +325,11 @@ Deoarece setul de caractere etichetate manual prezenta un volum limitat și o va
   \label{fig:paralela_augmentare}
 \end{figure}
 
-Variantele augmentate sunt salvate alături de originale, marcate printr-un sufix dedicat (\texttt{\_aug\_rot}), ceea ce permite distingerea ulterioară a mostrelor sintetice de cele reale. Prin multiplicarea cu factorul de cinci, setul de antrenare crește de la $1862$ la $9310$ mostre. Acest spor de volum are un efect secundar important: clase anterior excluse pentru lipsă de exemplare (\texttt{V}, \texttt{W}, \texttt{X}, \texttt{Y}, \texttt{Z}, \texttt{I}, \texttt{O}) depășesc acum pragul minim necesar și sunt admise în antrenare.
+Variantele augmentate sunt salvate alături de originale, marcate printr-un sufix dedicat (\texttt{\_aug\_rot}), ceea ce permite distingerea ulterioară a mostrelor sintetice de cele reale. Prin multiplicarea cu factorul de cinci, setul de antrenare crește de la $1862$ la $9310$ mostre.
 
 \subsubsection{Setul de date rezultat}
 \indent\par
-Prin consolidarea setului de caractere etichetate manual, cu sursa externă de date, a rezultat configurația finală a corpusului de antrenare. Frecvența de apariție a fiecărei clase în cadrul acestui ansamblu definitivat este ilustrată în Figura~\ref{fig:distributia_caracterelor}.
+Prin consolidarea setului de caractere etichetate manual, cu sursa externă de date, a rezultat configurația finală a corpusului de antrenare. Frecvența de apariție a fiecărei clase în cadrul setului final este ilustrată în Figura~\ref{fig:distributia_caracterelor}.
 
 \begin{figure}[H]
   \centering
@@ -342,27 +342,26 @@ Prin consolidarea setului de caractere etichetate manual, cu sursa externă de d
 \indent\par
 Evaluarea sistemului urmărește două niveluri complementare: performanța componentei de recunoaștere a caracterelor, considerată izolat, și performanța întregului lanț de procesare, măsurată de la imaginea de intrare până la șirul de caractere recunoscut.
 
-Pe lângă evaluarea izolată a clasificatorului, sistemul este evaluat și la nivel de etapă: rata de localizare corectă a plăcuței, rata de segmentare corectă a caracterelor și, în final, metrica integrată (\textit{end-to-end}), reprezentată de proporția plăcuțelor citite corect în întregime. Această din urmă metrică reflectă cel mai fidel performanța percepută a sistemului, întrucât o singură eroare la nivel de caracter invalidează întregul rezultat.
 
 \subsection{Performanța componentei de recunoaștere a caracterelor}
 \indent\par
 Pentru evaluarea clasificatorului de caractere, setul de date este împărțit într-un subset de antrenare și unul de testare, în proporție de $80\%$, respectiv $20\%$. Împărțirea este stratificată, astfel încât distribuția claselor să fie păstrată în ambele subseturi.
 
-Metricile raportate pentru clasificator sunt acuratețea globală și raportul de clasificare, care cuprinde, pentru fiecare clasă, precizia (\textit{precision}), rata de regăsire (\textit{recall}) și scorul $F_1$. Aceste metrici sunt completate de matricea de confuzie, utilă pentru identificarea perechilor de caractere frecvent confundate (de exemplu cifra \texttt{0} și litera \texttt{O}, sau cifra \texttt{1} și litera \texttt{I}).
+Metricile raportate pentru clasificator sunt acuratețea globală și raportul de clasificare, care cuprinde, pentru fiecare clasă, precizia (\textit{precision}), rapelul (\textit{recall}) și scorul $F_1$. Aceste metrici sunt completate de matricea de confuzie, utilă pentru identificarea perechilor de caractere frecvent confundate (de exemplu cifra \texttt{0} și litera \texttt{O}, sau cifra \texttt{1} și litera \texttt{I}).
 
 În urma antrenării clasificatorului statistic asupra setului de date menționat anterior au fost obținute următoarele rezultate generale pe subsetul de testare format din 4192 intrări:
 \begin{itemize}
-  \item \textbf{Acuratețea globală:} 96\%,
-  \item \textbf{Precizia medie:} 96\%,
-  \item \textbf{Rata medie de regăsire (\textit{Macro Recall}):} 95\%,
-  \item \textbf{Scorul mediu F1:} 96\%
+  \item \textbf{Acuratețe globală:} 96\%,
+  \item \textbf{Precizie medie:} 96\%,
+  \item \textbf{Rapel (\textit{Macro Recall}):} 95\%,
+  \item \textbf{Scor mediu F1:} 96\%
 \end{itemize}
 
-Apropierea dintre valorile mediate macro și acuratețea globală, indică o performanță uniformă pe ansamblul claselor, fără simboluri puternic defavorizate. Acest comportament este așteptat, întrucât setul combinat menține un volum suficient de mostre pentru majoritatea claselor, evitând dezechilibrele. În ansamblu, o acuratețe de $96\%$ confirmă că reprezentarea liniarizată a imaginii, combinată cu nucleul RBF, captează suficientă informație discriminativă pentru separarea celor $36$ de clase.
+Apropierea dintre valorile medii macro și acuratețea globală indică o performanță uniformă pe ansamblul claselor, fără simboluri defavorizate. Acest comportament este așteptat, întrucât setul combinat menține un volum suficient de exemplare pentru majoritatea claselor, evitând dezechilibrele. În ansamblu, o acuratețe de $96\%$ confirmă că reprezentarea liniarizată a imaginii, combinată cu nucleul RBF (\textit{Radial Basis Function} - Funcție de bază radială), captează suficientă informație distinctivă pentru separarea celor $36$ de clase.
 
-Structura matricei de confuzie poate fi observată în figura~\ref{fig:matrice_confuzie} drept fiind puternic diagonală, erorile fiind rare și concentrate într-un număr restrâns de perechi de simboluri. Deși rare, erorile persistă în urma procesului de antrenare, în mod special la perechile de caractere care prezintă o similitudine a formei geometrice: pentru pereache formată din cifra \texttt{0} și litera \texttt{O} există 14 erori care apar în mod simetric. De asemenea, există confuzii pentru caracterele care sunt doar similare: litera \texttt{G} și \texttt{C}, cifra \texttt{1} și litera \texttt{I} sau chiar și litera \texttt{T}.
+Structura matricei de confuzie poate fi observată în figura~\ref{fig:matrice_confuzie}. Erorile sunt rare și concentrate într-un număr restrâns de perechi de simboluri. Deși rare, erorile persistă în urma procesului de antrenare, în mod special la perechile de caractere care prezintă o similitudine a formei geometrice: pentru perechea formată din cifra \texttt{0} și litera \texttt{O} există 14 erori care apar în mod simetric. De asemenea, există confuzii pentru următoarele perechi: litera \texttt{G} și \texttt{C}, cifra \texttt{1} și litera \texttt{I} sau \texttt{T}.
 
-Aceste confuzii nu au, însă, o pondere uniformă în contextul aplicației. Confuziile de tip cifră--literă, precum \texttt{0}--\texttt{O} sau \texttt{1}--\texttt{I}, sunt în principiu recuperabile: poziția unui simbol în cadrul numărului de înmatriculare determină, conform formatului, dacă acesta trebuie să fie o cifră sau o literă, astfel încât o etapă ulterioară de decodare condiționată de format poate valorifica această cunoștință apriori pentru a le dezambiguiza. În schimb, confuziile de tip literă--literă (\texttt{G}--\texttt{C}, \texttt{M}--\texttt{H}) rămân nerezolvabile la nivel pur pozițional și constituie limita superioară a erorilor reziduale ale clasificatorului. Întrucât metrica end-to-end invalidează întregul rezultat la o singură eroare de caracter, reducerea acestor confuzii reziduale rămâne principala direcție de îmbunătățire a componentei de recunoaștere.
+Aceste confuzii nu au, însă, o pondere uniformă în contextul aplicației. Confuziile de tip cifră-literă, precum \texttt{0}-\texttt{O} sau \texttt{1}-\texttt{I}, sunt în principiu recuperabile: poziția unui simbol în cadrul numărului de înmatriculare determină, conform formatului, dacă acesta trebuie să fie o cifră sau o literă, astfel încât o etapă ulterioară de decodare de format poate valorifica această cunoștință apriori pentru a le clarifica. În schimb, confuziile de tip literă-literă (\texttt{G}-\texttt{C}, \texttt{I}--\texttt{T}) rămân nerezolvabile și constituie limita erorilor clasificatorului.
 
 \begin{figure}[H]
   \centering
@@ -372,123 +371,85 @@ Aceste confuzii nu au, însă, o pondere uniformă în contextul aplicației. Co
 \end{figure}
 
 \subsection{Performanța întregului sistem}
+\indent\par
+Pe lângă evaluarea izolată a clasificatorului, sistemul este evaluat și la nivel de etapă: rata de localizare corectă a plăcuței, rata de segmentare corectă a caracterelor și, în final, metrica integrată (\textit{end-to-end}), reprezentată de proporția plăcuțelor citite corect în întregime. Această din urmă metrică reflectă cel mai fidel performanța percepută a sistemului, întrucât o singură eroare la nivel de caracter invalidează întregul rezultat.
 
-Rezultatele agregate obținute prin rularea scripturilor \texttt{src/evaluate.py} (pentru metricile de nivel etapă și end-to-end) și \texttt{src/pipeline/svm.py} (pentru acuratețea clasificatorului) sunt sintetizate în tabelul~\ref{tab:rezultate}. Evaluarea localizării utilizează setul \texttt{data/test/}, format din 26 de imagini de autovehicule cu adnotări la nivel de plăcuță, în timp ce evaluarea segmentării și a recunoașterii end-to-end este realizată pe setul \texttt{data/LP-characters/}, alcătuit din 209 plăcuțe deja decupate, cu adnotări la nivel de caracter.
+Înainte de a continua cu detaliile tehnice și numerice ale metricilor, este necesară clarificarea metodologiei de evaluare. După cum am menționat în cadrul secțiunii dedicate seturilor de date, colecția destinată evaluării sistemului cuprinde două componente: una internațională, formată din numere de înmatriculare din Thailanda, și una locală, cu numere din România. Astfel, pentru a obține rezultate fidele asupra performanței, utilitarul software \path{src/tools/evaluate.py} a fost rulat în mod separat asupra celor două componente.
 
-\begin{table}[H]
+Rularea separată a fost necesară și pentru că modulul de recunoaștere a caracterelor a fost adaptat să valorifice o cunoștință apriori esențială: structura formatului numărului de înmatriculare. Întrucât poziția fiecărui simbol determină, conform formatului regional, dacă acesta trebuie să fie cifră sau literă, metoda \texttt{predict} a clasei \texttt{CharacterRecognition} înlocuiește predicția top-1 a SVM-ului cu marginile furnizate de \texttt{decision\_function} și restrânge subsetul de clase admis de format. Această decodare condiționată recuperează tocmai confuziile de tip cifră-literă discutate anterior (\texttt{0}-\texttt{O}, \texttt{1}-\texttt{I}), care altfel ar invalida întregul șir.
+
+\subsubsection{Evaluarea localizării corectă a plăcuței}
+\indent\par
+Pentru a putea cuantifica proporția în care sistemul extrage în mod corect regiunea de interes ce conține numărul de înmatriculare, a fost folosită metrica \textit{Intersecție supra Reuniune} (IoU - \textit{Intersection over Union}). Pentru a calcula această metrică, este nevoie atât de regiunile delimitate de sistem drept zone candidate, cât și de coordonatele reale ale plăcuței (regiunea adnotată manual).
+
+Deoarece modulul de localizare propune mai multe regiuni candidat pentru o singură imagine, evaluarea performanței se face doar raportat la zona cu cel mai mare raport IOU. Astfel, o imagine pentru care există cinci predicții posibile pentru regiunea de interes, va fi redusă la un singur rezultat IOU. Această abordare a fost aleasă deoarece, precum am menționat în capitolul anterior, modulul de segmentare extrage implicit zona ideală, mai exact zona cu cel mai mare IOU.
+
+În urma rulării celor două utilitare software, \path{src/tools/evaluate.py} și \path{src/tools/metrics.py}, modulul de localizare obține un IoU mediu de $\approx~0.65$ pe componenta internațională și $\approx~0.63$ pe cea locală. Valorile moderate se explică prin natura modulului de extracție: etapele de dilatare orizontală și de fuziune a candidaților extind în mod deliberat regiunea propusă, pentru a garanta că plăcuța nu este fragmentată și că toate caracterele rămân în interiorul zonei de interes. Deoarece metrica IoU penalizează în egală măsură surplusul și deficitul de suprafață, o margine de câțiva pixeli în jurul plăcuței reduce sensibil scorul, chiar și atunci când localizarea este corectă din punct de vedere funcțional. Această explicație este confirmată practic de creșterea scorului IoU la $\approx~0.80$ în momentul introducerii unei etape de validare cu un prag minim de încredere de $0.50$.
+
+\subsubsection{Evaluarea segmentării caracterelor}
+\indent\par
+Spre deosebire de localizare, pentru care există o adnotare manuală a regiunii de interes, etapa de segmentare nu dispune de o delimitare de referință a fiecărui caracter în parte. Din acest motiv, evaluarea segmentării se realizează indirect, prin compararea numărului de caractere extrase de sistem cu lungimea șirului de referință al plăcuței. Metrica adoptată este \emph{acordul la nivel de număr de caractere}: pentru fiecare imagine, raportul dintre minimul și maximul celor două valori, după cum este prezentat în Ecuația \ref{eq:acord_caractere}.
+
+\begin{equation}
+    \text{Acord} = \frac{\min(n_{\text{seg}}, n_{\text{gt}})}{\max(n_{\text{seg}}, n_{\text{gt}})}
+    \label{eq:acord_caractere}
+\end{equation}
+
+\noindent unde $n_{\text{seg}}$ este numărul de caractere segmentate, iar $n_{\text{gt}}$ este numărul de simboluri din adevărul de referință. Valoarea $1$ indică un acord perfect, iar abaterile, fie prin sub-segmentare, fie prin supra-segmentare reduc proporțional scorul. Această metrică surprinde corectitudinea structurală a segmentării fără a presupune o adnotare la nivel de caracter.
+
+Pentru componenta internațională, etapa de segmentare a obținut un acord mediu de $\approx~0.85$, iar pentru cea locală de $\approx~0.82$. Interpretarea acestor valori sugerează că, în mare parte, modulul de segmentare extrage un număr apropiat de caractere relativ la sursa de adevăr. Diferența rămasă până la acordul perfect este atribuibilă, pe de o parte, plăcuțelor pentru care etapa de localizare a furnizat un decupaj imperfect, iar pe de altă parte cazurilor de fuziune a caracterelor adiacente sau de fragmentare a caracterelor cu structură discontinuă.
+
+\subsubsection{Evaluare E2E}
+\indent\par
+Metrica integrată (\textit{end-to-end}) reflectă cel mai fidel performanța percepută a sistemului, întrucât consideră corectă o plăcuță doar atunci când întregul șir de caractere coincide cu adevărul de referință. O singură eroare la nivel de caracter, indiferent de poziția sa, invalidează rezultatul. Pentru a completa această măsură binară, evaluarea raportează și \emph{similaritatea Levenshtein} a șirului recunoscut față de cel de referință, o metrică mai fină care surprinde gradul de corectitudine parțială a predicțiilor invalidate.
+
+Evaluarea pe componenta internațională a setului de date a indicat o acuratețe de $\approx 0{,}69$, în timp ce pentru componenta națională s-a obținut un procentaj de $\approx 0{,}73$. Similaritatea Levenshtein medie depășește în ambele cazuri pragul de $\approx 0{,}80$. Această valoare, semnificativ mai ridicată decât rata de potrivire exactă, confirmă faptul că o proporție importantă a predicțiilor invalidate diferă de adevărul de referință printr-un singur caracter. Cel mai adesea, aceste erori punctuale sunt cauzate de posibilele confuzii vizuale ale modulului de recunoaștere, sau diferitele arteface vizuale prezente pe o plăcuță, evidențiate în Figura~\ref{fig:artefacte}
+
+\begin{figure}[H]
   \centering
-  \begin{tabular}{lcc}
-    \hline
-    Metrică & Raport & Valoare \\
-    \hline
-    Acuratețe clasificator caractere & --- & 0{,}909 \\
-    Rată de localizare corectă (IoU $\geq$ 0{,}5) & 8/26 & 0{,}308 \\
-    Rată de segmentare corectă (potrivire la nivel de număr de caractere) & 7/209 & 0{,}033 \\
-    Rată de recunoaștere end-to-end (egalitate exactă) & 1/209 & 0{,}005 \\
-    \hline
-  \end{tabular}
-  \caption{Rezultatele evaluării sistemului IORA pe seturile adnotate disponibile.}
-  \label{tab:rezultate}
-\end{table}
-
-Raportul de clasificare per clasă (tabelul~\ref{tab:clasificare}) detaliază precizia, rata de regăsire și scorul $F_1$ pentru fiecare simbol din alfabet, iar tabelul~\ref{tab:confuzii} sintetizează principalele confuzii identificate prin matricea de confuzie.
-
-\begin{table}[H]
-  \centering
-  \small
-  \begin{tabular}{lcccc}
-    \hline
-    Clasă & Precizie & Regăsire & $F_1$ & Mostre \\
-    \hline
-    \texttt{0} & 0{,}83 & 0{,}88 & 0{,}86 & 17 \\
-    \texttt{1} & 0{,}89 & 1{,}00 & 0{,}94 & 16 \\
-    \texttt{2} & 0{,}94 & 1{,}00 & 0{,}97 & 16 \\
-    \texttt{3} & 0{,}94 & 1{,}00 & 0{,}97 & 17 \\
-    \texttt{4} & 1{,}00 & 0{,}92 & 0{,}96 & 13 \\
-    \texttt{5} & 0{,}97 & 0{,}97 & 0{,}97 & 30 \\
-    \texttt{6} & 0{,}95 & 1{,}00 & 0{,}97 & 18 \\
-    \texttt{7} & 1{,}00 & 1{,}00 & 1{,}00 & 16 \\
-    \texttt{8} & 0{,}92 & 0{,}85 & 0{,}88 & 13 \\
-    \texttt{9} & 1{,}00 & 1{,}00 & 1{,}00 & 19 \\
-    \texttt{A} & 0{,}80 & 1{,}00 & 0{,}89 & 20 \\
-    \texttt{B} & 0{,}83 & 0{,}91 & 0{,}87 & 11 \\
-    \texttt{C} & 1{,}00 & 0{,}91 & 0{,}95 & 11 \\
-    \texttt{D} & 0{,}62 & 0{,}71 & 0{,}67 &  7 \\
-    \texttt{E} & 1{,}00 & 1{,}00 & 1{,}00 &  5 \\
-    \texttt{F} & 1{,}00 & 1{,}00 & 1{,}00 & 12 \\
-    \texttt{G} & 1{,}00 & 0{,}88 & 0{,}93 &  8 \\
-    \texttt{H} & 0{,}87 & 0{,}91 & 0{,}89 & 22 \\
-    \texttt{J} & 0{,}67 & 0{,}67 & 0{,}67 &  3 \\
-    \texttt{K} & 1{,}00 & 0{,}92 & 0{,}96 & 13 \\
-    \texttt{L} & 0{,}79 & 0{,}92 & 0{,}85 & 12 \\
-    \texttt{M} & 0{,}79 & 0{,}94 & 0{,}86 & 16 \\
-    \texttt{N} & 1{,}00 & 0{,}67 & 0{,}80 &  9 \\
-    \texttt{P} & 1{,}00 & 0{,}60 & 0{,}75 &  5 \\
-    \texttt{R} & 0{,}83 & 0{,}50 & 0{,}62 & 10 \\
-    \texttt{S} & 1{,}00 & 0{,}40 & 0{,}57 &  5 \\
-    \texttt{T} & 0{,}93 & 0{,}93 & 0{,}93 & 14 \\
-    \texttt{U} & 1{,}00 & 0{,}33 & 0{,}50 &  3 \\
-    \hline
-    Medie macro     & 0{,}91 & 0{,}85 & 0{,}87 & 361 \\
-    Medie ponderată & 0{,}92 & 0{,}91 & 0{,}90 & 361 \\
-    \hline
-  \end{tabular}
-  \caption{Raport de clasificare per clasă al clasificatorului SVM pe subsetul de testare (361 de mostre, 28 de clase; \texttt{kernel=rbf}, \texttt{C=10}, \texttt{gamma='scale'}).}
-  \label{tab:clasificare}
-\end{table}
-
-\begin{table}[H]
-  \centering
-  \begin{tabular}{llcc}
-    \hline
-    Clasă reală & Clasă prezisă & Erori & Notă \\
-    \hline
-    \texttt{D} & \texttt{0}                      & 2 & similitudine vizuală \\
-    \texttt{N} & \texttt{M}                      & 2 & similitudine vizuală \\
-    \texttt{R} & \texttt{A}                      & 2 & similitudine vizuală \\
-    \texttt{R} & \texttt{1}, \texttt{H}, \texttt{J} & 1 fiecare & suport redus (10 mostre) \\
-    \texttt{S} & \texttt{5}, \texttt{6}, \texttt{B} & 1 fiecare & suport redus (5 mostre) \\
-    \texttt{U} & \texttt{B}, \texttt{M}          & 1 fiecare & suport redus (3 mostre) \\
-    \texttt{0} & \texttt{D}, \texttt{H}          & 1 fiecare & \\
-    \texttt{8} & \texttt{0}, \texttt{H}          & 1 fiecare & \\
-    \hline
-  \end{tabular}
-  \caption{Principalele confuzii ale clasificatorului SVM: perechi real--prezis cu cel puțin o eroare, extrase din matricea de confuzie.}
-  \label{tab:confuzii}
-\end{table}
-
-Acuratețea clasificatorului, raportată la $90{,}9\%$, confirmă viabilitatea reprezentării $28\times28$ liniarizate, combinată cu nucleul RBF. Discrepanța dintre această valoare și rata de recunoaștere end-to-end indică faptul că majoritatea erorilor sistemului provin din etapele de localizare și de segmentare, propagându-se ulterior asupra rezultatului final. Tocmai această observație motivează studiile de ablație din secțiunea următoare.
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/B934ATN.png_lp_1.jpg}
+    \caption{Bulină albastră care va fi segmentată în mod incorect drept un caracter}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/CarLongPlate60_jpg.rf.9ac70cfc36770f5233142a727c52d534.jpg_lp_0.jpg}
+    \caption{Artefact care blochează parțial numărul de înmatriculare}
+  \end{subfigure}
+  \caption{Exemple de artefacte ce pot deteriora procesul de recunoaștere}
+  \label{fig:artefacte}
+\end{figure}
 
 \section{Experimente}
 \indent\par
-Dincolo de metricile agregate, comportamentul sistemului este analizat printr-o serie de experimente menite să evidențieze contribuția fiecărei decizii de proiectare și reziliența sistemului în raport cu factorii de dificultate identificați în introducerea lucrării.
+Experimentele prezentate în această secțiune urmăresc să justifice, prin rezultate cantitative, deciziile de proiectare adoptate în fluxul de procesare și să evidențieze contribuția fiecărei componente la performanța de ansamblu. Ele sunt organizate în trei părți: comparația dintre două abordări ale etapei de localizare, comparația dintre cele două abordări ale etapei de segmentare și seria de îmbunătățiri progresive aduse fluxului de recunoaștere (secțiunea~\ref{sec:imbunatatiri}).
 
-O primă categorie de experimente o constituie studiile de caz pe factorii de reziliență: condiții de iluminare variabile, formate diferite de plăcuță (auto pe un rând și motocicletă pe două rânduri) și prezența unor reziduuri care obstrucționează parțial caracterele. Aceste studii urmăresc să stabilească limitele de operare ale sistemului și scenariile în care performanța se degradează.
+\subsection{Comparația abordărilor de localizare}
+\indent\par
+Înainte de adoptarea abordării bazate pe operatorul Sobel și pe operațiile morfologice descrise anterior, etapa de localizare a fost implementată într-o manieră similară, dar cu un discriminant principal al regiunilor complet diferit: varianta inițială se baza pe aproximarea poligonală a contururilor.
 
-O a doua categorie o reprezintă studiile de ablație, prin care se izolează contribuția componentelor cheie ale fluxului de procesare. Sunt vizate, în special: efectul returnării mai multor candidați de plăcuță (parametrul \texttt{top\_k}) asupra ratei de recunoaștere, aportul corecției de înclinare (\textit{deskew}) și impactul reasamblării fragmentelor de plăcuță prin \texttt{\_merge\_split\_regions}. Fiecare componentă este dezactivată pe rând, iar variația metricilor cuantifică aportul său.
-
-În fine, un experiment dedicat compară direct cele două abordări ale etapei de segmentare: varianta bazată pe analiza contururilor și varianta bazată pe proiecții combinate cu funcția de evaluare. Această comparație are rolul de a justifica, prin rezultate cantitative, alegerea metodei de segmentare adoptate.
-
-Rezultatele celor cinci configurații, obținute prin rularea scriptului \texttt{src/experiments.py}, sunt sintetizate în tabelele~\ref{tab:ablatii} și~\ref{tab:cmp-segmentare}. Pentru fiecare variantă se raportează aceleași trei rate (localizare, segmentare, end-to-end) ca în tabelul~\ref{tab:rezultate}, ceea ce permite atribuirea directă a variațiilor observate componentei dezactivate.
+Lanțul de preprocesare urma aceiași pași ca varianta curentă — conversia în tonuri de gri a cadrului primit de la modulul de intrare, atenuarea zgomotului și binarizarea — cu două deosebiri: reducerea zgomotului se realiza printr-un operator diferit de filtrul median, iar accentuarea muchiilor folosea detectorul de contururi Canny în locul operatorului Sobel. Extragerea contururilor (\texttt{findContours}) era identică cu cea din varianta curentă, însă selecția primilor \texttt{top\_k} candidați se făcea pe baza aproximării poligonale (\texttt{approxPolyDP}). Acest discriminant s-a dovedit însă nefiabil: în practică, multe dintre plăcuțe erau extrase ca poligoane cu un număr ridicat de laturi, ratând astfel criteriul geometric al formei dreptunghiulare.
 
 \begin{table}[H]
   \centering
-  \begin{tabular}{lccc}
+  \begin{tabular}{lc}
     \hline
-    Configurație & Localizare & Segmentare & End-to-end \\
+    Metodă de localizare & IoU mediu \\
     \hline
-    Baseline (\texttt{top\_k}=5, \textit{deskew} și \texttt{\_merge\_split\_regions} active) & 0{,}308 & 0{,}033 & 0{,}005 \\
-    \texttt{top\_k}=1 & 0{,}077 & 0{,}033 & 0{,}005 \\
-    \textit{Deskew} dezactivat & 0{,}308 & 0{,}033 & 0{,}005 \\
-    \texttt{\_merge\_split\_regions} dezactivat & 0{,}269 & 0{,}033 & 0{,}005 \\
+    Aproximare poligonală (\texttt{approxPolyDP}, variantă explorată) & $< 0{,}40$ \\
+    Sobel + morfologie + \texttt{top\_k} (abordarea propusă) & $\approx 0{,}60$ \\
     \hline
   \end{tabular}
-  \caption{Studii de ablație: contribuția fiecărei componente cheie a etapei de localizare.}
-  \label{tab:ablatii}
+  \caption{Comparație între cele două abordări ale etapei de localizare, evaluate prin același lanț de selecție \texttt{top\_k} și corecție de înclinare.}
+  \label{tab:cmp-localizare}
 \end{table}
 
-Reducerea valorii \texttt{top\_k} de la $5$ la $1$ produce cea mai mare scădere a ratei de localizare, de la $30{,}8\%$ la $7{,}7\%$. Acest rezultat confirmă, pe cale cantitativă, decizia de proiectare descrisă în secțiunea~\ref{chap:implementare}: returnarea mai multor candidați, în locul unuia singur, permite etapei de segmentare să recupereze erorile de localizare prin alegerea candidatului cu cel mai bun scor. Dezactivarea reasamblării fragmentelor de plăcuță (\texttt{\_merge\_split\_regions}) determină o scădere mai redusă, de aproximativ $4$ puncte procentuale, în timp ce dezactivarea corecției de înclinare (\textit{deskew}) nu afectează metricile pe setul de date utilizat, sugerând că imaginile din \texttt{data/test/} prezintă unghiuri de înclinare neglijabile.
+Abordarea bazată pe aproximare poligonală nu a reușit să depășească un IoU mediu de $0{,}40$, în timp ce abordarea curentă atinge aproximativ $0{,}60$. Cauza principală a limitării este dependența de detectarea unui contur închis și dreptunghiular al marginii plăcuței: în condiții reale, această margine este frecvent fragmentată, astfel încât aproximarea poligonală fie nu produce un patrulater, fie îl produce deplasat față de plăcuța reală. Spre deosebire de aceasta, abordarea bazată pe Sobel și operații morfologice nu depinde de conturul marginii plăcuței, ci de concentrarea de muchii verticale generate de caractere: un semnal mai robust și independent de calitatea conturului exterior.
 
+\subsection{Comparația abordărilor de segmentare}
+\indent\par
 \begin{table}[H]
   \centering
   \begin{tabular}{lccc}

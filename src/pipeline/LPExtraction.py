@@ -90,14 +90,12 @@ class LPExtraction():
         intermediates['candidates'] = bounding_box
 
         ranked_bb = self._rank_bounding_boxes(bounding_box, thresh)
-        if ranked_bb is None or len(ranked_bb) <= 0:
-            return None, intermediates
+        if ranked_bb is None or len(ranked_bb) <= 0: return None, intermediates
 
         ranked_bb.sort(key=lambda item: item[1], reverse=True)
         intermediates['ranked'] = ranked_bb
 
         top_bbs = [item[0] for item in ranked_bb[:k]]
-        top_bbs = self._expand_with_padded_variants(top_bbs, array.shape)
         intermediates['top_bbs'] = top_bbs
         intermediates['best_bb'] = top_bbs[0]
 
@@ -186,41 +184,6 @@ class LPExtraction():
                 index -= 1
 
         return [self._to_xywh(b) for b in result]
-
-    def _pad_bbox(self, bb, img_shape, left_pct=0.0, right_pct=0.0):
-        '''
-        Laterally expand a bbox by fractions of its width, clipped to
-        the image. Used to generate alternative crops that may recover
-        an edge-clipped leading or trailing character.
-        '''
-        x, y, w, h = bb
-        H, W = img_shape[:2]
-        nx = max(0, x - int(round(w * left_pct)))
-        nx2 = min(W, x + w + int(round(w * right_pct)))
-        return (nx, y, nx2 - nx, h)
-
-    def _expand_with_padded_variants(self, top_bbs, img_shape):
-        '''
-        For the top-2 candidates, append laterally-padded variants:
-        one aggressive left pad (targets leading-character clipping)
-        and one mild bilateral pad. Duplicates (when clipping to image
-        bounds makes pads no-op) are dropped. The original ordering is
-        preserved; the tournament in CharacterSegmentation picks the
-        variant that yields the best segmentation.
-        '''
-        if not top_bbs:
-            return top_bbs
-        seen = set(top_bbs)
-        variants = []
-        for bb in top_bbs[:2]:
-            for left, right in ((0.12, 0.0), (0.05, 0.05)):
-                v = self._pad_bbox(bb, img_shape,
-                                   left_pct=left, right_pct=right)
-                if v in seen or v[2] <= 0 or v[3] <= 0:
-                    continue
-                seen.add(v)
-                variants.append(v)
-        return list(top_bbs) + variants
 
     def _rank_bounding_boxes(self, bb, otsu):
         if bb is None:

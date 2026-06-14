@@ -4,7 +4,7 @@ class Frame(object):
     def __init__(
             self,
             image_data,
-            timestamp=None,
+            timestamp,
             metadata=None
     ) -> None:
         self._image_data = image_data

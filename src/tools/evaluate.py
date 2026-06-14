@@ -55,6 +55,8 @@ def validate(validation_dir, output_dir, ground_truth=None):
                 score = best_iou(top_bbs, gt_boxes)
                 with open(os.path.join(output_path, 'iou.txt'), 'w') as f:
                     f.write(f'{score:.4f}')
+                with open(os.path.join(output_path, 'gt.json'), 'w') as f:
+                    json.dump([list(b) for b in gt_boxes], f)
 
             if license_plate is None or len(license_plate) <= 0:
                 with open("lp.txt", "w", encoding="utf-8") as f:
