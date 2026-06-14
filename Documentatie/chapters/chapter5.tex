@@ -286,23 +286,46 @@ Prima etapă este reprezentată de adnotarea imaginilor cu numărul de înmatric
 
 \subsection{Setul de antrenare a clasificatorului SVM}
 \indent\par
-Antrenarea clasificatorului de caractere necesită un set de date format din imagini de caractere individuale, fiecare asociată cu eticheta sa. Construirea acestui set a urmat o strategie hibridă pe două surse: caractere generate automat prin aplicarea pipeline-ului de procesare asupra imaginilor de antrenare din setul Roboflow de plăcuțe, urmate de etichetare manuală, și un set extern de caractere individuale cu fonturi variate, adnotat în format Pascal VOC. Combinarea celor două surse urmărește, pe de o parte, alinierea distribuției datelor de antrenare la caracteristicile particulare ale caracterelor segmentate de pipeline-ul propriu și, pe de altă parte, asigurarea unui volum și a unei diversități tipografice suficiente.
+Antrenarea clasificatorului de caractere necesită un set de date format din imagini de caractere individuale, fiecare asociată cu eticheta sa. Construirea acestui set a urmat o strategie hibridă pe două surse: caractere generate automat prin aplicarea pipeline-ului de procesare asupra imaginilor de antrenare din setul~\cite{roboflow-lp-dataset} de plăcuțe, urmate de etichetare manuală prin intermediul unei aplicație software dedicată, și un set extern de caractere individuale extrase din imagini naturale, cu o mare diversitate de fonturi, scale și condiții de captură~\cite{deCampos09}. Combinarea celor două surse urmărește, pe de o parte, alinierea distribuției datelor de antrenare la caracteristicile particulare ale caracterelor segmentate de sistemul propriu și, pe de altă parte, asigurarea unui volum și a unei diversități tipografice suficiente.
 
 \subsubsection{Generarea automată prin fluxul de procesare}
 \indent\par
-Prima sursă de date este generată de însuși sistemul, prin scriptul \texttt{generate\_dataset.py}. Acesta aplică, asupra imaginilor de antrenare din setul Roboflow de plăcuțe, etapele de localizare și de segmentare descrise anterior, salvând caracterele segmentate drept imagini individuale, încă neetichetate. Avantajul acestei surse este că mostrele rezultate reflectă fidel caracteristicile caracterelor așa cum sunt produse de pipeline-ul propriu — inclusiv eventualele artefacte de segmentare —, ceea ce aliniază distribuția datelor de antrenare la cea a datelor întâlnite la rulare. Mostrele astfel obținute necesită o etapă ulterioară de etichetare.
+Prima sursă de data este generată prin intermediul sistemului cu ajutorul utilitarului~\textit{software} \texttt{generate\_dataset.py}
+
+Acesta aplică, asupra imaginilor de antrenare din componenta internațională a setului de plăcuțe, etapele de localizare și segmentare descrise anterior, salvând caracterele segmentate drept imagini individuale, neetichetate. Integrarea acestui subset autogenerat în datele de antrenament a fost motivată de considerente practice esențiale: exemplele astfel obținute reflectă cu maximă fidelitate particularitățile și imperfecțiunile specifice extracției reale din sistem. Astfel, clasificatorul este expus la condiții veridice de operare, învățând să gestioneze variații ale unghiului de rotație, artefacte de segmentare sau caractere trunchiate.
 
 \subsubsection{Sursă externă de caractere}
 \indent\par
-A doua sursă de date o constituie un set de date de caractere individuale, disponibil prin platforma Roboflow, care acoperă o varietate mai largă de fonturi față de cele prezente în setul de plăcuțe. Adnotările sunt furnizate în format Pascal VOC (fișiere XML). Scriptul \texttt{parse\_characters.py} parcurge perechile imagine–adnotare, extrage din fiecare fișier XML etichetele caracterelor și dreptunghiurile lor de încadrare, decupează regiunile corespunzătoare din imagine și le salvează în directoare organizate pe clase (câte un director per caracter). Rezultatul este un set de mostre curat etichetate, obținut fără efort manual, care completează diversitatea tipografică a primei surse.
+A doua sursă de date o constituie setul public Chars74K~\cite{deCampos09}, introdus de de Campos și colaboratorii pentru problema recunoașterii caracterelor în imagini naturale. Dintre componentele acestui set a fost utilizat subsetul \texttt{EnglishImg}, care reunește $7705$ caractere segmentate din scene naturale, distribuite în $62$ de clase corespunzătoare cifrelor și literelor latine majuscule și minuscule (\texttt{0-9}, \texttt{A-Z}, \texttt{a-z}). Spre deosebire de caracterele produse de propriul pipeline, aceste mostre provin din imagini reale, prezentând o variabilitate ridicată a fontului, a scalei și a condițiilor de iluminare, întrucât autorii au păstrat rezoluția originală a fiecărui caracter așa cum apare în imaginea-sursă.
+
+Setul este distribuit deja etichetat și organizat ca un arbore de directoare, cu câte un director per clasă, fiecare caracter fiind salvat ca o imagine PNG individuală, însoțită de o mască binară de segmentare. Această structură permite integrarea directă a mostrelor în setul de antrenare, fără efort manual de adnotare. Rolul acestei surse este de a completa diversitatea tipografică a caracterelor autogenerate: în timp ce prima sursă aliniază distribuția datelor la particularitățile segmenterului propriu, Chars74K introduce o varietate mai amplă de forme și de fonturi întâlnite în condiții reale, contribuind la capacitatea de generalizare a clasificatorului.
 
 \subsubsection{Etichetarea manuală asistată}
 \indent\par
-Etichetarea mostrelor generate automat este realizată prin scriptul \texttt{label\_dataset.py}, care oferă o interfață minimală de etichetare asistată, construită cu ajutorul bibliotecii OpenCV. Fiecare imagine neetichetată este afișată succesiv, iar operatorul atribuie eticheta prin apăsarea tastei corespunzătoare caracterului; imaginea este mutată automat în directorul clasei respective. Tasta dedicată permite marcarea mostrelor nevalide (caractere nerecunoscute sau segmentate eronat) prin mutarea lor într-un director special, în timp ce o altă tastă permite ignorarea unei mostre. Acest mecanism reduce semnificativ efortul de etichetare, transformându-l într-o succesiune rapidă de apăsări de taste.
+Etichetarea mostrelor generate automat este realizată prin scriptul \texttt{label\_dataset.py}, care oferă o interfață minimală de etichetare asistată, construită cu ajutorul bibliotecii OpenCV. Fiecare imagine neetichetată este afișată succesiv, iar operatorul atribuie eticheta prin apăsarea tastei corespunzătoare caracterului; imaginea este mutată automat în directorul clasei respective. Tasta dedicată permite marcarea mostrelor nevalide (caractere nerecunoscute sau segmentate eronat) prin mutarea lor într-un director special, în timp ce o altă tastă permite ignorarea unei mostre.
 
-\subsubsection{Filtrarea și igienizarea claselor}
+\subsubsection{Augmentarea setului prin rotații}
 \indent\par
-Înainte de antrenare, setul de date consolidat este supus unei etape de filtrare și igienizare, realizată la încărcare. Sunt eliminate clasele a căror etichetă nu corespunde unui singur caracter alfanumeric din setul ASCII, precum și clasa rezervată mostrelor nevalide. În plus, clasele care nu ating un număr minim de mostre (\texttt{MIN\_SAMPLES\_PER\_CLASS}) sunt excluse, întrucât un număr prea redus de exemple nu permite o estimare statistică fiabilă și ar afecta atât antrenarea, cât și evaluarea echilibrată a clasificatorului. Această etapă asigură un set de date curat și suficient de echilibrat pentru etapa de antrenare.
+Deoarece setul de caractere etichetate manual prezenta un volum limitat și o variație redusă a înclinației, a fost necesară extinderea artificială a acestuia. Această etapă s-a realizat prin intermediul utilitarului software~\texttt{augment\_dataset}, care aplică fiecărui imagini o rotație în jurul centrului imaginii, la unghiurile de $\pm 3^\circ$ și $\pm 5^\circ$. Acest proces nu are doar scopul de a extinde mărimea setului de date, ci și de a forța clasificatorul să devină invariant la pertubații geometrice. Rezultatul procesului este vizibil în figura~\ref{fig:paralela_augmentare}.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \includegraphics{figures/0020.png}
+    \caption{Caracter înainte de aplicarea rotației}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \includegraphics{figures/0020_aug_rot_n05.png}
+    \caption{Caracter după aplicarea rotației}
+  \end{subfigure}
+  \caption{Paralelă între un caracter înainte și după transformare}
+  \label{fig:paralela_augmentare}
+\end{figure}
+
+Variantele augmentate sunt salvate alături de originale, marcate printr-un sufix dedicat (\texttt{\_aug\_rot}), ceea ce permite distingerea ulterioară a mostrelor sintetice de cele reale. Prin multiplicarea cu factorul de cinci, setul de antrenare crește de la $1862$ la $9310$ mostre. Acest spor de volum are un efect secundar important: clase anterior excluse pentru lipsă de exemplare (\texttt{V}, \texttt{W}, \texttt{X}, \texttt{Y}, \texttt{Z}, \texttt{I}, \texttt{O}) depășesc acum pragul minim necesar și sunt admise în antrenare.
 
 \section{Testare și metrici}
 \indent\par

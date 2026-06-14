@@ -168,4 +168,10 @@ David~E Rumelhart, Geoffrey~E Hinton, and Ronald~J Williams.
   2022.
 \newblock accesat iunie 2026.
 
+\bibitem{deCampos09}
+T.~E. de~Campos, B.~R. Babu, and M.~Varma.
+\newblock Character recognition in natural images.
+\newblock In {\em Proceedings of the International Conference on Computer
+  Vision Theory and Applications, Lisbon, Portugal}, February 2009.
+
 \end{thebibliography}
