@@ -10,9 +10,9 @@ from src.pipeline.ProcessingPipeline import ProcessingPipeline
 from src.pipeline.CharacterRecognition import CharacterRecognition
 from src.pipeline.CharacterSegmentation import CharacterSegmentation
 from src.pipeline.LPExtraction import LPExtraction
-from src.metrics import load_ground_truth, best_iou
+from src.tools.metrics import load_ground_truth, best_iou
 
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 data_path = os.path.abspath(os.path.join(project_root, "data"))
 model_path = os.path.abspath(os.path.join(data_path, "svm_model.joblib"))
 

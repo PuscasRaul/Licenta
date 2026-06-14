@@ -89,7 +89,7 @@ După cum am menționat, dependențele necesare dezvoltării aplicației finale 
 \indent\par
 În cele ce urmează va fi prezentată o descriere detaliată a arhitecturii fiecărui modul, abordând aspecte precum interfețele de programare expuse, deciziile de proiectare și implementarea propriu-zisă.
 
-Pentru modulele extensibile, se va realiza o paralelă între implementarea în cadrul unui sistem embedded și implementarea concretă realizată în cadrul aplicației demonstrate.
+Pentru modulele extensibile, se va realiza o paralelă între implementarea în cadrul unui sistem integrat și implementarea concretă realizată în cadrul aplicației demonstrate.
 
 \subsection{Modulul de intrare (Input)}
 \indent\par
@@ -147,13 +147,14 @@ Metoda \texttt{get\_latest\_frame} a fost proiectată astfel încât să returne
 \indent\par
 
 \subsubsection{Considerații preliminare}
-Precum am menționat când am definit contextul aplicației, există o diversitate ridicată în privința formatului, a paletei cromatice de fond, a dimensiunilor relative și a fontului caracterelor. Tocmai din aceste motive, în prezenta lucrare a fost exclusă de la bun început orice abordare bazată pe segmentarea culorii (color-based segmentation), deși aceasta este frecvent utilizată în literatură pentru regiuni geografice cu plăcuțe standardizate cromatic. Lucrări reprezentative precum~\cite{shi2005automatic}, care exploatează caracteristicile cromatice ale plăcuțelor taiwaneze, sau~\cite{chang2004automatic} pentru spațiul autohton al insulei Taiwan, demonstrează eficacitatea acestor metode atunci când mediul de operare prezintă o uniformitate cromatică ridicată. Generalizarea acestor abordări către scenariul nostru ar fi necesitat menținerea unui catalog de paliete pentru fiecare format admis, ceea ce ar fi introdus o sursă suplimentară de erori și ar fi diminuat capacitatea de adaptare a sistemului la plăcuțele atipice sau la formatele nou introduse de către autorități.
+\indent\par
+Precum am menționat când am definit contextul aplicației, există o diversitate ridicată în privința formatului, a paletei cromatice de fond, a dimensiunilor relative și a fontului caracterelor. Tocmai din aceste motive, în prezenta lucrare a fost exclusă de la bun început orice abordare bazată pe segmentarea culorii (color-based segmentation), deși aceasta este frecvent utilizată în literatură pentru regiuni geografice cu plăcuțe standardizate cromatic. Lucrări reprezentative precum~\cite{shi2005automatic}, care exploatează caracteristicile cromatice ale plăcuțelor taiwaneze, sau~\cite{chang2004automatic} pentru spațiul autohton al insulei Taiwan, demonstrează eficacitatea acestor metode atunci când mediul de operare prezintă o uniformitate cromatică ridicată. Generalizarea acestor abordări către scenariul nostru ar fi necesitat menținerea unui catalog de palete pentru fiecare format admis, ceea ce ar fi introdus o sursă suplimentară de erori și ar fi diminuat capacitatea de adaptare a sistemului la plăcuțele atipice sau la formatele nou introduse de către autorități.
 
 \subsubsection{Localizarea plăcuței de înmatriculare}
 \indent\par
-În capitolul teoretic dedicat acestui sub-sistem au fost menționate trei abordări: bazate pe culoare, pe contururi sau pe textură. După cum am menționat anterior, cele bazate pe culoare nu sunt o variantă fiabilă deoarece pe teritorul României există 4 combinații cromatice posibile care definesc un număr de înmatriculare valid: negru-alb, verde-alb, roșu-verde, negru-galben. Un sistem bazat pe culoare ar presupune analiza în raport cu fiecare combinație de culori, proces care ar deveni atât complex din punct de vedere al logicii, dar și costisitor raportându-ne la timpul de execuție.
+în capitolul teoretic dedicat acestui sub-sistem au fost menționate trei abordări: bazate pe culoare, pe contururi sau pe textură. După cum am menționat anterior, cele bazate pe culoare nu sunt o variantă fiabilă deoarece pe teritorul României există 4 combinații cromatice posibile care definesc un număr de înmatriculare valid.
 
-Metodele bazate pe textură prezintă un grad al robusteții mai scăzut față de cele bazate pe contururi. Deși ambele categorii pornesc de la aceeași observație, anume că zona caracterelor produce o concentrare de tranziții de intensitate, ele diferă fundamental prin criteriul de decizie folosit pentru a confirma o regiune drept plăcuță. Abordările texturale ridică descriptorul texturii la rangul de discriminator principal, fie sub forma unei hărți de densitate ponderată a liniilor verticale, fie prin măsurarea variației statistice locale a intensităților într-o vecinătate glisantă. Acest descriptor este însă parametrizat în raport cu textura așteptată a caracterelor: dimensiunea ferestrelor de analiză, pragurile de densitate sau ipotezele privind numărul minim de caractere trebuie acordate la dimensiunea, fontul și dispunerea caracterelor. În contextul autohton, marcat tocmai de o diversitate ridicată a acestor atribute, o asemenea dependență devine o sursă de fragilitate, descriptorul fiind sensibil la formatele atipice sau la plăcuțele cu un număr redus de caractere.
+Pe de altă parte, metodele bazate pe textură prezintă un grad al robusteții mai scăzut față de cele bazate pe contururi. Deși ambele categorii pornesc de la aceeași observație, anume că zona caracterelor produce o concentrare de tranziții de intensitate, ele diferă fundamental prin criteriul de decizie folosit pentru a confirma o regiune drept plăcuță. Abordările textuale ridică descriptorul texturii la rangul de discriminator principal, fie sub forma unei hărți de densitate ponderată a liniilor verticale, fie prin măsurarea variației statistice locale a intensităților într-o vecinătate glisantă. Acest descriptor este însă parametrizat în raport cu textura așteptată a caracterelor: dimensiunea ferestrelor de analiză, pragurile de densitate sau ipotezele privind numărul minim de caractere trebuie acordate la dimensiunea, fontul și dispunerea caracterelor. În contextul autohton, marcat tocmai de o diversitate ridicată a acestor atribute, o asemenea dependență devine o sursă de fragilitate, descriptorul fiind sensibil la formatele atipice sau la plăcuțele cu un număr redus de caractere.
 
 În contrast, metodele bazate pe contururi tratează concentrarea de tranziții doar ca pe un indiciu de salianță, lăsând decizia finală în seama unui invariant geometric independent de conținutul intern al plăcuței: forma dreptunghiulară cu un raport de aspect cunoscut. Întrucât acest criteriu nu depinde de modul în care sunt distribuite caracterele, ci de anvelopa regiunii, el rămâne stabil indiferent de fontul, dimensiunea sau numărul caracterelor, oferind o capacitate de generalizare superioară pentru spectrul larg de formate vizat în prezenta lucrare.
 
@@ -178,12 +179,14 @@ Din imaginea astfel obținută se extrag contururile externe, iar dreptunghiuril
                                                self._lp_min_size)
 \end{verbatim}
 
+% DE SCHIMBAT
 O decizie de proiectare proprie vizează reasamblarea fragmentelor de plăcuță. În practică, o plăcuță se fragmentează frecvent în etapa de extragere a contururilor: spațiul central dintr-o plăcuță auto o divizează pe orizontală, iar plăcuțele de motocicletă, dispuse pe două rânduri, se divizează pe verticală. Reasamblarea acestor fragmente nu a fost realizată în etapa morfologică, deoarece o dilatare suficient de agresivă pentru a le reuni ar risca să unească plăcuța cu regiuni adiacente precum bara de protecție sau grilajul. În schimb, reunirea se realizează ulterior, la nivelul dreptunghiurilor de încadrare, prin metoda \texttt{\_merge\_split\_regions}: fragmentele apropiate spațial și aliniate (pe aceeași linie de bază, cu înălțimi similare, sau pe aceeași coloană, cu lățimi similare) sunt grupate printr-o structură \textit{union-find} și înlocuite cu reuniunea lor. Un grup a cărui reuniune produce un raport de aspect implauzibil este tratat ca o uniune accidentală, caz în care fragmentele originale sunt păstrate.
 
-În final, candidații rămași sunt ordonați după densitatea de muchii din interiorul lor, iar primii \texttt{top\_k} sunt returnați. Returnarea mai multor candidați, în locul unuia singur, constituie o decizie de proiectare deliberată: ea permite etapei următoare de segmentare să recupereze eventualele erori de localizare, alegând candidatul care conduce la cea mai plauzibilă segmentare. Fiecare candidat reținut este supus, înainte de returnare, unei corecții a înclinării (\textit{deskew}): folosind transformata Hough probabilistică, se estimează unghiul median al segmentelor cvasi-orizontale, iar decupajul este rotit pentru a aduce linia de bază a caracterelor la orizontală, cu condiția ca înclinarea estimată să se încadreze în limitele plauzibile pentru o simplă rotire.
+În final, candidații rămași sunt ordonați după densitatea de muchii din interiorul lor, iar primii \texttt{top\_k} sunt returnați. Returnarea mai multor candidați, în locul unuia singur, constituie o decizie de proiectare deliberată: ea permite etapei următoare de segmentare să recupereze eventualele erori de localizare, alegând candidatul care conduce la cea mai plauzibilă segmentare.
 
 \subsubsection{Segmentarea caracterelor}
 \indent\par
+% DE SCHIMBAT, nu foloseste ANALIZA PROIECTIILOR
 Etapa de segmentare primește candidații de plăcuță produși de etapa de localizare și are ca scop izolarea fiecărui caracter într-o imagine distinctă. Dintre tehnicile prezentate în capitolul~\ref{chap:segmentare}, a fost adoptată analiza proiecțiilor, combinată cu utilizarea cunoștințelor apriori privind aspectul caracterelor. Această alegere a fost preferată unei abordări bazate exclusiv pe analiza contururilor caracterelor, care prezintă o sensibilitate ridicată la zgomot și la fenomenele de fuziune sau fragmentare a caracterelor, depinzând totodată de praguri dificil de calibrat. Proiecțiile oferă, în schimb, o reprezentare unidimensională robustă a distribuției pixelilor de prim-plan, mai puțin sensibilă la variații locale.
 
 Pipeline-ul de segmentare începe cu binarizarea decupajului prin metoda Otsu inversată, obținând o imagine în care caracterele constituie prim-planul alb. Asupra acesteia se calculează \emph{proiecția orizontală}, prin însumarea pixelilor activi de-a lungul liniilor, pentru a izola banda sau benzile de text. Această etapă este esențială pentru tratarea uniformă a plăcuțelor dispuse pe un singur rând și a celor de motocicletă, dispuse pe două rânduri, întrucât separarea pe benzi normalizează proporțiile caracterelor în raport cu sub-segmentul care le conține, conform argumentului din capitolul~\ref{chap:segmentare}.
@@ -209,6 +212,7 @@ Profilul de proiecție este consolidat printr-o analiză de tip \textit{crossing
 
 \subsubsection{Recunoașterea caracterelor}
 \indent\par
+% DE SCHIMBAT, am ADAUGAT HOG FEATURES
 Ultima etapă a fluxului de procesare atribuie fiecărui caracter segmentat o etichetă, dintr-un alfabet de cifre și litere. Pentru această sarcină a fost ales un clasificator de tip \textit{Support Vector Machine} (SVM), ale cărui fundamente teoretice au fost prezentate în capitolul~\ref{chap:recunoastere}.
 
 Fiecare caracter este adus la o reprezentare uniformă, independentă de dimensiunea sa originală: imaginea este redimensionată la o rezoluție fixă de $28 \times 28$ pixeli, valorile intensității sunt normalizate în intervalul $[0, 1]$, iar matricea rezultată este liniarizată într-un vector de trăsături de $784$ de componente. Această reprezentare constituie intrarea clasificatorului.
@@ -225,25 +229,78 @@ Modulul de logică a aplicației constituie, alături de modulul de intrare, una
 
 \subsubsection{Aplicație demo}
 \indent\par
+% DE SCHIMBAT
 Pentru aplicația demonstrativă, modulul de logică a aplicației nu acționează asupra unui echipament fizic, ci expune rezultatele recunoașterii către un client extern. Implementarea se bazează pe biblioteca FastAPI, care oferă infrastructura unui server web, și pe protocolul WebSocket, ales pentru capacitatea sa de a menține o conexiune bidirecțională persistentă. Prin intermediul acestei conexiuni, rezultatele procesării sunt transmise în timp real către interfața clientului, pe măsură ce sunt produse de fluxul de procesare, fără a necesita interogări repetate din partea acestuia. Această implementare ilustrează modul în care același nucleu de procesare poate deservi un context complet diferit de cel al sistemului integrat, prin simpla substituire a implementării modulului de logică.
 
-\section{Construirea setului de date}
+\section{Seturi de date}
 \indent\par
-Antrenarea clasificatorului de caractere necesită un set de date format din imagini de caractere individuale, fiecare asociată cu eticheta sa. Construirea acestui set a urmat o strategie pe mai multe surse, menită să combine o sursă externă deja adnotată cu mostre generate de însuși fluxul de procesare al sistemului. Această abordare hibridă urmărește, pe de o parte, asigurarea unui volum inițial de date și, pe de altă parte, adaptarea setului la caracteristicile particulare ale caracterelor așa cum sunt ele segmentate de pipeline-ul propriu, reducând discrepanța dintre datele de antrenare și cele întâlnite la rulare.
+Sistemul IORA operează cu două seturi de date distincte: un set de evaluare, utilizat pentru măsurarea performanței end-to-end a pipeline-ului, și un set de antrenare, destinat construirii clasificatorului SVM de caractere. Ambele gravitează în jurul aceluiași corpus de imagini cu plăcuțe de înmatriculare obținut prin platforma Roboflow~\cite{roboflow-lp-dataset}, completat, în cazul setului de evaluare, de o componentă românească colectată manual, iar în cazul setului de antrenare, de un set de date dedicat caracterelor individuale cu fonturi variate.
 
-\subsection{Sursa externă adnotată}
+\subsection{Setul de evaluare}
 \indent\par
-Prima sursă de date o constituie un set extern de imagini de plăcuțe, însoțit de adnotări la nivel de caracter în format Pascal VOC (fișiere XML). Scriptul \texttt{parse\_characters.py} parcurge perechile imagine–adnotare, extrage din fiecare fișier XML numele caracterelor și dreptunghiurile lor de încadrare, decupează regiunile corespunzătoare din imagine și le salvează în directoare organizate pe clase (câte un director per caracter). Rezultatul este un set de mostre de caractere curat etichetate, obținut fără efort manual, care servește drept nucleu inițial al setului de date.
+Pentru a determina robustețea sistemului și capacitatea sa de adaptare la diverse formate ale numărului de înmatriculare a fost necesară crearea unui set de date mixt, în care sunt prezente atât autovehicule de pe teritoriul României, cât și vehicule din alte regiuni ale globului. Pentru prima componentă a setului de date în momentul de față nu există o sursă general valabilă și deschisă publicului larg, așadar imaginile reprezentative acestei părți au fost colectate manual de pe platforme de comerț auto online. Această procedură de salvare și utilizare a imaginilor este conformă cu reglementările GDPR, întrucât fotografiile au fost publicate în mod voluntar de către vânzători pe platforme cu acces liber, fiind astfel destinate publicului larg, iar prelucrarea lor s-a realizat strict în scop de cercetare și evaluare a sistemului. Pentru componenta internațională, a fost utilizat setul de date public obținut prin intermediul platformei Roboflow~\cite{roboflow-lp-dataset}.
 
-\subsection{Generarea automată prin fluxul de procesare}
+\subsubsection{Normalizarea seturilor de date}
 \indent\par
-A doua sursă de date este generată de însuși sistemul, prin scriptul \texttt{generate\_dataset.py}. Acesta aplică, asupra unui set de imagini neadnotate, etapele de localizare și de segmentare descrise anterior, salvând caracterele segmentate drept imagini individuale, încă neetichetate. Avantajul acestei surse este că mostrele rezultate reflectă fidel caracteristicile caracterelor așa cum sunt produse de pipeline-ul propriu (inclusiv eventualele artefacte de segmentare), ceea ce aliniază distribuția datelor de antrenare la cea a datelor de la rulare. Mostrele astfel obținute necesită însă o etapă ulterioară de etichetare.
+În contextul sistemelor de recunoaștere automată a numerelor de înmatriculare puse în funcțiune în cadrul parcărilor condițiile de execuție precum poziția numărului de înmatriculare, distanța și raportul dimensiunilor, unghiul de captare și distanța focală sunt bine cunoscute, permitând valorificarea lor în procesul de localizare.
 
-\subsection{Etichetarea manuală asistată}
+Pentru a reproduce aceste condiții, a fost necesară normalizarea setului de date. În cazul imaginilor obținute în mod manual, acest procedeu a presupus selectarea autovehiculelor care prezentau un număr de înmatriculare vizibil, urmată de o decupare pentru a reduce zgomotul de fundal și a oferi o distanță focală relativ constantă. Un exemplu al procesului poate fi observat în figura~\ref{fig:normalizare_imagine_ro}, unde înainte de normalizare erau prezente elemente de zgomot agresive atât în parbrizul mașinii cât și în spațiul înconjurător.
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.45\textwidth}
+    \includegraphics[width=\textwidth]{figures/b156fcn_initial.png}
+    \caption{Înainte de normalizare}
+    \label{fig:img_initiala}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.45\textwidth}
+    \includegraphics[width=\textwidth]{figures/b156fcn_cropped.png}
+    \caption{După normalizare}
+    \label{fig:img_decupata}
+  \end{subfigure}
+  \caption{Un exemplu de imagine alterată pentru a reduce zgomotul de fundal și normaliza unghiul de captură}
+  \label{fig:normalizare_imagine_ro}
+\end{figure}
+
+Pentru componenta internațională a setului de date procesul a fost unul mai rapid, fiind necesară doar selectarea imaginilor corespunzătoare criteriilor menționate anterior. În figura~\ref{fig:normalizare_imagine_thl} se poate observa un exemplu de imagine corespunzătoare pusă în paralel cu o imagine care nu adera la standardele impuse.
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.45\textwidth}
+    \includegraphics[width=\textwidth]{figures/imagine_buna_thl.jpg}
+    \caption{Imagine corespunzătoare}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.45\textwidth}
+    \includegraphics[width=\textwidth]{figures/imagine_proasta_thl.jpg}
+    \caption{Imagine necorespunzătoare}
+  \end{subfigure}
+  \caption{Paralelă între o imagine conformă și una neconformă}
+  \label{fig:normalizare_imagine_thl}
+\end{figure}
+
+\subsubsection{Crearea sursei de adevăr a setului de date}
+\indent\par
+Procedeul descris anterior constituie, însă, doar primul pas în construirea unui set de date potrivit strategiei de procesare propuse de această teză. Este în continuare necesară o sursă de adevăr uniformă pe componentele locală și internațională. Această secțiune prezintă pașii luați în completarea imaginilor cu informații relevante și conforme cu realitatea, care să reprezinte reperul față de care vor fi evaluate predicțiile generate de \textit{pipeline}.
+
+Prima etapă este reprezentată de adnotarea imaginilor cu numărul de înmatriculare afișat în acestea, sarcină realizată manual, prin deschiderea lor rând pe rând, urmată de adăugarea valorilor într-un fișier csv dedicat. Acest lucru va fi utilizat atât în numărarea de predicții exacte, cât și în măsurarea mediei distanței Levenshtein. Pentru a permite analizarea performanței componentei de localizare, a fost dezvoltat un utilitar software dedicat extragerii chenarelor ce încadrează numerele de înmatriculare (\textit{bounding boxes}). Această aplicație cu interfață grafică facilitează delimitarea manuală a regiunii de interes, permițând utilizatorului să definească chenarul de încadrare prin marcarea coordonatelor aferente colțurilor din stânga-sus și dreapta-jos ale plăcuței.
+
+\subsection{Setul de antrenare a clasificatorului SVM}
+\indent\par
+Antrenarea clasificatorului de caractere necesită un set de date format din imagini de caractere individuale, fiecare asociată cu eticheta sa. Construirea acestui set a urmat o strategie hibridă pe două surse: caractere generate automat prin aplicarea pipeline-ului de procesare asupra imaginilor de antrenare din setul Roboflow de plăcuțe, urmate de etichetare manuală, și un set extern de caractere individuale cu fonturi variate, adnotat în format Pascal VOC. Combinarea celor două surse urmărește, pe de o parte, alinierea distribuției datelor de antrenare la caracteristicile particulare ale caracterelor segmentate de pipeline-ul propriu și, pe de altă parte, asigurarea unui volum și a unei diversități tipografice suficiente.
+
+\subsubsection{Generarea automată prin fluxul de procesare}
+\indent\par
+Prima sursă de date este generată de însuși sistemul, prin scriptul \texttt{generate\_dataset.py}. Acesta aplică, asupra imaginilor de antrenare din setul Roboflow de plăcuțe, etapele de localizare și de segmentare descrise anterior, salvând caracterele segmentate drept imagini individuale, încă neetichetate. Avantajul acestei surse este că mostrele rezultate reflectă fidel caracteristicile caracterelor așa cum sunt produse de pipeline-ul propriu — inclusiv eventualele artefacte de segmentare —, ceea ce aliniază distribuția datelor de antrenare la cea a datelor întâlnite la rulare. Mostrele astfel obținute necesită o etapă ulterioară de etichetare.
+
+\subsubsection{Sursă externă de caractere}
+\indent\par
+A doua sursă de date o constituie un set de date de caractere individuale, disponibil prin platforma Roboflow, care acoperă o varietate mai largă de fonturi față de cele prezente în setul de plăcuțe. Adnotările sunt furnizate în format Pascal VOC (fișiere XML). Scriptul \texttt{parse\_characters.py} parcurge perechile imagine–adnotare, extrage din fiecare fișier XML etichetele caracterelor și dreptunghiurile lor de încadrare, decupează regiunile corespunzătoare din imagine și le salvează în directoare organizate pe clase (câte un director per caracter). Rezultatul este un set de mostre curat etichetate, obținut fără efort manual, care completează diversitatea tipografică a primei surse.
+
+\subsubsection{Etichetarea manuală asistată}
 \indent\par
 Etichetarea mostrelor generate automat este realizată prin scriptul \texttt{label\_dataset.py}, care oferă o interfață minimală de etichetare asistată, construită cu ajutorul bibliotecii OpenCV. Fiecare imagine neetichetată este afișată succesiv, iar operatorul atribuie eticheta prin apăsarea tastei corespunzătoare caracterului; imaginea este mutată automat în directorul clasei respective. Tasta dedicată permite marcarea mostrelor nevalide (caractere nerecunoscute sau segmentate eronat) prin mutarea lor într-un director special, în timp ce o altă tastă permite ignorarea unei mostre. Acest mecanism reduce semnificativ efortul de etichetare, transformându-l într-o succesiune rapidă de apăsări de taste.
 
-\subsection{Filtrarea și igienizarea claselor}
+\subsubsection{Filtrarea și igienizarea claselor}
 \indent\par
 Înainte de antrenare, setul de date consolidat este supus unei etape de filtrare și igienizare, realizată la încărcare. Sunt eliminate clasele a căror etichetă nu corespunde unui singur caracter alfanumeric din setul ASCII, precum și clasa rezervată mostrelor nevalide. În plus, clasele care nu ating un număr minim de mostre (\texttt{MIN\_SAMPLES\_PER\_CLASS}) sunt excluse, întrucât un număr prea redus de exemple nu permite o estimare statistică fiabilă și ar afecta atât antrenarea, cât și evaluarea echilibrată a clasificatorului. Această etapă asigură un set de date curat și suficient de echilibrat pentru etapa de antrenare.
 
@@ -403,10 +460,11 @@ Plecând de la configurația de bază descrisă în secțiunile anterioare, au f
     \quad + reconstrucția segmentării  & 0{,}597 & 0{,}801 & 0{,}839 & 0{,}588 \\
     \quad + decodare condiționată de format & 0{,}645 & 0{,}801 & 0{,}839 & 0{,}588 \\
     \quad + trăsături HOG pentru SVM & 0{,}667 & 0{,}807 & 0{,}839 & 0{,}588 \\
-    \quad + pre-procesare cu conservarea proporțiilor & \textbf{0{,}677} & 0{,}806 & 0{,}839 & 0{,}588 \\
+    \quad + pre-procesare cu conservarea proporțiilor & 0{,}677 & 0{,}806 & 0{,}839 & 0{,}588 \\
+    \quad + padding LP și augmentare cu rotații & \textbf{0{,}694} & 0{,}813 & 0{,}843 & 0{,}589 \\
     \hline
   \end{tabular}
-  \caption{Contribuția cumulativă a celor patru intervenții. Fiecare linie include modificările liniilor anterioare. Cumulat, rata end-to-end a crescut cu $18{,}8$ puncte procentuale ($91 \to 126$ plăcuțe corecte din $186$).}
+  \caption{Contribuția cumulativă a celor cinci intervenții. Fiecare linie include modificările liniilor anterioare. Cumulat, rata end-to-end a crescut cu $20{,}5$ puncte procentuale ($91 \to 129$ plăcuțe corecte din $186$).}
   \label{tab:imbunatatiri}
 \end{table}
 
@@ -438,6 +496,46 @@ Ultima intervenție vizează o limitare structurală a etapei de pregătire a ca
 
 Această intervenție a oferit și o ilustrare a problemei reprezentativității setului de date: acuratețea pe subsetul independent al setului de antrenare a scăzut ușor ($97\% \to 95{,}8\%$), în timp ce rata end-to-end a urcat cu $1{,}1$ puncte procentuale (la $67{,}7\%$). Diferența reflectă faptul că setul \texttt{data/labeled/} provine de la o singură rulare a segmenterului și conține preponderent caractere deja aproape pătrate; la rulare, în schimb, pipeline-ul întâlnește o variație mai mare a raporturilor de aspect, pe care padding-ul o normalizează.
 
+\subsubsection{Candidați LP padded și augmentare cu rotații a setului de antrenare}
+\indent\par
+Cele două intervenții descrise aici au fost dezvoltate, măsurate și validate împreună, întrucât atacă fenomene complementare: prima țintește bottleneck-ul de localizare evidențiat anterior (tăierea caracterului inițial), iar a doua robustețea clasificatorului la perturbațiile distribuționale dintre setul de antrenare și cel de la rulare. Suma intervențiilor a urcat rata end-to-end cu $1{,}7$ puncte procentuale (la $69{,}4\%$, $129$ plăcuțe corecte din $186$).
+
+Primul element vizează producerea de candidați LP suplimentari prin extindere laterală a celor mai bine clasați doi candidați. În \texttt{LPExtraction.extraction\_pipeline\_with\_intermediates}, după ce ordonarea pe densitate de muchii a produs cei \texttt{top\_k} candidați, sunt adăugate la listă două variante derivate ale fiecăruia dintre primii doi: o margine agresivă la stânga ($+12\%$ din lățime, țintind clipping-ul caracterului inițial) și o margine bilaterală modestă ($+5\%$ pe fiecare parte). Aceste variante intră în turneul de scoring al segmentării (\texttt{CharacterSegmentation.character\_segmentation}), iar funcția \texttt{\_score} alege automat varianta care produce cea mai plauzibilă segmentare; pe plăcuțele cu localizare deja corectă, varianta originală câștigă; pe plăcuțele cu clipping pe stânga, varianta extinsă câștigă selectiv. Decizia de a nu aplica padding-ul blanket — strategia respinsă în Part 2 a acestei secțiuni — este astfel păstrată, dar mecanismul ei subiacent este restaurat prin selectarea condiționată per imagine.
+
+A doua intervenție constă într-un script de augmentare (\texttt{src/augment\_dataset.py}) care, pentru fiecare mostră etichetată din \texttt{data/labeled/}, generează patru variante rotite la $\pm 3°$ și $\pm 5°$ în jurul centrului, cu marginea umplută cu mediana celor patru colțuri (același criteriu folosit în \texttt{preprocess\_char}). Setul de antrenare crește astfel de la $1862$ la $9310$ mostre, iar pragul \texttt{MIN\_SAMPLES\_PER\_CLASS} începe să admită clase noi (\texttt{V}, \texttt{W}, \texttt{X}, \texttt{Y}, \texttt{Z}, \texttt{I}, \texttt{O}) care erau anterior excluse pentru lipsă de exemplare. SVM-ul este re-antrenat fără alte modificări în \texttt{src/pipeline/svm.py}.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{lcc}
+    \hline
+    Metrică & Înainte (\texttt{5671681}) & După \\
+    \hline
+    Rată end-to-end & $0{,}677$ & $\mathbf{0{,}694}$ \\
+    Similaritate Levenshtein OCR & $0{,}806$ & $0{,}813$ \\
+    Acord la nivel de număr de caractere & $0{,}839$ & $0{,}843$ \\
+    Localizare (IoU mediu) & $0{,}588$ & $0{,}589$ \\
+    Perechi unice în matricea de confuzii & $75$ & $76$ \\
+    \hline
+  \end{tabular}
+  \caption{Efectul combinat al padding-ului de candidați LP și al augmentării cu rotații a setului de antrenare. Aportul izolat al fiecărei intervenții nu a fost cuantificat, întrucât patternul vizat (caracter inițial recuperat de padding și clasificat de SVM-ul mai robust) implică ambele componente.}
+  \label{tab:imbunatatiri-padding-aug}
+\end{table}
+
+Efectul observat în matricea de confuzii este concentrat pe categoriile de drops dominate de cifre la stânga plăcuței: $5\to\emptyset$ a scăzut de la $55$ la $50$, $1\to\emptyset$ de la $48$ la $41$, $9\to\emptyset$ de la $17$ la $10$, $4\to\emptyset$ de la $16$ la $9$, iar $3\to\emptyset$ de la $20$ la $15$. Suma drops scăzute totalizează aproximativ $36$ de caractere, ceea ce este consistent cu mecanismul intervenției (recuperarea unui caracter pe poziția $0$ a $\sim 30$ de plăcuțe). Câștigul net pe end-to-end este însă mai mic ($+3$ plăcuțe corecte) deoarece o parte din plăcuțele recuperate aveau și alte erori care le mențin clasificate ca greșite, iar padding-ul a introdus, în paralel, aproximativ $6$ inserții noi ($\emptyset\to 1$, $\emptyset\to L$, $\emptyset\to 0$) care au degradat un număr similar de plăcuțe anterior corecte.
+
+\paragraph{Experiment respins (acest tur).} Un mecanism de re-extracție condiționată de lungimea ieșirii (denumit \emph{A2} pe parcursul dezvoltării) a fost implementat și măsurat. Logica: dacă predicția de pe primul pas avea o lungime sub pragul tipic al setului ($< 7$ caractere), se aplica un padding mai agresiv ($+8\%$, $+15\%$ stânga) pe bounding box-ul care produsese segmentarea câștigătoare, iar segmentarea și recunoașterea erau re-rulate; noua predicție era acceptată numai dacă era strict mai lungă decât prima, încadra în lungimea maximă ($\leq 8$) și conținea predicția originală ca sufix. Pe setul \texttt{data/VALIDATE/}, efectul net a fost $0$ puncte procentuale end-to-end și $-0{,}001$ pe similaritatea Levenshtein, motiv pentru care intervenția a fost respinsă. Cauza diagnosticată prin inspecție directă: pe cazurile reziduale (de exemplu \texttt{CarLongPlate264}, GT \texttt{52Y6490}, recuperat ca \texttt{2Y6490}), caracterul lipsă nu se mai află în nicio regiune accesibilă prin padding — chiar și o margine de $100\%$ din lățimea decupajului nu îl include, întrucât el a fost pierdut deja în etapa de detecție a contururilor. Mecanismul de re-extracție este corect proiectat, dar bottleneck-ul real este în \texttt{LPExtraction}, nu în recuperarea ulterioară.
+
 \subsubsection{Bilanț}
 \indent\par
-Cumulat, cele patru intervenții au urcat rata end-to-end de la $48{,}9\%$ la $67{,}7\%$, cu $18{,}8$ puncte procentuale, sau $35$ de plăcuțe corecte suplimentare din cele $186$ adnotate. Două limitări reziduale rămân vizibile: tăierea caracterului inițial al plăcuței, cauzată în etapa de localizare (vizibilă în patternul $5\to\emptyset$, care s-a păstrat la $\sim 55$ de cazuri pe tot parcursul ramurii, întrucât caracterul nu mai ajunge la segmenter), și un set restrâns de substituții vizual ambigue dintre litere sau dintre cifre (\texttt{Y}$\to$\texttt{M}, \texttt{F}$\to$\texttt{6}, \texttt{G}$\to$\texttt{4}), pe care priorul de format nu le poate corecta și care reprezintă, probabil, limita reprezentării HOG pe ferestre de $28\times28$.
+Cumulat, cele cinci intervenții au urcat rata end-to-end de la $48{,}9\%$ la $69{,}4\%$, cu $20{,}5$ puncte procentuale, sau $38$ de plăcuțe corecte suplimentare din cele $186$ adnotate. Două limitări reziduale rămân vizibile: tăierea caracterului inițial al plăcuței, cauzată în etapa de localizare (vizibilă în patternul $5\to\emptyset$, care s-a redus la $\sim 50$ de cazuri dar nu a putut fi eliminat, întrucât caracterul nu mai ajunge la segmenter), și un set restrâns de substituții vizual ambigue dintre litere sau dintre cifre (\texttt{Y}$\to$\texttt{M}, \texttt{F}$\to$\texttt{6}, \texttt{G}$\to$\texttt{4}), pe care priorul de format nu le poate corecta și care reprezintă, probabil, limita reprezentării HOG pe ferestre de $28\times28$.
+
+\paragraph{Estimare pe un set omogen.}
+Analiza erorilor reziduale sugerează că rata end-to-end măsurată este influențată în mod direct de eterogenitatea setului \texttt{data/VALIDATE/} și ar crește cu aproximativ $10$–$15$ puncte procentuale pe un set omogen, fără a modifica fluxul de procesare. Argumentul este construit prin atribuirea erorilor către surse specifice de variabilitate, iar fiecare sursă ar dispărea sau s-ar atenua într-un scenariu omogen.
+
+În primul rând, priorul de format acoperă $92\%$ din plăcuțele setului (formatele \texttt{DDLDDDDD} și \texttt{DDLDDDD}); cele $15$ plăcuțe cu lungimi sau structuri atipice nu beneficiază de corectarea condiționată per poziție, iar substituțiile lor de tip cifră-literă rămân netratate. Pe un set cu un singur format admis, acoperirea priorului ar fi $100\%$, iar majoritatea acestor $15$ plăcuțe ar trece în categoria corectă.
+
+În al doilea rând, tăierea caracterului inițial este consecința unei dispersii ridicate în IoU-ul localizării (raportat la $0{,}589$ mediu) și a faptului că adnotările au fost realizate manual cu o unealtă cu două click-uri (\texttt{src/bb\_writer.py}), ceea ce introduce zgomot de încadrare în adevărul de referință în sine. Pe un set cu plăcuțe imagistic uniforme, raportul plăcuță-cadru și unghiul de captură ar fi constante, iar dispersia IoU s-ar reduce semnificativ; estimarea pe baza celor $\sim 30$ de plăcuțe afectate sugerează recuperarea a $20$–$25$ dintre ele.
+
+În al treilea rând, clasele rare (\texttt{V}, \texttt{W}, \texttt{X}, \texttt{Y}, \texttt{Z}, \texttt{I}, \texttt{O}) au depășit pragul minim de antrenare doar prin augmentarea cu rotații, ceea ce indică reprezentativitate marginală. Un set omogen ar avea fie un alfabet activ mai restrâns (eliminând clasele rare din spațiul de decizie), fie un volum suficient de mostre per clasă, ambele variante reducând substituțiile literă-literă care reprezintă restul erorilor.
+
+Cumularea acestor trei surse, fiecare cu contribuție independentă, conduce la o estimare conservativă de $80$–$84\%$ end-to-end pe un astfel de set, fără a modifica arhitectura clasică folosită aici. Această estimare nu este o extrapolare optimistă: ea presupune doar uniformizarea sursei de date, nu o îmbunătățire a metodelor, și se sprijină pe descompunerea cuantificată a erorilor reziduale prezentată în secțiunile anterioare.

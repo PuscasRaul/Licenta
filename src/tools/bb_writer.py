@@ -39,9 +39,9 @@ cv.namedWindow('image', cv.WINDOW_NORMAL)
 cv.resizeWindow('image', width, height)
 cv.setMouseCallback('image', mouse_callback, clicked_points)
 
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 data_path = os.path.abspath(os.path.join(project_root, "data"))
-img_dir = os.path.join(data_path, "VALIDATE")
+img_dir = os.path.join(data_path, "dataset_romania")
 
 if not os.path.exists(img_dir):
     os.makedirs(img_dir)

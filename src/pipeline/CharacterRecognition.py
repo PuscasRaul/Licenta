@@ -111,10 +111,21 @@ class CharacterRecognition():
     def predict(self, characters):
         '''
         Predict the label of each segmented character image and return the
-        concatenated plate string. When the segmenter returns a count
-        matching a known plate format (positions 0,1 digit, position 2
-        letter, rest digit), per-position decoding restricts each label to
-        the allowed class subset using the SVM's decision_function margins.
+        concatenated plate string. When the segmenter produces a count
+        matching a Romanian plate format, per-position decoding restricts
+        each label to the allowed class subset using the SVM's
+        decision_function margins. For length 7 (ambiguous between county
+        LLDDLLL and Bucharest LDDDLLL), both priors are scored and the
+        higher-summed-margin one wins.
+
+        Off-by-one repair: when the segmenter over-shoots (8 chars instead
+        of 7), each drop-one sub-sequence is also tried against length-7
+        priors. The lengths are compared by mean per-position margin so a
+        longer string cannot win on accumulated terms alone; a real 7-char
+        plate with an over-segmented W picks up the fix because the
+        dropped fragment scores near zero and the LLDDLLL prior matches
+        cleanly, both beating the forced LLDDDDDD length-8 prior that
+        misclassifies real letters as digits.
         '''
         if not self._trained:
             raise RuntimeError("CharacterRecognition has not been trained")
@@ -122,8 +133,7 @@ class CharacterRecognition():
             return ""
 
         features = np.stack([self.preprocess_char(ch) for ch in characters])
-        prior = self._format_prior_for_length(len(characters))
-        if prior is None or not hasattr(self._clf, 'decision_function'):
+        if not hasattr(self._clf, 'decision_function'):
             return "".join(self._clf.predict(features))
 
         scores = self._clf.decision_function(features)
@@ -131,32 +141,68 @@ class CharacterRecognition():
         if scores.ndim != 2 or scores.shape[1] != len(classes):
             return "".join(self._clf.predict(features))
 
-        result = []
-        for pos, allowed in enumerate(prior):
-            mask = np.array([c in allowed for c in classes])
-            if not mask.any():
-                idx = int(np.argmax(scores[pos]))
-            else:
-                row = np.where(mask, scores[pos], -np.inf)
-                idx = int(np.argmax(row))
-            result.append(str(classes[idx]))
-        return "".join(result)
+        def decode(prior, score_rows):
+            result = []
+            total = 0.0
+            for pos, allowed in enumerate(prior):
+                mask = np.array([c in allowed for c in classes])
+                if not mask.any():
+                    idx = int(np.argmax(score_rows[pos]))
+                else:
+                    row = np.where(mask, score_rows[pos], -np.inf)
+                    idx = int(np.argmax(row))
+                result.append(str(classes[idx]))
+                total += float(score_rows[pos][idx])
+            return "".join(result), total
+
+        best_string = None
+        best_mean = -np.inf
+
+        priors = self._format_priors_for_length(len(characters))
+        if priors:
+            for prior in priors:
+                s, t = decode(prior, scores)
+                m = t / max(len(prior), 1)
+                if m > best_mean:
+                    best_mean = m
+                    best_string = s
+
+        n = len(characters)
+        if n in (8, 9):
+            drop_priors = self._format_priors_for_length(n - 1)
+            if drop_priors:
+                for drop in range(n):
+                    sub_scores = np.delete(scores, drop, axis=0)
+                    for prior in drop_priors:
+                        s, t = decode(prior, sub_scores)
+                        m = t / max(len(prior), 1)
+                        if m > best_mean:
+                            best_mean = m
+                            best_string = s
+
+        if best_string is None:
+            return "".join(self._clf.predict(features))
+        return best_string
 
     @classmethod
-    def _format_prior_for_length(cls, n):
+    def _format_priors_for_length(cls, n):
         '''
-        Returns a per-position list of allowed character sets, or None for
-        no prior. The two priors cover ~92% of the validation set; other
-        lengths fall through to unconstrained argmax.
+        Romanian plate formats by length:
+          6  LDDLLL    Bucharest, 2-digit
+          7  LLDDLLL   County standard          (caller scores both)
+          7  LDDDLLL   Bucharest, 3-digit       (and picks the winner)
+          8  LLDDDDDD  CD diplomatic / DJ utility
+        Other lengths return None -> unconstrained argmax.
         '''
-        if n == 8:
-            return [cls.DIGIT_SET, cls.DIGIT_SET, cls.LETTER_SET,
-                    cls.DIGIT_SET, cls.DIGIT_SET, cls.DIGIT_SET,
-                    cls.DIGIT_SET, cls.DIGIT_SET]
+        L = cls.LETTER_SET
+        D = cls.DIGIT_SET
+        if n == 6:
+            return [[L, D, D, L, L, L]]
         if n == 7:
-            return [cls.DIGIT_SET, cls.DIGIT_SET, cls.LETTER_SET,
-                    cls.DIGIT_SET, cls.DIGIT_SET, cls.DIGIT_SET,
-                    cls.DIGIT_SET]
+            return [[L, L, D, D, L, L, L],
+                    [L, D, D, D, L, L, L]]
+        if n == 8:
+            return [[L, L, D, D, D, D, D, D]]
         return None
 
     def save(self, path):

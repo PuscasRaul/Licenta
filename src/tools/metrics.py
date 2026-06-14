@@ -10,7 +10,7 @@ import csv
 import json
 import os
 
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 data_path = os.path.abspath(os.path.join(project_root, "data"))
 output_dir_default = os.path.join(data_path, "evaluate_output")
 
