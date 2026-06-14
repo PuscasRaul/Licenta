@@ -97,6 +97,7 @@ class LPExtraction():
         intermediates['ranked'] = ranked_bb
 
         top_bbs = [item[0] for item in ranked_bb[:k]]
+        top_bbs = self._expand_with_padded_variants(top_bbs, array.shape)
         intermediates['top_bbs'] = top_bbs
         intermediates['best_bb'] = top_bbs[0]
 
@@ -105,49 +106,6 @@ class LPExtraction():
         intermediates['lps'] = lps
         intermediates['lp'] = lps[0]
         return lps, intermediates
-
-    '''
-    def _deskew_plate(self, lp_crop):
-        Rotate a candidate LP crop so character baselines are horizontal.
-        Uses the median angle of horizontal-ish Hough segments; if there
-        is no clear skew (or it's larger than what's plausibly a tilt),
-        the crop is returned unchanged.
-        if lp_crop is None or lp_crop.size == 0:
-            return lp_crop
-        h, w = lp_crop.shape[:2]
-        if h < 10 or w < 30:
-            return lp_crop
-
-        gray = (lp_crop if lp_crop.ndim == 2
-                else cv.cvtColor(lp_crop, cv.COLOR_BGR2GRAY))
-        edges = cv.Canny(gray, 60, 180)
-        lines = cv.HoughLinesP(edges, 1, np.pi / 180,
-                               threshold=max(20, w // 12),
-                               minLineLength=max(15, w // 5),
-                               maxLineGap=10)
-        if lines is None:
-            return lp_crop
-
-        angles = []
-        for x1, y1, x2, y2 in lines[:, 0]:
-            if x2 == x1:
-                continue
-            ang = np.degrees(np.arctan2(y2 - y1, x2 - x1))
-            if abs(ang) < 25:
-                angles.append(ang)
-
-        if not angles:
-            return lp_crop
-
-        angle = float(np.median(angles))
-        if abs(angle) < 0.75:
-            return lp_crop
-
-        M = cv.getRotationMatrix2D((w / 2, h / 2), angle, 1.0)
-        return cv.warpAffine(lp_crop, M, (w, h),
-                             flags=cv.INTER_LINEAR,
-                             borderMode=cv.BORDER_REPLICATE)
-    '''
 
     def _overlap(self, b1, b2):
         '''
@@ -228,6 +186,41 @@ class LPExtraction():
                 index -= 1
 
         return [self._to_xywh(b) for b in result]
+
+    def _pad_bbox(self, bb, img_shape, left_pct=0.0, right_pct=0.0):
+        '''
+        Laterally expand a bbox by fractions of its width, clipped to
+        the image. Used to generate alternative crops that may recover
+        an edge-clipped leading or trailing character.
+        '''
+        x, y, w, h = bb
+        H, W = img_shape[:2]
+        nx = max(0, x - int(round(w * left_pct)))
+        nx2 = min(W, x + w + int(round(w * right_pct)))
+        return (nx, y, nx2 - nx, h)
+
+    def _expand_with_padded_variants(self, top_bbs, img_shape):
+        '''
+        For the top-2 candidates, append laterally-padded variants:
+        one aggressive left pad (targets leading-character clipping)
+        and one mild bilateral pad. Duplicates (when clipping to image
+        bounds makes pads no-op) are dropped. The original ordering is
+        preserved; the tournament in CharacterSegmentation picks the
+        variant that yields the best segmentation.
+        '''
+        if not top_bbs:
+            return top_bbs
+        seen = set(top_bbs)
+        variants = []
+        for bb in top_bbs[:2]:
+            for left, right in ((0.12, 0.0), (0.05, 0.05)):
+                v = self._pad_bbox(bb, img_shape,
+                                   left_pct=left, right_pct=right)
+                if v in seen or v[2] <= 0 or v[3] <= 0:
+                    continue
+                seen.add(v)
+                variants.append(v)
+        return list(top_bbs) + variants
 
     def _rank_bounding_boxes(self, bb, otsu):
         if bb is None:

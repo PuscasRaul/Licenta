@@ -54,8 +54,15 @@ class CharacterSegmentation():
             block,
             2)
 
-        contours = self._helper.find_countours(thresholded,
-                                               aspect_ratio_bounds=(0.04, 2.0))
+        contours = self._helper.find_countours(
+            thresholded, aspect_ratio_bounds=(0.04, 2.0))
+        if contours is None or len(contours) < 3:
+            erode_kernel = np.ones((2, 2), np.uint8)
+            thresholded_eroded = cv.erode(thresholded, erode_kernel,
+                                          iterations=1)
+            contours = self._helper.find_countours(
+                thresholded_eroded,
+                aspect_ratio_bounds=(0.04, 2.0))
         if contours is None:
             return None, None
 
@@ -112,33 +119,75 @@ class CharacterSegmentation():
 
     def _tighten_plate_crop(self, lp):
         '''
-        Crop to the largest light-colored connected component (the plate
-        body). Falls back to the original crop when the result is not
-        plausibly a plate, so we never produce something worse than the
-        input.
+        Crop to the actual plate body within a possibly-wide candidate.
+        Two methods, tried in order:
+        1. Largest light-colored connected component (the plate is one
+           bright background). Used when that CC covers >=35% of the crop
+           and is wider than tall.
+        2. Character-strip detection: adaptive-threshold the crop, find
+           blobs of plausible character height, cluster them by y, and
+           crop to the cluster's bounding box. Recovers the plate when
+           it sits inside a much larger candidate (e.g. plate + body
+           panel context).
+        Returns the original crop if neither method finds anything.
         '''
         if lp is None or lp.size == 0:
             return lp
         gray = (lp if lp.ndim == 2 else cv.cvtColor(lp, cv.COLOR_BGR2GRAY))
+        H, W = gray.shape[:2]
+
         _, bw = cv.threshold(gray, 0, 255,
                              cv.THRESH_BINARY + cv.THRESH_OTSU)
         n, _, stats, _ = cv.connectedComponentsWithStats(bw, connectivity=8)
-        if n <= 1:
+        if n > 1:
+            areas = stats[1:, cv.CC_STAT_AREA]
+            idx = 1 + int(np.argmax(areas))
+            x, y, w, h, _ = stats[idx]
+            if w * h >= 0.35 * H * W and w / max(1, h) >= 1.5:
+                pad = max(2, min(h, w) // 20)
+                x = max(0, x - pad)
+                y = max(0, y - pad)
+                w = min(W - x, w + 2 * pad)
+                h = min(H - y, h + 2 * pad)
+                return lp[y:y + h, x:x + w]
+
+        if H < 20 or W < 60:
             return lp
-        areas = stats[1:, cv.CC_STAT_AREA]
-        idx = 1 + int(np.argmax(areas))
-        x, y, w, h, _ = stats[idx]
-        H, W = gray.shape[:2]
-        if w * h < 0.35 * H * W:
+
+        bin_inv = cv.adaptiveThreshold(
+            gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,
+            cv.THRESH_BINARY_INV, 11, 2)
+        n2, _, stats2, _ = cv.connectedComponentsWithStats(
+            bin_inv, connectivity=8)
+        blobs = []
+        for i in range(1, n2):
+            x, y, w, h, _ = stats2[i]
+            if not (0.15 * H <= h <= 0.55 * H):
+                continue
+            if not (0.015 * W <= w <= 0.18 * W):
+                continue
+            blobs.append((x, y, w, h))
+        if len(blobs) < 4:
             return lp
-        if w / max(1, h) < 1.5:
+
+        centers = np.array([b[1] + b[3] / 2.0 for b in blobs])
+        median_y = float(np.median(centers))
+        line = [b for b in blobs
+                if abs(b[1] + b[3] / 2.0 - median_y) <= 0.15 * H]
+        if len(line) < 4:
             return lp
-        pad = max(2, min(h, w) // 20)
-        x = max(0, x - pad)
-        y = max(0, y - pad)
-        w = min(W - x, w + 2 * pad)
-        h = min(H - y, h + 2 * pad)
-        return lp[y:y + h, x:x + w]
+
+        x0 = min(b[0] for b in line)
+        y0 = min(b[1] for b in line)
+        x1 = max(b[0] + b[2] for b in line)
+        y1 = max(b[1] + b[3] for b in line)
+        pad_x = max(2, (x1 - x0) // 20)
+        pad_y = max(2, (y1 - y0) // 5)
+        x0 = max(0, x0 - pad_x)
+        y0 = max(0, y0 - pad_y)
+        x1 = min(W, x1 + pad_x)
+        y1 = min(H, y1 + pad_y)
+        return lp[y0:y1, x0:x1]
 
     def _split_wide_blobs(self, boxes, binarized):
         '''

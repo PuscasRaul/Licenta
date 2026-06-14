@@ -160,4 +160,12 @@ David~E Rumelhart, Geoffrey~E Hinton, and Ronald~J Williams.
 {\em CODE COMPLETE 2nd Edition}.
 \newblock WP Publishers \& Distributors Pvt Limited, 2004.
 
+\bibitem{roboflow-lp-dataset}
+{Roboflow Universe Projects}.
+\newblock License plate recognition dataset.
+\newblock
+  \url{https://universe.roboflow.com/roboflow-universe-projects/license-plate-recognition-rxg4e},
+  2022.
+\newblock accesat iunie 2026.
+
 \end{thebibliography}
