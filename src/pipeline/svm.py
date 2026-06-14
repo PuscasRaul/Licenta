@@ -4,7 +4,6 @@ import sys
 from collections import Counter
 
 import joblib
-import numpy as np
 from sklearn import metrics, svm
 from sklearn.model_selection import train_test_split
 

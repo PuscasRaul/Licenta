@@ -300,7 +300,7 @@ A doua sursă de date o constituie setul public Chars74K~\cite{deCampos09}, intr
 
 Setul este distribuit deja etichetat și organizat ca un arbore de directoare, cu câte un director per clasă, fiecare caracter fiind salvat ca o imagine PNG individuală, însoțită de o mască binară de segmentare. Această structură permite integrarea directă a mostrelor în setul de antrenare, fără efort manual de adnotare. Rolul acestei surse este de a completa diversitatea tipografică a caracterelor autogenerate: în timp ce prima sursă aliniază distribuția datelor la particularitățile segmenterului propriu, Chars74K introduce o varietate mai amplă de forme și de fonturi întâlnite în condiții reale, contribuind la capacitatea de generalizare a clasificatorului.
 
-\subsubsection{Etichetarea manuală asistată}
+\subsubsection{Etichetarea manuală}
 \indent\par
 Etichetarea mostrelor generate automat este realizată prin scriptul \texttt{label\_dataset.py}, care oferă o interfață minimală de etichetare asistată, construită cu ajutorul bibliotecii OpenCV. Fiecare imagine neetichetată este afișată succesiv, iar operatorul atribuie eticheta prin apăsarea tastei corespunzătoare caracterului; imaginea este mutată automat în directorul clasei respective. Tasta dedicată permite marcarea mostrelor nevalide (caractere nerecunoscute sau segmentate eronat) prin mutarea lor într-un director special, în timp ce o altă tastă permite ignorarea unei mostre.
 
@@ -326,6 +326,17 @@ Deoarece setul de caractere etichetate manual prezenta un volum limitat și o va
 \end{figure}
 
 Variantele augmentate sunt salvate alături de originale, marcate printr-un sufix dedicat (\texttt{\_aug\_rot}), ceea ce permite distingerea ulterioară a mostrelor sintetice de cele reale. Prin multiplicarea cu factorul de cinci, setul de antrenare crește de la $1862$ la $9310$ mostre. Acest spor de volum are un efect secundar important: clase anterior excluse pentru lipsă de exemplare (\texttt{V}, \texttt{W}, \texttt{X}, \texttt{Y}, \texttt{Z}, \texttt{I}, \texttt{O}) depășesc acum pragul minim necesar și sunt admise în antrenare.
+
+\subsubsection{Setul de date rezultat}
+\indent\par
+Prin consolidarea setului de caractere etichetate manual, cu sursa externă de date, a rezultat configurația finală a corpusului de antrenare. Frecvența de apariție a fiecărei clase în cadrul acestui ansamblu definitivat este ilustrată în Figura~\ref{fig:distributia_caracterelor}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figures/set_date_plot.png}
+  \caption{Distribuția caracterelor în setul de date final}
+  \label{fig:distributia_caracterelor}
+\end{figure}
 
 \section{Testare și metrici}
 \indent\par
