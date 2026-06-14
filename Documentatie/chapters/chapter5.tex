@@ -342,11 +342,36 @@ Prin consolidarea setului de caractere etichetate manual, cu sursa externă de d
 \indent\par
 Evaluarea sistemului urmărește două niveluri complementare: performanța componentei de recunoaștere a caracterelor, considerată izolat, și performanța întregului lanț de procesare, măsurată de la imaginea de intrare până la șirul de caractere recunoscut.
 
-Pentru evaluarea clasificatorului de caractere, setul de date este împărțit într-un subset de antrenare și unul de testare, în proporție de $80\%$, respectiv $20\%$. Împărțirea este stratificată, astfel încât distribuția claselor să fie păstrată în ambele subseturi, condiție importantă în prezența unui set dezechilibrat. Pentru a asigura reproductibilitatea rezultatelor, sămânța generatorului de numere aleatoare este fixată.
+Pe lângă evaluarea izolată a clasificatorului, sistemul este evaluat și la nivel de etapă: rata de localizare corectă a plăcuței, rata de segmentare corectă a caracterelor și, în final, metrica integrată (\textit{end-to-end}), reprezentată de proporția plăcuțelor citite corect în întregime. Această din urmă metrică reflectă cel mai fidel performanța percepută a sistemului, întrucât o singură eroare la nivel de caracter invalidează întregul rezultat.
+
+\subsection{Performanța componentei de recunoaștere a caracterelor}
+\indent\par
+Pentru evaluarea clasificatorului de caractere, setul de date este împărțit într-un subset de antrenare și unul de testare, în proporție de $80\%$, respectiv $20\%$. Împărțirea este stratificată, astfel încât distribuția claselor să fie păstrată în ambele subseturi.
 
 Metricile raportate pentru clasificator sunt acuratețea globală și raportul de clasificare, care cuprinde, pentru fiecare clasă, precizia (\textit{precision}), rata de regăsire (\textit{recall}) și scorul $F_1$. Aceste metrici sunt completate de matricea de confuzie, utilă pentru identificarea perechilor de caractere frecvent confundate (de exemplu cifra \texttt{0} și litera \texttt{O}, sau cifra \texttt{1} și litera \texttt{I}).
 
-Pe lângă evaluarea izolată a clasificatorului, sistemul este evaluat și la nivel de etapă: rata de localizare corectă a plăcuței, rata de segmentare corectă a caracterelor și, în final, metrica integrată (\textit{end-to-end}), reprezentată de proporția plăcuțelor citite corect în întregime. Această din urmă metrică reflectă cel mai fidel performanța percepută a sistemului, întrucât o singură eroare la nivel de caracter invalidează întregul rezultat.
+În urma antrenării clasificatorului statistic asupra setului de date menționat anterior au fost obținute următoarele rezultate generale pe subsetul de testare format din 4192 intrări:
+\begin{itemize}
+  \item \textbf{Acuratețea globală:} 96\%,
+  \item \textbf{Precizia medie:} 96\%,
+  \item \textbf{Rata medie de regăsire (\textit{Macro Recall}):} 95\%,
+  \item \textbf{Scorul mediu F1:} 96\%
+\end{itemize}
+
+Apropierea dintre valorile mediate macro și acuratețea globală, indică o performanță uniformă pe ansamblul claselor, fără simboluri puternic defavorizate. Acest comportament este așteptat, întrucât setul combinat menține un volum suficient de mostre pentru majoritatea claselor, evitând dezechilibrele. În ansamblu, o acuratețe de $96\%$ confirmă că reprezentarea liniarizată a imaginii, combinată cu nucleul RBF, captează suficientă informație discriminativă pentru separarea celor $36$ de clase.
+
+Structura matricei de confuzie poate fi observată în figura~\ref{fig:matrice_confuzie} drept fiind puternic diagonală, erorile fiind rare și concentrate într-un număr restrâns de perechi de simboluri. Deși rare, erorile persistă în urma procesului de antrenare, în mod special la perechile de caractere care prezintă o similitudine a formei geometrice: pentru pereache formată din cifra \texttt{0} și litera \texttt{O} există 14 erori care apar în mod simetric. De asemenea, există confuzii pentru caracterele care sunt doar similare: litera \texttt{G} și \texttt{C}, cifra \texttt{1} și litera \texttt{I} sau chiar și litera \texttt{T}.
+
+Aceste confuzii nu au, însă, o pondere uniformă în contextul aplicației. Confuziile de tip cifră--literă, precum \texttt{0}--\texttt{O} sau \texttt{1}--\texttt{I}, sunt în principiu recuperabile: poziția unui simbol în cadrul numărului de înmatriculare determină, conform formatului, dacă acesta trebuie să fie o cifră sau o literă, astfel încât o etapă ulterioară de decodare condiționată de format poate valorifica această cunoștință apriori pentru a le dezambiguiza. În schimb, confuziile de tip literă--literă (\texttt{G}--\texttt{C}, \texttt{M}--\texttt{H}) rămân nerezolvabile la nivel pur pozițional și constituie limita superioară a erorilor reziduale ale clasificatorului. Întrucât metrica end-to-end invalidează întregul rezultat la o singură eroare de caracter, reducerea acestor confuzii reziduale rămâne principala direcție de îmbunătățire a componentei de recunoaștere.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figures/matrice_confuzie.png}
+  \caption{Matricea de confuzie obținută în urma antrenării clasificatorului}
+  \label{fig:matrice_confuzie}
+\end{figure}
+
+\subsection{Performanța întregului sistem}
 
 Rezultatele agregate obținute prin rularea scripturilor \texttt{src/evaluate.py} (pentru metricile de nivel etapă și end-to-end) și \texttt{src/pipeline/svm.py} (pentru acuratețea clasificatorului) sunt sintetizate în tabelul~\ref{tab:rezultate}. Evaluarea localizării utilizează setul \texttt{data/test/}, format din 26 de imagini de autovehicule cu adnotări la nivel de plăcuță, în timp ce evaluarea segmentării și a recunoașterii end-to-end este realizată pe setul \texttt{data/LP-characters/}, alcătuit din 209 plăcuțe deja decupate, cu adnotări la nivel de caracter.
 
