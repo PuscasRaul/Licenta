@@ -59,11 +59,36 @@ ABSTRACT
 
 % Numerele < 10 scrise cu litere
 
-Recunoașterea automată a numerelor de înmatriculare reprezintă procesul de extragere si recunoaștere a caracterelor care formează identificatorul unic al unui vehicul.
+Automatic license plate recognition (ALPR) has become a core building block of intelligent
+transportation systems, underpinning applications as diverse as traffic law enforcement,
+electronic toll collection, stolen-vehicle detection and the management of restricted-access
+areas such as parking facilities. At its essence, an ALPR system extracts a vehicle's unique
+alphanumeric identifier from an image and converts it into machine-readable text, a task
+that remains challenging under unconstrained conditions, owing to variations in illumination,
+plate format, font, viewing angle and partial occlusions.
 \paragraph{}
-Sistemul de recunoașterea captează imaginea prin intermediul unei camere (B/W, Infraroșu etc), pe care o trimite mai departe unei unități de procesare care execută un algoritm format din 3 etape: localizarea numărului de înmatriculare, segmenatarea caracterelor, recunoașterea caracterelor. Ulterior, informația extrasă poate fi folosită în cadrul unor servicii precum: securizarea parcărilor, monitorizarea traficului, etc.
+This thesis proposes such a system, named IORA, designed around a modular architecture and
+relying solely on classical computer vision techniques for the image-processing stages and on
+a statistical Support Vector Machine (SVM) classifier for character recognition. The work
+targets a concrete deployment scenario, an automated access-control point for a parking
+facility in Romania, which imposes two requirements: the robust handling of the many plate
+formats in circulation, from standard and temporary plates to diplomatic and institutional
+ones, and an execution time low enough to actuate the barrier within one to two seconds of a
+vehicle's arrival.
 \paragraph{}
-Comparat cu abordările existente ale problemei soluția prezentată in această lucrare se evidențiază prin reziliența pe care o oferă față de diferiții factori care pot afecta calitatea sistemlui: condiții de lumină variabile, diferite formate ale plăcuței de înmatriculare, reziduuri care pot obscura caracterele. Dar și prin nivelul ridicat de optimizare adus întregului proces.
+Following the canonical ALPR pipeline, the system is organised into three sequential stages.
+Plate localization combines the Sobel operator with morphological operations and geometric
+filtering to isolate candidate regions; character segmentation separates the individual
+symbols through contour analysis guided by a priori knowledge of plate geometry; and
+recognition assigns a label to each character using a multi-class SVM trained on HOG
+descriptors. By avoiding deep neural networks altogether, the pipeline is able to run on
+modest hardware without GPU acceleration.
+\paragraph{}
+The system is evaluated both end-to-end and per stage, on a heterogeneous dataset spanning
+Romanian and international plates. The results show that, when classical methods are guided by
+domain-specific a priori knowledge, they remain a competitive and resource-efficient
+alternative for real-time license plate recognition, while also exposing the limitations that
+motivate further work.
 \tableofcontents
 
 \newpage
@@ -77,8 +102,8 @@ Comparat cu abordările existente ale problemei soluția prezentată in această
 \input{chapters/chapter3}
 \input{chapters/chapter4}
 \input{chapters/chapter5}
-
-\input{chapters/chapter6_conclusions}
+\input{chapters/chapter6_evaluation}
+\input{chapters/chapter7_conclusions}
 %\addcontentsline{toc}{chapter}{Concluzii}
 %\addcontentsline{toc}{chapter}{Conclusions}
 \bibliography{references}

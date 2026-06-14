@@ -1,0 +1,81 @@
+\babel@toc {romanian}{}\relax 
+\contentsline {paragraph}{}{i}{section*.1}%
+\contentsline {paragraph}{}{i}{section*.2}%
+\contentsline {paragraph}{}{i}{section*.3}%
+\contentsline {chapter}{\numberline {1}Introducere}{1}{chapter.1}%
+\contentsline {chapter}{\numberline {2}Metode de localizare a obiectelor}{3}{chapter.2}%
+\contentsline {subsection}{\numberline {2.0.1}Metode bazate pe caracteristici cromatice}{3}{subsection.2.0.1}%
+\contentsline {subsection}{\numberline {2.0.2}Metode bazate pe conturul obiectelor}{5}{subsection.2.0.2}%
+\contentsline {subsection}{\numberline {2.0.3}Metode bazate pe textura obiectelor}{9}{subsection.2.0.3}%
+\contentsline {chapter}{\numberline {3}Segmentarea imaginii}{12}{chapter.3}%
+\contentsline {subsection}{\numberline {3.0.1}Conectivitatea pixelilor}{12}{subsection.3.0.1}%
+\contentsline {subsection}{\numberline {3.0.2}Analiza proiecțiilor}{12}{subsection.3.0.2}%
+\contentsline {subsection}{\numberline {3.0.3}Utilizarea informațiilor apriori privind aspectul caracterelor}{14}{subsection.3.0.3}%
+\contentsline {subsection}{\numberline {3.0.4}Analiza conturului caracterelor}{15}{subsection.3.0.4}%
+\contentsline {chapter}{\numberline {4}Recunoașterea caracterelor}{17}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Potrivire de șabloane}{17}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Clasificatori statistici}{18}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Mașini pe suport vectorial}{19}{subsection.4.2.1}%
+\contentsline {subsubsection}{Învățarea în spațiul trăsăturilor}{19}{section*.12}%
+\contentsline {subsubsection}{Teoria VC și clasificatori cu marjă maximală}{21}{section*.14}%
+\contentsline {subsection}{\numberline {4.2.2}Rețele neuronale artificiale}{24}{subsection.4.2.2}%
+\contentsline {subsubsection}{Arhitectura perceptronului multistrat}{24}{section*.16}%
+\contentsline {subsubsection}{Antrenarea prin retropropagarea erorii}{26}{section*.19}%
+\contentsline {subsubsection}{Paradigme de utilizare în recunoașterea caracterelor}{27}{section*.20}%
+\contentsline {chapter}{\numberline {5}Implementarea sistemului IORA}{28}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Arhitectura sistemului}{28}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Diagrama de componente}{29}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}Actori și cazuri de utilizare}{29}{subsection.5.1.2}%
+\contentsline {subsection}{\numberline {5.1.3}Diagrama de clase}{30}{subsection.5.1.3}%
+\contentsline {subsection}{\numberline {5.1.4}Decizii de proiectare}{31}{subsection.5.1.4}%
+\contentsline {section}{\numberline {5.2}Tehnologii}{32}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Nucleu}{32}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Nivelul de aplicație}{32}{subsection.5.2.2}%
+\contentsline {section}{\numberline {5.3}Detalii tehnice}{32}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Modulul de intrare}{33}{subsection.5.3.1}%
+\contentsline {subsubsection}{Interfața ICaptureManager}{33}{section*.25}%
+\contentsline {subsubsection}{Sistem integrat}{33}{section*.26}%
+\contentsline {subsubsection}{Aplicație demonstrativă}{34}{section*.27}%
+\contentsline {subsection}{\numberline {5.3.2}Fluxul de procesare}{34}{subsection.5.3.2}%
+\contentsline {subsubsection}{Considerații preliminare}{34}{section*.28}%
+\contentsline {subsubsection}{Localizarea plăcuței de înmatriculare}{34}{section*.29}%
+\contentsline {subsubsection}{Segmentarea caracterelor}{36}{section*.31}%
+\contentsline {subsubsection}{Recunoașterea caracterelor}{39}{section*.33}%
+\contentsline {subsection}{\numberline {5.3.3}Nivelul de aplicație}{40}{subsection.5.3.3}%
+\contentsline {subsubsection}{Sistem integrat}{40}{section*.34}%
+\contentsline {subsubsection}{Aplicație demo}{40}{section*.35}%
+\contentsline {chapter}{\numberline {6}Metrici și experimente}{41}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Seturi de date}{41}{section.6.1}%
+\contentsline {subsection}{\numberline {6.1.1}Setul de evaluare}{41}{subsection.6.1.1}%
+\contentsline {subsubsection}{Normalizarea seturilor de date}{42}{section*.36}%
+\contentsline {subsubsection}{Crearea sursei de adevăr a setului de date}{43}{section*.39}%
+\contentsline {subsection}{\numberline {6.1.2}Setul de antrenare a clasificatorului SVM}{43}{subsection.6.1.2}%
+\contentsline {subsubsection}{Generarea automată prin fluxul de procesare}{44}{section*.40}%
+\contentsline {subsubsection}{Sursă externă de caractere}{44}{section*.41}%
+\contentsline {subsubsection}{Etichetarea manuală}{44}{section*.42}%
+\contentsline {subsubsection}{Augmentarea setului prin rotații}{45}{section*.43}%
+\contentsline {subsubsection}{Setul de date rezultat}{45}{section*.45}%
+\contentsline {section}{\numberline {6.2}Testare și metrici}{46}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}Performanța componentei de recunoaștere a caracterelor}{46}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.2}Performanța întregului sistem}{48}{subsection.6.2.2}%
+\contentsline {subsubsection}{Evaluarea localizării corectă a plăcuței}{49}{section*.48}%
+\contentsline {subsubsection}{Evaluarea segmentării caracterelor}{49}{section*.49}%
+\contentsline {subsubsection}{Evaluare E2E}{50}{section*.50}%
+\contentsline {section}{\numberline {6.3}Experimente}{51}{section.6.3}%
+\contentsline {subsection}{\numberline {6.3.1}Comparația abordărilor de localizare}{51}{subsection.6.3.1}%
+\contentsline {subsection}{\numberline {6.3.2}Comparația abordărilor de segmentare}{52}{subsection.6.3.2}%
+\contentsline {subsection}{\numberline {6.3.3}Îmbunătățiri progresive ale fluxului de recunoaștere}{52}{subsection.6.3.3}%
+\contentsline {subsubsection}{Reconstrucția etapei de segmentare}{53}{section*.55}%
+\contentsline {subsubsection}{Decodare condiționată de format}{54}{section*.56}%
+\contentsline {subsubsection}{Trăsături HOG pentru clasificator}{54}{section*.57}%
+\contentsline {subsubsection}{Păstrarea proporțiilor caracterului}{54}{section*.58}%
+\contentsline {subsubsection}{Augmentare cu rotații a setului de antrenare}{54}{section*.59}%
+\contentsline {subsubsection}{Bilanț}{55}{section*.60}%
+\contentsline {chapter}{\numberline {7}Concluzii și perspective de viitor}{56}{chapter.7}%
+\contentsline {paragraph}{}{56}{section*.61}%
+\contentsline {section}{\numberline {7.1}Concluzii}{56}{section.7.1}%
+\contentsline {paragraph}{}{56}{section*.62}%
+\contentsline {section}{\numberline {7.2}Perspective de viitor}{57}{section.7.2}%
+\contentsline {paragraph}{}{57}{section*.63}%
+\contentsline {paragraph}{}{57}{section*.64}%
+\contentsline {chapter}{Bibliografie}{58}{chapter*.65}%

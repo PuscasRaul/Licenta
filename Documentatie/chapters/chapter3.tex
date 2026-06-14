@@ -4,15 +4,15 @@ Segmentarea imaginii joacă un rol crucial în sistemele ALPR. Procesul presupun
 
 În literatura de specialitate, pentru a segmenta numărul de înmatriculare sunt propuse mai multe tehnici~\cite{SOAReview}:
 \begin{itemize}
-        \item{Analiza conectivității pixelilor~\cite{kanayama1991development}}
-        \item{Analiza proiecțiilor}
-        \item{Utilizarea informațiilor apriori privind aspectul caracterelor}
-        \item{Analiza conturului caracterelor}
+        \item{Analiza conectivității pixelilor~\cite{kanayama1991development}};
+        \item{Analiza proiecțiilor}~\cite{HoughTransformation};
+        \item{Utilizarea informațiilor apriori privind aspectul caracterelor}~\cite{sanyuan2004car};
+        \item{Analiza conturului caracterelor}~\cite{capar2006concurrent}
 \end{itemize}
 
 \subsection{Conectivitatea pixelilor}
 \indent\par
-Această abordare presupune binarizarea regiunii de interes extrase de modulul anterior, urmată de analiza componentelor conexe (CCA) și de aplicarea unei structuri decizionale pentru filtrarea regiunilor identificare de CCA. Selecția se bazează în principal pe criterii precum similitudinea dimensiunilor și a proporțiilor zonelor identificate de CCA.
+Această abordare presupune binarizarea regiunii de interes extrase de modulul anterior, urmată de analiza componentelor conexe (CCA) și de aplicarea unei structuri decizionale pentru filtrarea regiunilor identificate de CCA. Selecția se bazează în principal pe criterii precum similitudinea dimensiunilor și a proporțiilor zonelor.
 
 Principalul dezavantaj al acestei metode este sensibilitatea la rotație, selecția fiind realizată pe baza uniformității geometrice a regiunilor, numerele de înmatriculare rotite sau înclinate parțial sunt adesea segmentate în mod incorect.
 
@@ -24,7 +24,7 @@ O proiecție se obține prin construirea unei histograme a densității pixelilo
 
 Un exemplu reprezentativ este sistemul propus în~\cite{HoughTransformation}, în care extracția numărului de înmatriculare se bazează pe transformarea Hough pentru corectarea variațiilor de înclinare și rotație.
 
-Segmentarea începe cu analiza proiecțiilor orizontale, prin care numărul de înmatriculare este divizat pe rânduri. Etapa este esențială pentru plăcuțele dispuse pe mai multe rânduri (precum cele ale motocicletelor), întrucât separarea pe rânduri normalizează proporțiile și dimensiunea relativă a caracterelor în raport cu sub-segmentul care le conține. În absența ei, o evaluare globală ar introduce discrepanțe majore: pe un singur rând un caracter ocupă aproximativ $85\%$ din înălțimea imaginii, în timp ce pe o plăcuță cu două rânduri ajunge la cel mult $50\%$.
+Segmentarea începe cu analiza proiecțiilor orizontale, prin care numărul de înmatriculare este divizat pe rânduri. Etapa este esențială pentru plăcuțele dispuse pe mai multe rânduri, întrucât separarea pe rânduri normalizează proporțiile și dimensiunea relativă a caracterelor în raport cu sub-segmentul care le conține. În absența ei, o evaluare globală ar introduce discrepanțe majore: pe un singur rând un caracter ocupă aproximativ $85\%$ din înălțimea imaginii, în timp ce pe o plăcuță cu două rânduri ajunge la cel mult $50\%$.
 
 După divizarea pe rânduri, proiecțiile verticale sunt utilizate pentru a determina pozițiile de început și de final ale fiecărui caracter. Segmentele astfel obținute sunt apoi filtrate printr-un set de constrângeri, menite să elimine elementele segmentate eronat drept caractere.
 
@@ -51,9 +51,10 @@ Particularitatea acestei abordări constă în combinarea informației furnizate
 
 Pe lângă atenuarea zgomotului, zonele conexe pre-extrase furnizează și informațiile apriori care stau la baza extragerii: lățimea caracterelor și poziția lor în cadrul plăcuței. Conform specificului plăcuțelor de înmatriculare avute în vedere, toate caracterele au aceeași lățime, care poate fi estimată direct din lățimea unei zone conexe deja izolate corect (de exemplu cifrele \textit{5} sau \textit{0}). Se definește poziția centrală a unui caracter ca fiind poziția orizontală a marginii sale stângi la care se adaugă jumătate din lățimea caracterului, iar distanța dintre pozițiile centrale a două caractere vecine se numește distanță între pozițiile centrale.
 
-Geometria plăcuței impune o constrângere apriori suplimentară asupra acestor distanțe: ultimele cinci caractere au aceeași distanță între pozițiile centrale, în timp ce distanța $d_0$ dintre al doilea și al treilea caracter este mai mare decât distanța $d_1$ dintre celelalte caractere ($d_0 > d_1$). Experimental, cele două mărimi se află în relația
+Geometria plăcuței impune o constrângere apriori suplimentară asupra acestor distanțe: ultimele cinci caractere au aceeași distanță între pozițiile centrale, în timp ce distanța $d_0$ dintre al doilea și al treilea caracter este mai mare decât distanța $d_1$ dintre celelalte caractere ($d_0 > d_1$). Experimental, cele două mărimi se află în relația dată de Ecuația~\ref{eq:d0d1}:
 \begin{equation}
         d_0 = \lambda \cdot d_1, \qquad \lambda \in [1.2,\ 1.3].
+        \label{eq:d0d1}
 \end{equation}
 
 Folosind aceste cunoștințe apriori, procesul de extragere a caracterelor parcurge următorii pași:
@@ -72,10 +73,11 @@ O altă abordare are la bază detecția contururilor caracterelor. Pentru aceast
 
 Metoda \textit{Fast Marching}, introdusă de Sethian~\cite{sethian1996fastmarching}, este un algoritm numeric folosit pentru a urmări evoluția unui front (a unei curbe) care se propagă monoton într-o singură direcție, dinspre o regiune inițială către exterior. Algoritmul este o particularizare a metodelor de tip \textit{level-set}, în care viteza de propagare este strict pozitivă, astfel încât odată ce frontul a depășit un punct nu se mai poate întoarce.
 
-Din punct de vedere matematic, metoda calculează, pentru fiecare punct $x$ al imaginii, momentul de timp $T(x)$ la care frontul ajunge în acel punct. Această mărime este soluția ecuației eikonale:
+Din punct de vedere matematic, metoda calculează, pentru fiecare punct $x$ al imaginii, momentul de timp $T(x)$ la care frontul ajunge în acel punct. Această mărime este soluția ecuației eikonale, dată de Ecuația~\ref{eq:eikonal}:
 \begin{equation}
         \lvert \nabla T(x) \rvert \, F(x) = 1,
+        \label{eq:eikonal}
 \end{equation}
 unde $F(x)$ reprezintă funcția de viteză, care determină cât de rapid avansează frontul în fiecare punct. În aplicațiile de segmentare, funcția de viteză este derivată din informația din imagine (de regulă din magnitudinea gradientului): frontul se deplasează rapid în zonele omogene și încetinește, oprindu-se, în apropierea muchiilor, unde gradientul este mare. În acest fel, contururile obiectelor sunt delimitate în mod natural de zonele în care frontul stagnează.
 
-Particularitatea abordării din~\cite{capar2006concurrent} constă în ghidarea propagării frontului nu doar de informația de contur, ci și de modele statistice ale formei caracterelor (\textit{shape-driven}). Funcția de viteză este astfel construită încât să integreze cunoștințe apriori despre forma caracterelor, permițând curbei să se oprească în dreptul muchiilor reale ale obiectelor și, în același timp, să inspecteze gradul de similaritate dintre conturul obținut și formele caracterelor cunoscute. Procesul realizează concomitent segmentarea și recunoașterea: pe parcursul evoluției frontului sunt determinate atât pozițiile delimitatoare ale fiecărui caracter, cât și eticheta (clasa) caracterului corespunzător, eliminând necesitatea unei etape separate de recunoaștere.
+Particularitatea abordării din~\cite{capar2006concurrent} constă în ghidarea propagării frontului nu doar de informația de contur, ci și de modele statistice ale formei caracterelor (\textit{shape-driven}). Funcția de viteză este astfel construită încât să integreze cunoștințe apriori despre forma caracterelor, permițând curbei să se oprească în dreptul muchiilor reale ale obiectelor și, în același timp, să inspecteze gradul de similaritate dintre conturul obținut și formele caracterelor cunoscute. Procesul realizează concomitent segmentarea și recunoașterea: pe parcursul evoluției frontului sunt determinate atât pozițiile delimitatoare ale fiecărui caracter, cât și eticheta caracterului corespunzător, eliminând necesitatea unei etape separate de recunoaștere.

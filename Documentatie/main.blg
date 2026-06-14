@@ -1,0 +1,48 @@
+This is BibTeX, Version 0.99d (TeX Live 2025/dev/Debian)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+The style file: unsrt.bst
+Database file #1: references.bib
+Warning--empty author and editor in codecomplete
+You've used 29 entries,
+            1791 wiz_defined-function locations,
+            632 strings with 9030 characters,
+and the built_in function-call counts, 8312 in all, are:
+= -- 820
+> -- 276
+< -- 16
++ -- 104
+- -- 75
+* -- 529
+:= -- 1178
+add.period$ -- 97
+call.type$ -- 29
+change.case$ -- 27
+chr.to.int$ -- 0
+cite$ -- 30
+duplicate$ -- 405
+empty$ -- 835
+format.name$ -- 75
+if$ -- 1957
+int.to.chr$ -- 0
+int.to.str$ -- 29
+missing$ -- 29
+newline$ -- 148
+num.names$ -- 28
+pop$ -- 110
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 226
+stack$ -- 0
+substring$ -- 672
+swap$ -- 151
+text.length$ -- 16
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 1
+while$ -- 87
+width$ -- 31
+write$ -- 330
+(There was 1 warning)

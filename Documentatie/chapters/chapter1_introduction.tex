@@ -4,34 +4,33 @@
 Creșterea constantă a numărului de vehicule aflate în circulație a făcut ca
 identificarea automată a acestora să devină o componentă esențială în
 infrastructura modernă de transport. Lucrarea de față propune un sistem de
-recunoaștere automată a numerelor de înmatriculare (ALPR — Automatic License
-Plate Recognition) construit pe o arhitectură modulară, bazată exclusiv pe
+recunoaștere automată a numerelor de înmatriculare (ALPR — \textit{Automatic License
+Plate Recognition}) construit pe o arhitectură modulară, bazată exclusiv pe
 tehnici clasice de viziune artificială pentru etapele de procesare a imaginii și
-pe un clasificator statistic de tip SVM (Support Vector Machine) pentru
+pe un clasificator statistic de tip SVM (\textit{Support Vector Machine}) pentru
 recunoașterea caracterelor.
 
 Studiul a fost motivat de cerințele concrete ale unui sistem de control al
 accesului auto într-o parcare situată pe teritoriul României. Acest context
-impune două constrângeri determinante. În primul rând, sistemul trebuie să
+impune două constrângeri clare. În primul rând, sistemul trebuie să
 recunoască fiabil o varietate largă de formate: plăcuțe uzuale
 --două litere --două cifre --trei litere, plăcuțe provizorii cu serie roșie, plăcuțe pentru
-autoturisme noi în format extins, plăcuțe diplomatice (CD, TC, CO), plăcuțe
-ale Ministerului Afacerilor Interne și plăcuțe străine ale autovehiculelor aflate în tranzit.
-În al doilea rând, întregul flux de procesare, de la achiziția cadrului până la validarea
+autoturisme noi în format extins, plăcuțe diplomatice (CD, TC, CO) și plăcuțe
+ale Ministerului Afacerilor Interne. În al doilea rând, întregul flux de procesare, de la achiziția cadrului până la validarea
 numărului trebuie să aibă un timp de execuție redus, de ordinul sutelor de milisecunde,
 astfel încât bariera de acces să fie acționată în cel mult 1--2 secunde de
 la momentul sosirii vehiculului.
 
 Soluția propusă structurează procesul în trei etape secvențiale. Etapa de
-\emph{localizare} izolează regiunea plăcuței într-o imagine de intrare folosind
+localizare izolează regiunea plăcuței într-o imagine de intrare folosind
 operatorul Sobel pentru extragerea contururilor verticale, urmat de operații
 morfologice și filtre geometrice care elimină regiunile candidate
-necorespunzătoare. Etapa de \emph{segmentare} separă caracterele individuale
-prin proiecții orizontale și verticale ale imaginii binarizate. În final, etapa
-de \emph{recunoaștere} clasifică fiecare caracter segmentat printr-un model SVM
+necorespunzătoare. Etapa de segmentare separă caracterele individuale
+prin analiza contururilor și a informaților apriori. În final, etapa
+de recunoaștere clasifică fiecare caracter segmentat printr-un model SVM
 multi-clasă antrenat pe un set de caractere etichetate. Întreg
 ansamblul este implementat fără a recurge la rețele neuronale profunde, ceea ce
-permite execuția pe hardware modest, fără accelerare GPU.
+permite execuția pe hardware modest, fără accelerare \textit{GPU}.
 
 În comparație existente, soluția prezentată se evidențiază prin două
 contribuții. Prima este reziliența la variațiile de mediu și de format precum
@@ -39,7 +38,7 @@ diferențe de luminozitate, fonturi neomogene între seriile de plăcuțe, dimen
 variabile și ocluzii parțiale, caracteristică obținută prin alegerea unor tehnici robuste în
 fiecare etapă a fluxului. A doua contribuție este nivelul de optimizare adus
 fiecărui modul, astfel încât sistemul să respecte constrângerea de timp real pe
-o platformă embedded.
+o platformă \textit{embedded}.
 
 Lucrarea este organizată în șase capitole. Primele trei capitole au caracter
 teoretic și prezintă fundamentele necesare.
@@ -51,8 +50,7 @@ identificate, cu accent pe separarea caracterelor.
 Capitolul~\ref{chap:recunoastere} discută clasificarea caracterelor, pornind
 de la metodele bazate pe șabloane și culminând cu fundamentele teoretice ale
 clasificatorului SVM. Capitolul~\ref{chap:implementare} constituie contribuția
-practică a lucrării: descrie arhitectura, deciziile de implementare și
-evaluarea experimentală a sistemului \textsc{IORA}, inclusiv metricile
+practică a lucrării: descrie arhitectura, deciziile de implementare și detaliile tehnice ale modulelor menționate în paragraful precedent. Capitolul~\ref{chap:metrici} prezintă evaluarea experimentală a sistemului \textsc{IORA}, inclusiv metricile
 obținute pe setul de testare și rezultatele obținute în condiții reale de
 operare. Capitolul~\ref{chap:concluzii} sintetizează concluziile, evidențiază
 limitările soluției actuale și schițează direcțiile de dezvoltare ulterioară.

@@ -1,8 +1,8 @@
 \chapter{Implementarea sistemului IORA}\label{chap:implementare}
 \indent\par
-Sistemul propus în lucrarea de față, denumit IORA, a fost construit pornind de la o arhitectură modulară formată din trei componente cheie: modulul de preluare a datelor (\textit{Input Module}), fluxul de procesare (\textit{Processing Pipeline}) și modulul de logică a aplicației (\textit{Application Logic Module}). Pentru a oferi flexibilitate și a respecta principiile de proiectare extensibilă specifice conceptului de clean code~\cite{codecomplete}, modulul de intrare și cel de logică a aplicației utilizează polimorfismul prin expunerea unor interfețe abstracte.
+Sistemul propus în lucrarea de față, denumit IORA, a fost construit pornind de la o arhitectură modulară formată din trei componente cheie: modulul de preluare a datelor (\textit{Input Module}), fluxul de procesare (\textit{Processing Pipeline}) și modulul de logică a aplicației (\textit{Application Logic Module}). Pentru a oferi flexibilitate și a respecta principiile de proiectare extensibilă specifice conceptului de \textit{clean code}~\cite{codecomplete}, modulul de intrare și cel de logică a aplicației utilizează polimorfismul prin expunerea unor interfețe abstracte.
 
-Această abordare decuplată permite diferitelor aplicații să integreze nucleul sistemului într-un mod elegant, implementând comportamente personalizate și adaptate la mediul de execuție, fără a modifica codul de bază. De exemplu, modulul de intrare poate fi extins pentru a prelua fluxuri video de la o cameră atașată contextului de execuție, fie prin intermediul socket-urilor. În mod similar, modulul de logică a aplicației poate fi personalizat pentru a declanșa acțiuni specifice precum trimiterea unor notificări automate prin e-mail, sau acționarea unor echipamente \textit{hardware} (ridicarea unei bariere auto), în cazul unui sistem embedded.
+Această abordare decuplată permite diferitelor aplicații să integreze nucleul sistemului într-un mod elegant, implementând comportamente personalizate și adaptate la mediul de execuție, fără a modifica codul de bază. De exemplu, modulul de intrare poate fi extins pentru a prelua fluxuri video de la o cameră atașată mediului de execuție, fie prin intermediul \textit{socket-urilor}. În mod similar, modulul de logică a aplicației poate fi personalizat pentru a declanșa acțiuni specifice precum trimiterea unor notificări automate prin \textit{e-mail}, sau acționarea unor echipamente \textit{hardware}, în cazul unui sistem integrat.
 
 În contrast, fluxul de procesare este încapsulat ca o unitate de execuție independentă și de sine stătătoare, neexpunând nicio interfață publică destinată extinderii structurale.
 
@@ -14,7 +14,7 @@ Sistemul IORA este organizat pe trei niveluri logice care corespund celor trei m
 
 \subsection{Diagrama de componente}
 \indent\par
-Diagrama de componente surprinde cele trei module și fluxul de date dintre ele. Modulul de intrare expune interfața \texttt{ICaptureManager} și produce, indiferent de sursa fizică a datelor, obiecte de tip \texttt{Frame}. Aceste obiecte constituie singurul punct de contact dintre modulul de intrare și fluxul de procesare, eliminând orice dependență a nucleului de natura sursei de captură.
+Diagrama de componente, prezentată în Figura~\ref{fig:componente}, surprinde cele trei module și fluxul de date dintre ele. Modulul de intrare expune interfața \texttt{ICaptureManager} și produce, indiferent de sursa fizică a datelor, obiecte de tip \texttt{Frame}. Aceste obiecte constituie singurul punct de contact dintre modulul de intrare și fluxul de procesare, eliminând orice dependență a nucleului de natura sursei de captură.
 
 Fluxul de procesare consumă obiectul \texttt{Frame} și aplică, în mod secvențial, cele trei etape ale procesului de recunoaștere: localizarea plăcuței, segmentarea caracterelor și recunoașterea acestora. Rezultatul produs (șirul de caractere recunoscut, însoțit de metadatele asociate) este transmis mai departe către modulul de logică a aplicației, care decide acțiunea declanșată în funcție de contextul de execuție.
 
@@ -29,9 +29,9 @@ Fluxul de procesare consumă obiectul \texttt{Frame} și aplică, în mod secven
 
 \subsection{Actori și cazuri de utilizare}
 \indent\par
-În cadrul scenariului de utilizare vizat, sistemul interacționează cu mai mulți actori, atât umani, cât și automați. Actorul uman principal este \emph{operatorul}, responsabil de configurarea și monitorizarea sistemului. Actorii automați sunt reprezentați de echipamentele și serviciile care consumă rezultatul recunoașterii: \emph{sistemul de barieră} (acționat în urma unei recunoașteri valide) și \emph{serviciul de notificare} (care transmite alerte, de exemplu prin e-mail).
+În cadrul scenariului de utilizare vizat, sistemul interacționează cu mai mulți actori, atât umani, cât și automați. Actorul uman principal este operatorul, responsabil de configurarea și monitorizarea sistemului. Actorii automați sunt reprezentați de echipamentele și serviciile care consumă rezultatul recunoașterii: sistemul de barieră (acționat în urma unei recunoașteri valide) și serviciul de notificare (care transmite alerte, de exemplu prin \textit{e-mail}).
 
-Principalele cazuri de utilizare sunt: monitorizarea fluxului video de la sursa de captură, citirea automată a numărului de înmatriculare dintr-un cadru și declanșarea unei acțiuni asociate (ridicarea barierei sau emiterea unei notificări) pe baza rezultatului recunoașterii. Pentru aplicația demonstrativă, se adaugă cazul de utilizare al transmiterii rezultatelor către un client extern prin intermediul unei conexiuni WebSocket.
+Principalele cazuri de utilizare sunt: monitorizarea fluxului video de la sursa de captură, citirea automată a numărului de înmatriculare dintr-un cadru și declanșarea unei acțiuni asociate (ridicarea barierei sau emiterea unei notificări) pe baza rezultatului recunoașterii. Pentru aplicația demonstrativă, se adaugă cazul de utilizare al transmiterii rezultatelor către un client extern prin intermediul unei conexiuni \textit{WebSocket}. Aceste cazuri de utilizare, împreună cu actorii implicați, sunt sintetizate în Figura~\ref{fig:usecase}.
 
 \begin{figure}[H]
   \centering
@@ -44,7 +44,7 @@ Principalele cazuri de utilizare sunt: monitorizarea fluxului video de la sursa 
 
 \subsection{Diagrama de clase}
 \indent\par
-Diagrama de clase din figura~\ref{fig:clase} reflectă, la nivel structural, aceeași stratificare introdusă de diagrama de componente: interfețele \texttt{ICaptureManager} și \texttt{IApplicationLogic} delimitează marginile extensibile ale sistemului, fiecare având două realizări concrete (una pentru sistemul integrat, una pentru aplicația demonstrativă), în timp ce nucleul de procesare este modelat prin clasa \texttt{ProcessingPipeline}, care agregă cele trei etape ale recunoașterii (\texttt{LPExtraction}, \texttt{CharacterSegmentation}, \texttt{CharacterRecognition}). Tipurile de date proprii \texttt{Frame} și \texttt{RecognitionResult} apar ca dependențe la marginile fluxului, marcând explicit decuplarea nucleului de detaliile de implementare ale surselor de captură și ale acțiunilor declanșate de aplicație.
+Diagrama de clase din figura~\ref{fig:clase} reflectă, la nivel structural, aceeași stratificare introdusă de diagrama de componente: interfețele \texttt{ICapture\-Manager} și \texttt{IApplication\-Logic} delimitează marginile extensibile ale sistemului, fiecare având două realizări concrete (una pentru sistemul integrat, una pentru aplicația demonstrativă), în timp ce nucleul de procesare este modelat prin clasa \texttt{ProcessingPipeline}, care agregă cele trei etape ale recunoașterii (\texttt{LPExtraction},\- \texttt{CharacterSegmentation},\- \texttt{CharacterRecognition}). Tipurile de date proprii \texttt{Frame} și \texttt{RecognitionResult} apar ca dependențe la marginile fluxului, marcând explicit decuplarea nucleului de detaliile de implementare ale surselor de captură și ale acțiunilor declanșate de aplicație.
 
 \begin{figure}[H]
   \centering
@@ -55,21 +55,19 @@ Diagrama de clase din figura~\ref{fig:clase} reflectă, la nivel structural, ace
 
 \subsection{Decizii de proiectare}
 \indent\par
-Decizia arhitecturală fundamentală a sistemului constă în expunerea unor interfețe abstracte la marginile fluxului de date (modulul de intrare și modulul de logică a aplicației), în timp ce fluxul de procesare este încapsulat ca o unitate închisă, fără puncte de extindere structurală. Această asimetrie reflectă natura componentelor: modulele de la margini interacționează direct cu mediul de execuție (componente hardware, sistem de operare, servicii externe) și sunt, prin urmare, cele mai susceptibile la variații, motiv pentru care comportamentul lor este abstractizat prin interfețe conform principiilor de \textit{clean code}~\cite{codecomplete}. În schimb, fluxul de procesare implementează un algoritm stabil, independent de context, care nu beneficiază de pe urma extensibilității.
+Proiectarea bazată pe principiile arhitecturale menționate anterior sugerează natura componentelor: modulele de la margini interacționează direct cu mediul de execuție și sunt, prin urmare, cele mai susceptibile la variații, motiv pentru care comportamentul lor este abstractizat prin interfețe conform principiilor de \textit{clean code}~\cite{codecomplete}. În schimb, fluxul de procesare implementează un algoritm stabil, independent de context, care nu beneficiază de pe urma extensibilității.
 
-O a doua decizie de proiectare vizează minimizarea dependențelor la nivelul nucleului și definirea unor tipuri de date proprii (precum obiectul \texttt{Frame}), independente de orice bibliotecă externă. Această alegere consolidează portabilitatea sistemului și permite adoptarea sa în contexte de rulare diferite, de la sisteme integrate cu resurse limitate până la servere care deservesc o aplicație web.
+O a doua decizie de proiectare vizează minimizarea dependențelor la nivelul nucleului și definirea unor tipuri de date proprii. Această alegere consolidează portabilitatea sistemului și permite adoptarea sa în contexte de rulare diferite, de la sisteme integrate cu resurse limitate până la servere care deservesc o aplicație web.
 
 \section{Tehnologii}
 \indent\par
-Alegerea limbajului a fost făcută pe considerente practice, așadar întreg sistemul a fos implementat în Python 3.14.4 în detrimenul unui limbaj compilat precum C++. Această decizie a fost motivată de gradul ridicat de adopție a ecosistemului Python în cadrul sistemelelor integrate, precum și de flexibilitatea și viteza de dezvoltare specifice oferite de un limbaj dinamic. De asemenea, librăriile necesare implementării modului de procesare se bazează pe nuclee scrise în C, optimizate la nivel de instrucțiune.
+Alegerea limbajului a fost făcută pe considerente practice, așadar întreg sistemul a fos implementat în Python 3.14.4 în detrimenul unui limbaj compilat precum C++. Această decizie a fost motivată de gradul ridicat de adopție a ecosistemului Python în cadrul sistemelelor integrate, precum și de flexibilitatea și viteza de dezvoltare specifice oferite de un limbaj dinamic. De asemenea, librăriile necesare implementării modului de procesare se bazează pe nuclee scrise în C.
 
-Pentru a oferi o structură clară, tehnologiile utilizate au fost împărțite în două categorii: cele fundamentale, necesare dezvoltării nucleului sistemului (interfețele menționate anterior și fluxul de procesare), și cele adiționale, specifice dezvolării aplicației finale.
+Pentru a oferi o structură clară, tehnologiile utilizate au fost împărțite în două categorii: cele fundamentale, necesare dezvoltării nucleului și cele adiționale, specifice dezvolării aplicației finale.
 
 \subsection{Nucleu}
 \indent\par
-În etapa de proiectare și dezvoltare a nucleului s-a urmărit minimizarea numărului de dependențe externe.  Acest principiu sprijină portabilitatea, permițând adoptarea sistemului în diferite contexte de rulare.
-
-Așadar, tehnologiile de bază sunt:
+Din punct de vedere tehnologic, implementarea nucleului se bazează pe un ecosistem minimalist de dependențe. Tehnologiile de bază utilizate sunt:
 \begin{itemize}
   \item{OpenCV 4.13.0}
   \item{numpy 2.4.2}
@@ -91,9 +89,9 @@ După cum am menționat, dependențele necesare dezvoltării aplicației finale 
 
 Pentru modulele extensibile, se va realiza o paralelă între implementarea în cadrul unui sistem integrat și implementarea concretă realizată în cadrul aplicației demonstrate.
 
-\subsection{Modulul de intrare (Input)}
+\subsection{Modulul de intrare}
 \indent\par
-Extensibilitatea și portabilitatea au constituit principalii factori care au ghidat proiectarea acestui modul. Decizia arhitecturală se fundamentează pe principiile de \textit{clean code}~\cite{codecomplete}, conform cărora secțiunile susceptibile la modificări; în special cele care interacționează direct cu componentele hardware sau cu nivelurile inferioare ale sistemului de operare; ar trebui izolate în clase dedicate, al căror comportament să fie abstractizat prin intermediul unei interfețe.
+Achiziția datelor de intrare reprezintă punctul de plecare al sistemului. Acest modul are rolul exclusiv de a prelua informația brută și de a o expune către fluxul de procesare. În continuare vor fi prezentate elementele atât abstracte cât și concrete ale acestei componente.
 
 \subsubsection{Interfața ICaptureManager}
 \indent\par
@@ -109,8 +107,6 @@ Interfața \texttt{ICaptureManager} este definită prin trei metode esențiale. 
         pass
 \end{verbatim}
 
-Valoarea returnată este reprezentată prin obiectul \texttt{Frame}, o structură de date minimală care încapsulează cadrul propriu-zis (\texttt{image\_data}), momentul temporal al capturii (\texttt{timestamp}) și un set opțional de metadate (\texttt{metadata}). Definirea unui tip de date propriu, independent de orice bibliotecă externă, menține interfața decuplată de detaliile de implementare ale unei surse de captură anume și consolidează portabilitatea nucleului.
-
 \subsubsection{Sistem integrat}
 \indent\par
 Pentru scenariul rulării pe un sistem integrat, a fost realizată o implementare exemplificativă, clasa \texttt{CameraCaptureManager}, responsabilă de preluarea cadrelor de la o cameră conectată direct la dispozitiv.
@@ -119,52 +115,42 @@ Implementarea se bazează pe biblioteca OpenCV pentru a media interacțiunea cu 
 
 Pe lângă indexul de dispozitiv, clasa expune următoarele atribute private:
 \begin{itemize}
-  \item{\texttt{\_video\_capture} -- obiectul OpenCV prin care se realizează comunicarea cu camera;}
-  \item{\texttt{\_fps} -- numărul de cadre pe secundă raportat de dispozitiv;}
-  \item{\texttt{\_size} -- rezoluția cadrelor preluate, dedusă din primele cadre citite;}
-  \item{\texttt{\_lock} -- obiect necesar pentru sincronizarea accesului la cel mai recent cadru.}
+  \item{\texttt{\_video\_capture} - obiectul OpenCV prin care se realizează comunicarea cu camera;}
+  \item{\texttt{\_fps} - numărul de cadre pe secundă raportat de dispozitiv;}
+  \item{\texttt{\_size} - rezoluția cadrelor preluate, dedusă din primele cadre citite;}
+  \item{\texttt{\_lock} - obiect necesar pentru sincronizarea accesului la cel mai recent cadru.}
 \end{itemize}
 
-Metoda \texttt{get\_latest\_frame} a fost proiectată astfel încât să returneze întotdeauna cel mai recent cadru disponibil. Această cerință este esențială într-un context de procesare în timp real: întrucât bibliotecile de captură mențin o memorie internă, citirea secvențială a cadrelor ar introduce o latență cumulativă, returnând cadre deja învechite. Pentru a evita acest fenomen, un fir de execuție (\textit{thread}) dedicat preia continuu cadrele de la cameră, păstrând disponibil doar cel mai recent dintre acestea. Accesul concurent la resursa partajată este sincronizat printr-un mecanism de tip \textit{lock}.
+Metoda \texttt{get\_latest\_frame} a fost proiectat astfel încât să returneze întotdeauna cel mai recent cadru disponibil. Această cerință este esențială într-un context de procesare în timp real: întrucât bibliotecile de captură mențin o memorie internă, citirea secvențială a cadrelor ar introduce o latență cumulativă, returnând cadre deja învechite. Pentru a evita acest fenomen, un fir de execuție (\textit{thread}) dedicat preia continuu cadrele de la cameră, păstrând disponibil doar cel mai recent dintre acestea. Accesul concurent la resursa partajată este sincronizat printr-un mecanism de tip \textit{lock}.
 
-\begin{verbatim}
-    def get_latest_frame(self) -> Frame:
-        with self._lock:
-            frame = self._latest_frame
-        if frame is None:
-            return None
-        frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-        timestamp = self._video_capture.get(cv.CAP_PROP_POS_MSEC)
-        metadata = {"source": "camera", "device_index": self._device_index}
-        return Frame(frame, timestamp, metadata)
-\end{verbatim}
-
-\subsubsection{Aplicație demo}
+\subsubsection{Aplicație demonstrativă}
 \indent\par
-În cadrul aplicației demonstrative, sursa de captură nu este o cameră atașată direct dispozitivului, ci un flux video transmis în timp real (\textit{live-feed}) printr-o conexiune WebSocket. Această implementare a interfeței \texttt{ICaptureManager} menține o conexiune persistentă prin care cadrele sosesc continuu de la un client extern, le decodează și le încapsulează în același obiect \texttt{Frame}, păstrând astfel contractul interfeței neschimbat. La fel ca în cazul implementării pentru sistemul integrat, doar cel mai recent cadru recepționat este păstrat disponibil, evitând acumularea unei latențe în contextul procesării în timp real. Substituirea sursei fizice cu un flux primit prin rețea, fără nicio modificare a fluxului de procesare, demonstrează în practică beneficiul abstractizării prin interfață: nucleul rămâne complet indiferent la natura sursei de date.
+În cadrul aplicației demonstrative, sursa de captură nu este o cameră atașată direct dispozitivului, ci un flux video transmis în timp real (\textit{live-feed}) printr-o conexiune \textit{WebSocket}. Această implementare menține o conexiune persistentă prin care cadrele sosesc continuu de la un client extern, le decodează și le încapsulează în același obiect \texttt{Frame}. La fel ca în cazul implementării pentru sistemul integrat, doar cel mai recent cadru recepționat este păstrat disponibil, evitând acumularea unei latențe în contextul procesării în timp real.
 
 \subsection{Fluxul de procesare}
 \indent\par
 
 \subsubsection{Considerații preliminare}
 \indent\par
-Precum am menționat când am definit contextul aplicației, există o diversitate ridicată în privința formatului, a paletei cromatice de fond, a dimensiunilor relative și a fontului caracterelor. Tocmai din aceste motive, în prezenta lucrare a fost exclusă de la bun început orice abordare bazată pe segmentarea culorii (color-based segmentation), deși aceasta este frecvent utilizată în literatură pentru regiuni geografice cu plăcuțe standardizate cromatic. Lucrări reprezentative precum~\cite{shi2005automatic}, care exploatează caracteristicile cromatice ale plăcuțelor taiwaneze, sau~\cite{chang2004automatic} pentru spațiul autohton al insulei Taiwan, demonstrează eficacitatea acestor metode atunci când mediul de operare prezintă o uniformitate cromatică ridicată. Generalizarea acestor abordări către scenariul nostru ar fi necesitat menținerea unui catalog de palete pentru fiecare format admis, ceea ce ar fi introdus o sursă suplimentară de erori și ar fi diminuat capacitatea de adaptare a sistemului la plăcuțele atipice sau la formatele nou introduse de către autorități.
+Precum am menționat când am definit contextul aplicației, există o diversitate ridicată în privința formatului, a paletei cromatice de fond, a dimensiunilor relative și a fontului caracterelor. Tocmai din aceste motive, în prezenta lucrare a fost exclusă de la bun început orice abordare bazată pe segmentarea culorii, deși aceasta este frecvent utilizată în literatura de specialitate. Generalizarea acestor abordări către scenariul nostru ar fi necesitat menținerea unui catalog de palete pentru fiecare format admis, ceea ce ar fi introdus o sursă suplimentară de erori și ar fi diminuat capacitatea de adaptare a sistemului.
 
 \subsubsection{Localizarea plăcuței de înmatriculare}
 \indent\par
-în capitolul teoretic dedicat acestui sub-sistem au fost menționate trei abordări: bazate pe culoare, pe contururi sau pe textură. După cum am menționat anterior, cele bazate pe culoare nu sunt o variantă fiabilă deoarece pe teritorul României există 4 combinații cromatice posibile care definesc un număr de înmatriculare valid.
+În capitolul teoretic dedicat acestui sub-sistem au fost menționate trei abordări: bazate pe culoare, pe contururi sau pe textură. După cum am menționat anterior, cele bazate pe culoare nu sunt o variantă fiabilă deoarece pe teritorul României există patru combinații cromatice posibile care definesc un număr de înmatriculare valid.
 
-Pe de altă parte, metodele bazate pe textură prezintă un grad al robusteții mai scăzut față de cele bazate pe contururi. Deși ambele categorii pornesc de la aceeași observație, anume că zona caracterelor produce o concentrare de tranziții de intensitate, ele diferă fundamental prin criteriul de decizie folosit pentru a confirma o regiune drept plăcuță. Abordările textuale ridică descriptorul texturii la rangul de discriminator principal, fie sub forma unei hărți de densitate ponderată a liniilor verticale, fie prin măsurarea variației statistice locale a intensităților într-o vecinătate glisantă. Acest descriptor este însă parametrizat în raport cu textura așteptată a caracterelor: dimensiunea ferestrelor de analiză, pragurile de densitate sau ipotezele privind numărul minim de caractere trebuie acordate la dimensiunea, fontul și dispunerea caracterelor. În contextul autohton, marcat tocmai de o diversitate ridicată a acestor atribute, o asemenea dependență devine o sursă de fragilitate, descriptorul fiind sensibil la formatele atipice sau la plăcuțele cu un număr redus de caractere.
+Pe de altă parte, metodele bazate pe textură prezintă un grad al robusteții mai scăzut față de cele bazate pe contururi. Deși ambele categorii pornesc de la aceeași observație, anume că zona caracterelor produce o concentrare de tranziții de intensitate, ele diferă fundamental prin criteriul de decizie folosit pentru a confirma o regiune drept plăcuță.
 
-În contrast, metodele bazate pe contururi tratează concentrarea de tranziții doar ca pe un indiciu de salianță, lăsând decizia finală în seama unui invariant geometric independent de conținutul intern al plăcuței: forma dreptunghiulară cu un raport de aspect cunoscut. Întrucât acest criteriu nu depinde de modul în care sunt distribuite caracterele, ci de anvelopa regiunii, el rămâne stabil indiferent de fontul, dimensiunea sau numărul caracterelor, oferind o capacitate de generalizare superioară pentru spectrul larg de formate vizat în prezenta lucrare.
+Abordările texturale se folosesc de prezența caracterelor drept caracteristică principală a numărului de înmatriculare. Acest descriptor nu este unul robust pentru cazul general, deoarece văile care separă două caractere diferă de la format la format. Totodată, sensibilitatea la zgomot reprezintă o limitare majoră a acestor metode. O imagine degradată sau prezența unor umbre poate compromite analiza proiecțiilor verticale, ducând la detectarea eronată a unor văi inexistente.
 
-Pornind de la aceste considerente, etapa de localizare a fost implementată în clasa \texttt{LPExtraction}, parametrizată prin raportul de aspect admis pentru o plăcuță (\texttt{lp\_aspect\_ratio}), aria minimă a unei regiuni candidate (\texttt{lp\_min\_size}), o regiune de interes opțională (\texttt{lp\_roi}) și numărul de candidați returnați (\texttt{top\_k}). Fluxul de procesare urmează etapele clasice ale abordării pe contururi, descrise în capitolul~\ref{chap:localizare}, adaptate contextului autohton.
+În contrast, metodele bazate pe contururi tratează concentrarea de tranziții doar ca pe un indiciu, lăsând decizia finală în seama unei constante geometrice: forma dreptunghiulară cu un raport de aspect cunoscut. Deoarece acest criteriu nu depinde de modul în care sunt distribuite caracterele, ci de forma regiunii, el rămâne stabil indiferent de fontul, dimensiunea sau numărul caracterelor.
 
-Preprocesarea începe, dacă este definită, cu decuparea regiunii de interes, urmată de conversia în tonuri de gri și de aplicarea unui filtru median pentru atenuarea zgomotului fără estomparea muchiilor. Asupra imaginii filtrate se aplică operatorul Sobel pe direcția orizontală, evidențiind exclusiv muchiile verticale generate de caractere. Renunțarea la muchiile orizontale urmează observația din~\cite{VEDA}, conform căreia acestea favorizează identificarea eronată a unor elemente precum grilajul radiatorului drept plăcuțe.
+Pornind de la aceste considerente, etapa de localizare a fost implementată în clasa \texttt{LPExtraction}, parametrizată prin raportul de aspect admis pentru o plăcuță (\texttt{lp\_aspect\_ratio}), aria minimă a unei regiuni candidat (\texttt{lp\_min\_size}), o regiune de interes opțională (\texttt{lp\_roi}) și numărul de candidați returnați (\texttt{top\_k}). Fluxul de procesare urmează etapele clasice ale abordării pe contururi, descrise în capitolul~\ref{chap:localizare}, adaptate contextului autohton.
 
-Rezultatul este binarizat prin metoda Otsu în variantă inversată, astfel încât regiunile cu densitate ridicată de muchii să devină prim-plan alb, formatul așteptat de funcția de extragere a contururilor. Asupra imaginii binare se aplică o operație morfologică de deschidere, pentru eliminarea structurilor izolate, urmată de o dilatare cu un element structurant orizontal a cărui lățime este scalată proporțional cu lățimea imaginii. Această dilatare are rolul de a contopi muchiile verticale individuale ale caracterelor într-o regiune compactă, corespunzătoare plăcuței.
+Preprocesarea începe, dacă este definită, cu decuparea regiunii de interes, urmată de conversia în tonuri de gri și de aplicarea unui filtru median pentru atenuarea zgomotului. Asupra imaginii filtrate se aplică operatorul Sobel pe direcția orizontală, evidențiind muchiile verticale generate de caractere.
 
-Din imaginea astfel obținută se extrag contururile externe, iar dreptunghiurile lor de încadrare sunt filtrate pe baza raportului de aspect și a ariei minime, eliminând regiunile a căror geometrie nu corespunde unei plăcuțe.
+Rezultatul este binarizat prin metoda Otsu în variantă inversată conformându-se astfel cu formatul așteptat de funcția de extragere a contururilor. Asupra imaginii binare se aplică o operație morfologică de deschidere, urmată de o dilatare cu un nucleu orizontal a cărui lățime este direct proporțională cu lățimea imaginii. Scopul dilatării este de a unii elementele plăcuței care au fost separate în pașii anteriori.
+
+După toate acestea se extrag contururile externe, iar dreptunghiurile lor de încadrare sunt filtrare pe baza raportului de aspect si a ariei minime, eliminiând regiunile necorespunzătoare.
 
 \begin{verbatim}
     greyscale = cv.cvtColor(array, cv.COLOR_BGR2GRAY)
@@ -174,388 +160,152 @@ Din imaginea astfel obținută se extrag contururile externe, iar dreptunghiuril
     thresh = cv.bitwise_not(thresh)
     open_image = self._helper.opening(thresh)
     dilated_image = self._helper.dilation(open_image)
-    bounding_box = self._helper.find_countours(dilated_image,
-                                               self._lp_aspect_ratio,
-                                               self._lp_min_size)
+    bounding_box = self._helper.find_countours(
+        dilated_image,
+        self._lp_aspect_ratio,
+        self._lp_min_size
+    )
 \end{verbatim}
 
-% DE SCHIMBAT
-O decizie de proiectare proprie vizează reasamblarea fragmentelor de plăcuță. În practică, o plăcuță se fragmentează frecvent în etapa de extragere a contururilor: spațiul central dintr-o plăcuță auto o divizează pe orizontală, iar plăcuțele de motocicletă, dispuse pe două rânduri, se divizează pe verticală. Reasamblarea acestor fragmente nu a fost realizată în etapa morfologică, deoarece o dilatare suficient de agresivă pentru a le reuni ar risca să unească plăcuța cu regiuni adiacente precum bara de protecție sau grilajul. În schimb, reunirea se realizează ulterior, la nivelul dreptunghiurilor de încadrare, prin metoda \texttt{\_merge\_split\_regions}: fragmentele apropiate spațial și aliniate (pe aceeași linie de bază, cu înălțimi similare, sau pe aceeași coloană, cu lățimi similare) sunt grupate printr-o structură \textit{union-find} și înlocuite cu reuniunea lor. Un grup a cărui reuniune produce un raport de aspect implauzibil este tratat ca o uniune accidentală, caz în care fragmentele originale sunt păstrate.
+Datorită experimentelor a putut fi observat faptul că, în majoritatea cazurilor plăcuțele erau fragmentate în două sau chiar trei bucăți. Așadar a fost necesară implementarea unei metode de reuniune a acestor fragmente pornind de la poziția lor în cadrul imaginii. Fiecare dreptunghi de încadrare extras de pasul anterior este extins în interiorul imaginii cu o margine fixă, iar dacă două dintre dreptunghiurile inițiale se suprapun în urma extinderii ele sunt unite.
 
 În final, candidații rămași sunt ordonați după densitatea de muchii din interiorul lor, iar primii \texttt{top\_k} sunt returnați. Returnarea mai multor candidați, în locul unuia singur, constituie o decizie de proiectare deliberată: ea permite etapei următoare de segmentare să recupereze eventualele erori de localizare, alegând candidatul care conduce la cea mai plauzibilă segmentare.
 
+Rezultatul acestei etape poate fi observat în Figura~\ref{fig:rezultat_localizare} care prezintă cele trei regiuni de interes extrase de modul în momentul în care acesta este construit cu parametrul \texttt{top\_k}$=3$.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[c]{0.40\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/AG95TME.png}
+    \caption{Cadrul de intrare}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[c]{0.18\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/AG95TME.png_lp_0.jpg}
+    \caption{Candidatul 1}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[c]{0.18\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/AG95TME.png_lp_1.jpg}
+    \caption{Candidatul 2}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[c]{0.18\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/AG95TME.png_lp_2.jpg}
+    \caption{Candidatul 3}
+  \end{subfigure}
+  \caption{Imaginea inițială și cele 3 elemente extrase în momentul rulării modulului de localizare cu \texttt{top\_k}$=3$.}
+  \label{fig:rezultat_localizare}
+\end{figure}
+
 \subsubsection{Segmentarea caracterelor}
 \indent\par
-% DE SCHIMBAT, nu foloseste ANALIZA PROIECTIILOR
-Etapa de segmentare primește candidații de plăcuță produși de etapa de localizare și are ca scop izolarea fiecărui caracter într-o imagine distinctă. Dintre tehnicile prezentate în capitolul~\ref{chap:segmentare}, a fost adoptată analiza proiecțiilor, combinată cu utilizarea cunoștințelor apriori privind aspectul caracterelor. Această alegere a fost preferată unei abordări bazate exclusiv pe analiza contururilor caracterelor, care prezintă o sensibilitate ridicată la zgomot și la fenomenele de fuziune sau fragmentare a caracterelor, depinzând totodată de praguri dificil de calibrat. Proiecțiile oferă, în schimb, o reprezentare unidimensională robustă a distribuției pixelilor de prim-plan, mai puțin sensibilă la variații locale.
+Etapa de segmentare primește candidații de plăcuță produși de etapa de localizare și are ca scop izolarea fiecărui caracter într-o imagine distinctă. Dintre tehnicile prezentate în capitolul~\ref{chap:segmentare}, a fost adoptată analiza contururilor, combinată cu utilizarea cunoștințelor apriori privind aspectul caracterelor. Această alegere a fost preferată unei abordări bazate pe analiza proiecțiilor care, deși oferă o reprezentare unidimensională compactă a distribuției pixelilor de prim-plan, depinde de existența unor văi suficient de adânci între caracterele adiacente. Pe plăcuțele reale, înclinarea de câteva grade și spațierea neuniformă a caracterelor fac ca aceste văi să se estompeze, fuzionând simboluri vecine într-un singur segment. Decizia la nivelul fiecărei componente conexe în parte rămâne, în schimb, independentă de unghiul de înclinare și de spațierea dintre simboluri, comportament confirmat de comparația cantitativă prezentată în secțiunea de experimente.
 
-Pipeline-ul de segmentare începe cu binarizarea decupajului prin metoda Otsu inversată, obținând o imagine în care caracterele constituie prim-planul alb. Asupra acesteia se calculează \emph{proiecția orizontală}, prin însumarea pixelilor activi de-a lungul liniilor, pentru a izola banda sau benzile de text. Această etapă este esențială pentru tratarea uniformă a plăcuțelor dispuse pe un singur rând și a celor de motocicletă, dispuse pe două rânduri, întrucât separarea pe benzi normalizează proporțiile caracterelor în raport cu sub-segmentul care le conține, conform argumentului din capitolul~\ref{chap:segmentare}.
+Pipeline-ul de segmentare începe cu restrângerea decupajului la corpul efectiv al plăcuței, eliminând contextul reținut eronat în etapa de localizare, precum fragmentele de caroserie sau cadrul plăcuței. Restrângerea se realizează fie prin selectarea celei mai mari componente conexe luminoase, corespunzătoare fundalului uniform al plăcuței, fie, atunci când aceasta nu este concludentă, prin detectarea benzii de caractere: elementele de înălțime plauzibilă sunt grupate după coordonata lor verticală, iar decupajul este redus la dreptunghiul de încadrare al grupului dominant.
 
-Pentru fiecare bandă de text se calculează apoi \emph{proiecția verticală}, prin însumarea pixelilor activi de-a lungul coloanelor. În profilul rezultat, caracterele apar drept regiuni de densitate ridicată (vârfuri), separate de spațiile dintre ele, care corespund unor regiuni de densitate scăzută (văi). Granițele caracterelor se obțin prin extragerea regiunilor-vârf, folosind un prag relativ la valoarea maximă a histogramei (metoda \texttt{extract\_peak\_regions}): o regiune este reținută atunci când densitatea sa depășește o fracțiune din maxim, iar lățimea sa este suficient de mare pentru a nu fi un artefact.
+Corpul astfel obținut este binarizat printr-un prag adaptiv gaussian în variantă inversată (\texttt{adaptiveThreshold}), care compensează variațiile locale de iluminare de-a lungul plăcuței, obținând caracterele drept prim-plan alb. Din imaginea binară se extrag contururile externe, iar dreptunghiurile lor de încadrare constituie casetele-candidat pentru caractere. Atunci când numărul de contururi este insuficient (sub trei), imaginea este erodată ușor, iar extragerea este reluată, separând caracterele unite accidental prin zgomot.
+
+Casetele-candidat sunt apoi filtrate printr-o succesiune de criterii derivate din aspectul așteptat al unui caracter. Un prag de contrast intern, calculat ca abaterea standard a intensităților din interiorul casetei raportată la un prag Otsu determinat pe ansamblul casetelor, elimină regiunile uniforme precum reziduurile cadrului. Constrângerile de înălțime relativă (între $0{,}40$ și $0{,}95$ din înălțimea plăcuței) și de raport de aspect ($w/h$ între $0{,}08$ și $1{,}3$) elimină structurile prea mici sau cu geometrie implauzibilă, pragul inferior fiind suficient de permisiv pentru a păstra caractere înguste precum cifra \texttt{1}. În final, casetele care ating marginile laterale ale decupajului sunt respinse, anulând fragmentele de cadru tăiate, iar o trecere de consistență păstrează doar casetele a căror înălțime se află în jurul valorii mediane (între $0{,}55$ și $1{,}45$ din aceasta).
 
 \begin{verbatim}
-    otsu = self._helper.otsu_thresholding(greyscale)
-    inverted = 255 - otsu
-    horizontal_projections = self._projection(inverted, axis=1)
-    horizontal_lines = self.extract_peak_regions(horizontal_projections)
-    for line in horizontal_lines:
-        vertical_projection = self._projection(text_line, axis=0)
-        character_coords = self.extract_peak_regions(vertical_projection)
+    thresholded = cv.adaptiveThreshold(
+        greyscale, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,
+        cv.THRESH_BINARY_INV, block, 2)
+    contours = self._helper.find_countours(
+        thresholded, aspect_ratio_bounds=(0.04, 2.0))
+    for c, s in zip(contours, stds):
+        x, y, w, h = c
+        if s < std_thr:
+            continue
+        if not (min_height <= h <= max_height):
+            continue
+        if not (min_w_h <= w / h <= max_w_h):
+            continue
+        if x < border_margin or (x + w) > (W - border_margin):
+            continue
+        kept.append((x, y, w, h))
 \end{verbatim}
+
+Caracterele lipite, care produc o singură casetă vizibil mai lată decât înaltă ($w > 1{,}2\,h$), sunt separate ulterior prin metoda \texttt{\_split\_wide\_blobs}: în interiorul casetei se calculează proiecția verticală pe coloane, iar tăierea se face în dreptul minimelor locale (văile dintre caractere), numărul de tăieturi fiind estimat din raportul de aspect al casetei. Spre deosebire de o abordare globală bazată pe proiecții, profilul este aici folosit strict local, pentru a împărți o regiune deja izolată, evitând astfel sensibilitatea profilului global la înclinarea plăcuței.
 
 Deoarece etapa de localizare poate furniza mai mulți candidați de plăcuță, segmentarea este rulată pe fiecare dintre aceștia, iar setul de caractere reținut este cel care obține scorul maxim conform unei funcții de evaluare (\texttt{\_score}). Acest cuplaj prin parametrul \texttt{top\_k} transformă etapa de segmentare într-un mecanism de recuperare a erorilor de localizare: un candidat incorect (de exemplu o regiune de grilaj reținută eronat) va produce o segmentare cu un scor scăzut și va fi astfel respins în favoarea candidatului corect.
 
-Funcția de evaluare valorifică o cunoștință apriori esențială: numărul de caractere al unei plăcuțe valide este cunoscut. Scorul integrează, în consecință, mai multe componente: abaterea numărului de vârfuri detectate față de numărul așteptat de caractere (în jur de șapte simboluri pentru formatul autohton), regularitatea lățimilor vârfurilor (caracterele unei plăcuțe au lățimi comparabile), regularitatea spațiilor dintre vârfuri (spațiere uniformă) și contrastul dintre vârfuri și văi (văi adânci indică o separare curată a caracterelor). O segmentare care satisface aceste constrângeri primește un scor ridicat, întrucât corespunde tiparului geometric al unei plăcuțe reale.
+Funcția de evaluare valorifică o cunoștință apriori esențială: o plăcuță validă conține un număr cunoscut de caractere, de dimensiuni comparabile și dispuse pe aceeași linie de bază. Scorul integrează, în consecință, trei componente: abaterea numărului de casete detectate față de numărul așteptat (în jur de șapte simboluri pentru formatul autohton), consistența înălțimilor casetelor (caracterele unei plăcuțe au înălțimi similare) și alinierea lor verticală (caracterele împărtășesc aceeași linie de bază). O segmentare care satisface aceste constrângeri primește un scor ridicat, întrucât corespunde tiparului geometric al unei plăcuțe reale.
 
-Profilul de proiecție este consolidat printr-o analiză de tip \textit{crossing-count}, în care, pentru fiecare coloană, se numără tranzițiile alb–negru în locul însumării simple a pixelilor de prim-plan. O coloană care traversează interiorul unui caracter prezintă numeroase tranziții, în timp ce o coloană dintr-un spațiu între caractere prezintă puține; spre deosebire de proiecția simplă, acest profil este mai robust la variațiile grosimii trăsăturii caracterelor. În implementarea propusă (metoda \texttt{\_crossing\_contrast}), contrastul dintre numărul mediu de tranziții din interiorul casetelor de caracter și cel din spațiile dintre ele este adăugat ca termen suplimentar în funcția de evaluare \texttt{\_score}, completând regularitățile geometrice descrise mai sus.
-% TODO: citați lucrarea privind segmentarea de tip crossing-count în references.bib
+Rezultatul acestei etape este ilustrat în Figura~\ref{fig:rezultat_segmentare}: pornind de la plăcuța localizată în etapa anterioară, modulul izolează fiecare caracter într-o imagine distinctă, producând cele șapte simboluri care urmează a fi transmise individual etapei de recunoaștere.
+
+\begin{figure}[H]
+  \centering
+  % TODO: înlocuiește numele fișierelor cu pozele finale
+  \begin{subfigure}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/AG95TME.png_lp_0.jpg}
+    \caption{Plăcuța localizată}
+  \end{subfigure}
+
+  \vspace{0.8em}
+
+  \begin{subfigure}[b]{0.12\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/char_0.jpg}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.12\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/char_1.jpg}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.12\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/char_2.jpg}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.12\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/char_3.jpg}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.12\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/char_4.jpg}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.12\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/char_5.jpg}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.12\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/char_6.jpg}
+  \end{subfigure}
+
+  \caption{Rezultatul etapei de segmentare: plăcuța localizată (sus) și cele șapte caractere izolate (jos), fiecare extras într-o imagine distinctă.}
+  \label{fig:rezultat_segmentare}
+\end{figure}
 
 \subsubsection{Recunoașterea caracterelor}
 \indent\par
-% DE SCHIMBAT, am ADAUGAT HOG FEATURES
-Ultima etapă a fluxului de procesare atribuie fiecărui caracter segmentat o etichetă, dintr-un alfabet de cifre și litere. Pentru această sarcină a fost ales un clasificator de tip \textit{Support Vector Machine} (SVM), ale cărui fundamente teoretice au fost prezentate în capitolul~\ref{chap:recunoastere}.
+Ultima etapă a fluxului de procesare atribuie fiecărui caracter segmentat o etichetă, dintr-un alfabet de cifre și litere. Pentru această sarcină a fost ales un clasificator de tip SVM, ale cărui fundamente teoretice au fost prezentate în capitolul~\ref{chap:recunoastere}.
 
-Fiecare caracter este adus la o reprezentare uniformă, independentă de dimensiunea sa originală: imaginea este redimensionată la o rezoluție fixă de $28 \times 28$ pixeli, valorile intensității sunt normalizate în intervalul $[0, 1]$, iar matricea rezultată este liniarizată într-un vector de trăsături de $784$ de componente. Această reprezentare constituie intrarea clasificatorului.
+Fiecare caracter este adus la o reprezentare uniformă, independentă de dimensiunea sa originală. Imaginea este mai întâi adusă la o formă pătrată prin completarea laturii mai scurte cu o bordură, apoi redimensionată la o rezoluție fixă de $28 \times 28$ pixeli. Asupra acestei imagini se calculează un descriptor de tip HOG, pe o fereastră de $28 \times 28$ cu celule de $7 \times 7$ pixeli, blocuri de $14 \times 14$ cu pas de $7$ pixeli și $9$ intervale de orientare, rezultă un vector de $324$ de trăsături. Această reprezentare, care surprinde distribuția locală a orientărilor muchiilor în loc de intensitatea brută a pixelilor, constituie intrarea clasificatorului.
 
-Clasificatorul folosește un nucleu de tip funcție cu bază radială (RBF), a cărui capacitate de a separa clase neliniar separabile a fost discutată în capitolul~\ref{chap:recunoastere}. Hiperparametrul de regularizare \texttt{C} controlează compromisul dintre maximizarea marginii și penalizarea erorilor de clasificare, iar parametrul \texttt{gamma} determină raza de influență a fiecărui vector suport. Pentru a asigura stabilitatea statistică a antrenării, clasele cu un număr insuficient de mostre sunt eliminate din setul de date, pe baza unui prag minim (\texttt{MIN\_SAMPLES\_PER\_CLASS}), aspect detaliat în secțiunea dedicată construirii setului de date.
+Predicția nu se reduce la atribuirea independentă a etichetei celei mai probabile fiecărui caracter, ci valorifică o cunoștință apriori privind formatul plăcuțelor. Atunci când numărul de caractere segmentate corespunde unui format cunoscut, decodarea se realizează poziție cu poziție, restrângând la fiecare poziție mulțimea etichetelor admise (cifră sau literă) și alegând eticheta cu marginea maximă raportată de funcția de decizie a clasificatorului. Pentru lungimile ambigue, în care același număr de caractere admite mai multe tipare, fiecare tipar este evaluat separat, iar varianta cu marginea medie cea mai mare este reținută. Suplimentar, atunci când segmentarea produce un caracter în plus față de un format așteptat, se încearcă și sub-secvențele obținute prin eliminarea pe rând a câte unui caracter, comparate tot pe baza marginii medii per poziție; astfel, un fragment supra-segmentat, care primește o margine apropiată de zero, este eliminat în favoarea tiparului care se potrivește curat. Dacă numărul de caractere nu corespunde niciunui format cunoscut, se revine la atribuirea neconstrânsă a etichetei celei mai probabile.
 
 \subsection{Nivelul de aplicație}
 \indent\par
-Modulul de logică a aplicației constituie, alături de modulul de intrare, una dintre marginile extensibile ale sistemului. Rolul său este de a consuma rezultatul produs de fluxul de procesare (numărul de înmatriculare recunoscut, însoțit de metadate) și de a declanșa acțiunea corespunzătoare contextului de execuție. Întrucât această acțiune variază semnificativ de la o aplicație la alta, comportamentul este abstractizat printr-o interfață, urmând aceeași strategie ca în cazul modulului de intrare. Astfel, nucleul rămâne neutru față de scopul concret al aplicației, iar integrarea într-un mediu nou se reduce la furnizarea unei implementări particulare a acestei interfețe.
+Modulul de logică a aplicației constituie, alături de modulul de intrare, una dintre marginile extensibile ale sistemului. Rolul său este de a consuma rezultatul produs de fluxul de procesare și de a declanșa acțiunea corespunzătoare contextului de execuție.
 
-\subsubsection{Sistem embedded}
+\subsubsection{Sistem integrat}
 \indent\par
-În scenariul unui sistem integrat, modulul de logică a aplicației acționează direct asupra mediului fizic. O implementare reprezentativă este cea a unui punct de control al accesului, în care recunoașterea unui număr de înmatriculare aflat într-o listă de autorizare declanșează ridicarea unei bariere auto prin acționarea echipamentului hardware corespunzător. Aceeași implementare poate emite, în paralel, notificări automate, de exemplu prin e-mail, către un operator sau către un sistem de evidență, atât pentru accesele autorizate, cât și pentru tentativele neautorizate. Caracterul abstract al interfeței permite combinarea liberă a unor astfel de acțiuni, fără modificarea nucleului.
+În scenariul unui sistem integrat, modulul de logică a aplicației acționează direct asupra mediului fizic. O implementare reprezentativă este cea a unui punct de control al accesului, în care recunoașterea unui număr de înmatriculare aflat într-o listă de autorizare declanșează ridicarea unei bariere auto prin acționarea echipamentului \textit{hardware} corespunzător. Aceeași implementare poate emite, în paralel, notificări automate, de exemplu prin \textit{e-mail}, către un operator sau către un sistem de evidență, atât pentru accesele autorizate, cât și pentru tentativele neautorizate. Caracterul abstract al interfeței permite combinarea liberă a unor astfel de acțiuni, fără modificarea nucleului.
 
 \subsubsection{Aplicație demo}
 \indent\par
 % DE SCHIMBAT
-Pentru aplicația demonstrativă, modulul de logică a aplicației nu acționează asupra unui echipament fizic, ci expune rezultatele recunoașterii către un client extern. Implementarea se bazează pe biblioteca FastAPI, care oferă infrastructura unui server web, și pe protocolul WebSocket, ales pentru capacitatea sa de a menține o conexiune bidirecțională persistentă. Prin intermediul acestei conexiuni, rezultatele procesării sunt transmise în timp real către interfața clientului, pe măsură ce sunt produse de fluxul de procesare, fără a necesita interogări repetate din partea acestuia. Această implementare ilustrează modul în care același nucleu de procesare poate deservi un context complet diferit de cel al sistemului integrat, prin simpla substituire a implementării modulului de logică.
-
-\section{Seturi de date}
-\indent\par
-Sistemul IORA operează cu două seturi de date distincte: un set de evaluare, utilizat pentru măsurarea performanței end-to-end a pipeline-ului, și un set de antrenare, destinat construirii clasificatorului SVM de caractere. Ambele gravitează în jurul aceluiași corpus de imagini cu plăcuțe de înmatriculare obținut prin platforma Roboflow~\cite{roboflow-lp-dataset}, completat, în cazul setului de evaluare, de o componentă românească colectată manual, iar în cazul setului de antrenare, de un set de date dedicat caracterelor individuale cu fonturi variate.
-
-\subsection{Setul de evaluare}
-\indent\par
-Pentru a determina robustețea sistemului și capacitatea sa de adaptare la diverse formate ale numărului de înmatriculare a fost necesară crearea unui set de date mixt, în care sunt prezente atât autovehicule de pe teritoriul României, cât și vehicule din alte regiuni ale globului. Pentru prima componentă a setului de date în momentul de față nu există o sursă general valabilă și deschisă publicului larg, așadar imaginile reprezentative acestei părți au fost colectate manual de pe platforme de comerț auto online. Această procedură de salvare și utilizare a imaginilor este conformă cu reglementările GDPR, întrucât fotografiile au fost publicate în mod voluntar de către vânzători pe platforme cu acces liber, fiind astfel destinate publicului larg, iar prelucrarea lor s-a realizat strict în scop de cercetare și evaluare a sistemului. Pentru componenta internațională, a fost utilizat setul de date public obținut prin intermediul platformei Roboflow~\cite{roboflow-lp-dataset}.
-
-\subsubsection{Normalizarea seturilor de date}
-\indent\par
-În contextul sistemelor de recunoaștere automată a numerelor de înmatriculare puse în funcțiune în cadrul parcărilor condițiile de execuție precum poziția numărului de înmatriculare, distanța și raportul dimensiunilor, unghiul de captare și distanța focală sunt bine cunoscute, permitând valorificarea lor în procesul de localizare.
-
-Pentru a reproduce aceste condiții, a fost necesară normalizarea setului de date. În cazul imaginilor obținute în mod manual, acest procedeu a presupus selectarea autovehiculelor care prezentau un număr de înmatriculare vizibil, urmată de o decupare pentru a reduce zgomotul de fundal și a oferi o distanță focală relativ constantă. Un exemplu al procesului poate fi observat în figura~\ref{fig:normalizare_imagine_ro}, unde înainte de normalizare erau prezente elemente de zgomot agresive atât în parbrizul mașinii cât și în spațiul înconjurător.
-\begin{figure}[H]
-  \centering
-  \begin{subfigure}[b]{0.45\textwidth}
-    \includegraphics[width=\textwidth]{figures/b156fcn_initial.png}
-    \caption{Înainte de normalizare}
-    \label{fig:img_initiala}
-  \end{subfigure}
-  \hfill
-  \begin{subfigure}[b]{0.45\textwidth}
-    \includegraphics[width=\textwidth]{figures/b156fcn_cropped.png}
-    \caption{După normalizare}
-    \label{fig:img_decupata}
-  \end{subfigure}
-  \caption{Un exemplu de imagine alterată pentru a reduce zgomotul de fundal și normaliza unghiul de captură}
-  \label{fig:normalizare_imagine_ro}
-\end{figure}
-
-Pentru componenta internațională a setului de date procesul a fost unul mai rapid, fiind necesară doar selectarea imaginilor corespunzătoare criteriilor menționate anterior. În figura~\ref{fig:normalizare_imagine_thl} se poate observa un exemplu de imagine corespunzătoare pusă în paralel cu o imagine care nu adera la standardele impuse.
-\begin{figure}[H]
-  \centering
-  \begin{subfigure}[b]{0.45\textwidth}
-    \includegraphics[width=\textwidth]{figures/imagine_buna_thl.jpg}
-    \caption{Imagine corespunzătoare}
-  \end{subfigure}
-  \hfill
-  \begin{subfigure}[b]{0.45\textwidth}
-    \includegraphics[width=\textwidth]{figures/imagine_proasta_thl.jpg}
-    \caption{Imagine necorespunzătoare}
-  \end{subfigure}
-  \caption{Paralelă între o imagine conformă și una neconformă}
-  \label{fig:normalizare_imagine_thl}
-\end{figure}
-
-\subsubsection{Crearea sursei de adevăr a setului de date}
-\indent\par
-Procedeul descris anterior constituie, însă, doar primul pas în construirea unui set de date potrivit strategiei de procesare propuse de această teză. Este în continuare necesară o sursă de adevăr uniformă pe componentele locală și internațională. Această secțiune prezintă pașii luați în completarea imaginilor cu informații relevante și conforme cu realitatea, care să reprezinte reperul față de care vor fi evaluate predicțiile generate de \textit{pipeline}.
-
-Prima etapă este reprezentată de adnotarea imaginilor cu numărul de înmatriculare afișat în acestea, sarcină realizată manual, prin deschiderea lor rând pe rând, urmată de adăugarea valorilor într-un fișier csv dedicat. Acest lucru va fi utilizat atât în numărarea de predicții exacte, cât și în măsurarea mediei distanței Levenshtein. Pentru a permite analizarea performanței componentei de localizare, a fost dezvoltat un utilitar software dedicat extragerii chenarelor ce încadrează numerele de înmatriculare (\textit{bounding boxes}). Această aplicație cu interfață grafică facilitează delimitarea manuală a regiunii de interes, permițând utilizatorului să definească chenarul de încadrare prin marcarea coordonatelor aferente colțurilor din stânga-sus și dreapta-jos ale plăcuței.
-
-\subsection{Setul de antrenare a clasificatorului SVM}
-\indent\par
-Antrenarea clasificatorului de caractere necesită un set de date format din imagini de caractere individuale, fiecare asociată cu eticheta sa. Construirea acestui set a urmat o strategie pe două surse: caractere generate automat prin aplicarea pipeline-ului de procesare asupra imaginilor de antrenare din setul~\cite{roboflow-lp-dataset} de plăcuțe, urmate de etichetare manuală prin intermediul unei aplicații \textit{software} dedicate, și un set extern de caractere individuale extrase din imagini naturale, cu o mare diversitate de fonturi, scale și condiții de captură~\cite{deCampos09}. Combinarea celor două surse urmărește, pe de o parte, alinierea distribuției datelor de antrenare la caracteristicile particulare ale caracterelor segmentate de sistemul propriu și, pe de altă parte, asigurarea unui volum și a unei diversități tipografice suficiente.
-
-\subsubsection{Generarea automată prin fluxul de procesare}
-\indent\par
-Prima sursă de data este generată prin intermediul sistemului cu ajutorul utilitarului~\textit{software} \texttt{generate\_dataset.py}
-
-Acesta aplică asupra imaginilor de antrenare din componenta internațională a setului de plăcuțe etapele de localizare și segmentare descrise anterior, salvând caracterele segmentate drept imagini individuale, neetichetate. Integrarea acestui subset autogenerat în datele de antrenament a fost motivată de considerente practice: exemplele astfel obținute reflectă cu maximă fidelitate particularitățile și imperfecțiunile specifice extracției reale din sistem. Astfel, clasificatorul este expus la condiții realiste de operare, învățând să gestioneze variații ale unghiului de rotație, artefacte de segmentare sau caractere trunchiate.
-
-\subsubsection{Sursă externă de caractere}
-\indent\par
-A doua sursă de date o constituie setul public Chars74K~\cite{deCampos09}, introdus de de Campos și colaboratorii pentru problema recunoașterii caracterelor în imagini naturale. Dintre componentele acestui set a fost utilizat subsetul \texttt{EnglishImg}, care reunește $7705$ caractere segmentate din scene naturale, distribuite în $62$ de clase corespunzătoare cifrelor și literelor latine majuscule și minuscule (\texttt{0-9}, \texttt{A-Z}, \texttt{a-z}). Spre deosebire de caracterele produse de propriul pipeline, aceste mostre provin din imagini reale, prezentând o variabilitate ridicată a fontului, a scalei și a condițiilor de iluminare, întrucât autorii au păstrat rezoluția originală a fiecărui caracter așa cum apare în imaginea-sursă.
-
-Setul este distribuit deja etichetat și organizat ca un arbore de directoare, cu câte un director per clasă, fiecare caracter fiind salvat ca o imagine PNG individuală. Această structură permite integrarea directă a mostrelor în setul de antrenare, fără efort manual de adnotare. Rolul acestei surse este de a completa diversitatea tipografică a caracterelor autogenerate: în timp ce prima sursă aliniază distribuția datelor la particularitățile segmenterului propriu, Chars74K introduce o varietate mai amplă de forme și de fonturi întâlnite în condiții reale, contribuind la capacitatea de generalizare a clasificatorului.
-
-\subsubsection{Etichetarea manuală}
-\indent\par
-Etichetarea mostrelor generate automat este realizată prin scriptul \texttt{label\_dataset.py}, care oferă o interfață minimală de etichetare asistată, construită cu ajutorul bibliotecii OpenCV. Fiecare imagine neetichetată este afișată succesiv, iar operatorul atribuie eticheta prin apăsarea tastei corespunzătoare caracterului. Apoi, imaginea este mutată automat în directorul clasei respective. Tasta dedicată permite marcarea mostrelor nevalide (caractere nerecunoscute sau segmentate eronat) prin mutarea lor într-un director special, în timp ce o altă tastă permite ignorarea unei mostre.
-
-\subsubsection{Augmentarea setului prin rotații}
-\indent\par
-Deoarece setul de caractere etichetate manual prezenta un volum limitat și o variație redusă a înclinației, a fost necesară extinderea artificială a acestuia. Această etapă s-a realizat prin intermediul utilitarului software~\texttt{augment\_dataset}, care aplică fiecărui imagini o rotație în jurul centrului imaginii, la unghiurile de $\pm 3^\circ$ și $\pm 5^\circ$. Acest proces nu are doar scopul de a extinde mărimea setului de date, ci și de a forța clasificatorul să devină invariant la pertubații geometrice. Rezultatul procesului este vizibil în figura~\ref{fig:paralela_augmentare}.
-
-\begin{figure}[H]
-  \centering
-  \begin{subfigure}[b]{0.45\textwidth}
-    \centering
-    \includegraphics{figures/0020.png}
-    \caption{Caracter înainte de aplicarea rotației}
-  \end{subfigure}
-  \hfill
-  \begin{subfigure}[b]{0.45\textwidth}
-    \centering
-    \includegraphics{figures/0020_aug_rot_n05.png}
-    \caption{Caracter după aplicarea rotației}
-  \end{subfigure}
-  \caption{Paralelă între un caracter înainte și după transformare}
-  \label{fig:paralela_augmentare}
-\end{figure}
-
-Variantele augmentate sunt salvate alături de originale, marcate printr-un sufix dedicat (\texttt{\_aug\_rot}), ceea ce permite distingerea ulterioară a mostrelor sintetice de cele reale. Prin multiplicarea cu factorul de cinci, setul de antrenare crește de la $1862$ la $9310$ mostre.
-
-\subsubsection{Setul de date rezultat}
-\indent\par
-Prin consolidarea setului de caractere etichetate manual, cu sursa externă de date, a rezultat configurația finală a corpusului de antrenare. Frecvența de apariție a fiecărei clase în cadrul setului final este ilustrată în Figura~\ref{fig:distributia_caracterelor}.
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=\textwidth]{figures/set_date_plot.png}
-  \caption{Distribuția caracterelor în setul de date final}
-  \label{fig:distributia_caracterelor}
-\end{figure}
-
-\section{Testare și metrici}
-\indent\par
-Evaluarea sistemului urmărește două niveluri complementare: performanța componentei de recunoaștere a caracterelor, considerată izolat, și performanța întregului lanț de procesare, măsurată de la imaginea de intrare până la șirul de caractere recunoscut.
-
-
-\subsection{Performanța componentei de recunoaștere a caracterelor}
-\indent\par
-Pentru evaluarea clasificatorului de caractere, setul de date este împărțit într-un subset de antrenare și unul de testare, în proporție de $80\%$, respectiv $20\%$. Împărțirea este stratificată, astfel încât distribuția claselor să fie păstrată în ambele subseturi.
-
-Metricile raportate pentru clasificator sunt acuratețea globală și raportul de clasificare, care cuprinde, pentru fiecare clasă, precizia (\textit{precision}), rapelul (\textit{recall}) și scorul $F_1$. Aceste metrici sunt completate de matricea de confuzie, utilă pentru identificarea perechilor de caractere frecvent confundate (de exemplu cifra \texttt{0} și litera \texttt{O}, sau cifra \texttt{1} și litera \texttt{I}).
-
-În urma antrenării clasificatorului statistic asupra setului de date menționat anterior au fost obținute următoarele rezultate generale pe subsetul de testare format din 4192 intrări:
-\begin{itemize}
-  \item \textbf{Acuratețe globală:} 96\%,
-  \item \textbf{Precizie medie:} 96\%,
-  \item \textbf{Rapel (\textit{Macro Recall}):} 95\%,
-  \item \textbf{Scor mediu F1:} 96\%
-\end{itemize}
-
-Apropierea dintre valorile medii macro și acuratețea globală indică o performanță uniformă pe ansamblul claselor, fără simboluri defavorizate. Acest comportament este așteptat, întrucât setul combinat menține un volum suficient de exemplare pentru majoritatea claselor, evitând dezechilibrele. În ansamblu, o acuratețe de $96\%$ confirmă că reprezentarea liniarizată a imaginii, combinată cu nucleul RBF (\textit{Radial Basis Function} - Funcție de bază radială), captează suficientă informație distinctivă pentru separarea celor $36$ de clase.
-
-Structura matricei de confuzie poate fi observată în figura~\ref{fig:matrice_confuzie}. Erorile sunt rare și concentrate într-un număr restrâns de perechi de simboluri. Deși rare, erorile persistă în urma procesului de antrenare, în mod special la perechile de caractere care prezintă o similitudine a formei geometrice: pentru perechea formată din cifra \texttt{0} și litera \texttt{O} există 14 erori care apar în mod simetric. De asemenea, există confuzii pentru următoarele perechi: litera \texttt{G} și \texttt{C}, cifra \texttt{1} și litera \texttt{I} sau \texttt{T}.
-
-Aceste confuzii nu au, însă, o pondere uniformă în contextul aplicației. Confuziile de tip cifră-literă, precum \texttt{0}-\texttt{O} sau \texttt{1}-\texttt{I}, sunt în principiu recuperabile: poziția unui simbol în cadrul numărului de înmatriculare determină, conform formatului, dacă acesta trebuie să fie o cifră sau o literă, astfel încât o etapă ulterioară de decodare de format poate valorifica această cunoștință apriori pentru a le clarifica. În schimb, confuziile de tip literă-literă (\texttt{G}-\texttt{C}, \texttt{I}--\texttt{T}) rămân nerezolvabile și constituie limita erorilor clasificatorului.
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=\textwidth]{figures/matrice_confuzie.png}
-  \caption{Matricea de confuzie obținută în urma antrenării clasificatorului}
-  \label{fig:matrice_confuzie}
-\end{figure}
-
-\subsection{Performanța întregului sistem}
-\indent\par
-Pe lângă evaluarea izolată a clasificatorului, sistemul este evaluat și la nivel de etapă: rata de localizare corectă a plăcuței, rata de segmentare corectă a caracterelor și, în final, metrica integrată (\textit{end-to-end}), reprezentată de proporția plăcuțelor citite corect în întregime. Această din urmă metrică reflectă cel mai fidel performanța percepută a sistemului, întrucât o singură eroare la nivel de caracter invalidează întregul rezultat.
-
-Înainte de a continua cu detaliile tehnice și numerice ale metricilor, este necesară clarificarea metodologiei de evaluare. După cum am menționat în cadrul secțiunii dedicate seturilor de date, colecția destinată evaluării sistemului cuprinde două componente: una internațională, formată din numere de înmatriculare din Thailanda, și una locală, cu numere din România. Astfel, pentru a obține rezultate fidele asupra performanței, utilitarul software \path{src/tools/evaluate.py} a fost rulat în mod separat asupra celor două componente.
-
-Rularea separată a fost necesară și pentru că modulul de recunoaștere a caracterelor a fost adaptat să valorifice o cunoștință apriori esențială: structura formatului numărului de înmatriculare. Întrucât poziția fiecărui simbol determină, conform formatului regional, dacă acesta trebuie să fie cifră sau literă, metoda \texttt{predict} a clasei \texttt{CharacterRecognition} înlocuiește predicția top-1 a SVM-ului cu marginile furnizate de \texttt{decision\_function} și restrânge subsetul de clase admis de format. Această decodare condiționată recuperează tocmai confuziile de tip cifră-literă discutate anterior (\texttt{0}-\texttt{O}, \texttt{1}-\texttt{I}), care altfel ar invalida întregul șir.
-
-\subsubsection{Evaluarea localizării corectă a plăcuței}
-\indent\par
-Pentru a putea cuantifica proporția în care sistemul extrage în mod corect regiunea de interes ce conține numărul de înmatriculare, a fost folosită metrica \textit{Intersecție supra Reuniune} (IoU - \textit{Intersection over Union}). Pentru a calcula această metrică, este nevoie atât de regiunile delimitate de sistem drept zone candidate, cât și de coordonatele reale ale plăcuței (regiunea adnotată manual).
-
-Deoarece modulul de localizare propune mai multe regiuni candidat pentru o singură imagine, evaluarea performanței se face doar raportat la zona cu cel mai mare raport IOU. Astfel, o imagine pentru care există cinci predicții posibile pentru regiunea de interes, va fi redusă la un singur rezultat IOU. Această abordare a fost aleasă deoarece, precum am menționat în capitolul anterior, modulul de segmentare extrage implicit zona ideală, mai exact zona cu cel mai mare IOU.
-
-În urma rulării celor două utilitare software, \path{src/tools/evaluate.py} și \path{src/tools/metrics.py}, modulul de localizare obține un IoU mediu de $\approx~0.65$ pe componenta internațională și $\approx~0.63$ pe cea locală. Valorile moderate se explică prin natura modulului de extracție: etapele de dilatare orizontală și de fuziune a candidaților extind în mod deliberat regiunea propusă, pentru a garanta că plăcuța nu este fragmentată și că toate caracterele rămân în interiorul zonei de interes. Deoarece metrica IoU penalizează în egală măsură surplusul și deficitul de suprafață, o margine de câțiva pixeli în jurul plăcuței reduce sensibil scorul, chiar și atunci când localizarea este corectă din punct de vedere funcțional. Această explicație este confirmată practic de creșterea scorului IoU la $\approx~0.80$ în momentul introducerii unei etape de validare cu un prag minim de încredere de $0.50$.
-
-\subsubsection{Evaluarea segmentării caracterelor}
-\indent\par
-Spre deosebire de localizare, pentru care există o adnotare manuală a regiunii de interes, etapa de segmentare nu dispune de o delimitare de referință a fiecărui caracter în parte. Din acest motiv, evaluarea segmentării se realizează indirect, prin compararea numărului de caractere extrase de sistem cu lungimea șirului de referință al plăcuței. Metrica adoptată este \emph{acordul la nivel de număr de caractere}: pentru fiecare imagine, raportul dintre minimul și maximul celor două valori, după cum este prezentat în Ecuația \ref{eq:acord_caractere}.
-
-\begin{equation}
-    \text{Acord} = \frac{\min(n_{\text{seg}}, n_{\text{gt}})}{\max(n_{\text{seg}}, n_{\text{gt}})}
-    \label{eq:acord_caractere}
-\end{equation}
-
-\noindent unde $n_{\text{seg}}$ este numărul de caractere segmentate, iar $n_{\text{gt}}$ este numărul de simboluri din adevărul de referință. Valoarea $1$ indică un acord perfect, iar abaterile, fie prin sub-segmentare, fie prin supra-segmentare reduc proporțional scorul. Această metrică surprinde corectitudinea structurală a segmentării fără a presupune o adnotare la nivel de caracter.
-
-Pentru componenta internațională, etapa de segmentare a obținut un acord mediu de $\approx~0.85$, iar pentru cea locală de $\approx~0.82$. Interpretarea acestor valori sugerează că, în mare parte, modulul de segmentare extrage un număr apropiat de caractere relativ la sursa de adevăr. Diferența rămasă până la acordul perfect este atribuibilă, pe de o parte, plăcuțelor pentru care etapa de localizare a furnizat un decupaj imperfect, iar pe de altă parte cazurilor de fuziune a caracterelor adiacente sau de fragmentare a caracterelor cu structură discontinuă.
-
-\subsubsection{Evaluare E2E}
-\indent\par
-Metrica integrată (\textit{end-to-end}) reflectă cel mai fidel performanța percepută a sistemului, întrucât consideră corectă o plăcuță doar atunci când întregul șir de caractere coincide cu adevărul de referință. O singură eroare la nivel de caracter, indiferent de poziția sa, invalidează rezultatul. Pentru a completa această măsură binară, evaluarea raportează și \emph{similaritatea Levenshtein} a șirului recunoscut față de cel de referință, o metrică mai fină care surprinde gradul de corectitudine parțială a predicțiilor invalidate.
-
-Evaluarea pe componenta internațională a setului de date a indicat o acuratețe de $\approx 0{,}69$, în timp ce pentru componenta națională s-a obținut un procentaj de $\approx 0{,}73$. Similaritatea Levenshtein medie depășește în ambele cazuri pragul de $\approx 0{,}80$. Această valoare, semnificativ mai ridicată decât rata de potrivire exactă, confirmă faptul că o proporție importantă a predicțiilor invalidate diferă de adevărul de referință printr-un singur caracter. Cel mai adesea, aceste erori punctuale sunt cauzate de posibilele confuzii vizuale ale modulului de recunoaștere, sau diferitele arteface vizuale prezente pe o plăcuță, evidențiate în Figura~\ref{fig:artefacte}
-
-\begin{figure}[H]
-  \centering
-  \begin{subfigure}[b]{0.48\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{figures/B934ATN.png_lp_1.jpg}
-    \caption{Bulină albastră care va fi segmentată în mod incorect drept un caracter}
-  \end{subfigure}
-  \hfill
-  \begin{subfigure}[b]{0.48\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{figures/CarLongPlate60_jpg.rf.9ac70cfc36770f5233142a727c52d534.jpg_lp_0.jpg}
-    \caption{Artefact care blochează parțial numărul de înmatriculare}
-  \end{subfigure}
-  \caption{Exemple de artefacte ce pot deteriora procesul de recunoaștere}
-  \label{fig:artefacte}
-\end{figure}
-
-\section{Experimente}
-\indent\par
-Experimentele prezentate în această secțiune urmăresc să justifice, prin rezultate cantitative, deciziile de proiectare adoptate în fluxul de procesare și să evidențieze contribuția fiecărei componente la performanța de ansamblu. Ele sunt organizate în trei părți: comparația dintre două abordări ale etapei de localizare, comparația dintre cele două abordări ale etapei de segmentare și seria de îmbunătățiri progresive aduse fluxului de recunoaștere (secțiunea~\ref{sec:imbunatatiri}).
-
-\subsection{Comparația abordărilor de localizare}
-\indent\par
-Înainte de adoptarea abordării bazate pe operatorul Sobel și pe operațiile morfologice descrise anterior, etapa de localizare a fost implementată într-o manieră similară, dar cu un discriminant principal al regiunilor complet diferit: varianta inițială se baza pe aproximarea poligonală a contururilor.
-
-Lanțul de preprocesare urma aceiași pași ca varianta curentă — conversia în tonuri de gri a cadrului primit de la modulul de intrare, atenuarea zgomotului și binarizarea — cu două deosebiri: reducerea zgomotului se realiza printr-un operator diferit de filtrul median, iar accentuarea muchiilor folosea detectorul de contururi Canny în locul operatorului Sobel. Extragerea contururilor (\texttt{findContours}) era identică cu cea din varianta curentă, însă selecția primilor \texttt{top\_k} candidați se făcea pe baza aproximării poligonale (\texttt{approxPolyDP}). Acest discriminant s-a dovedit însă nefiabil: în practică, multe dintre plăcuțe erau extrase ca poligoane cu un număr ridicat de laturi, ratând astfel criteriul geometric al formei dreptunghiulare.
-
-\begin{table}[H]
-  \centering
-  \begin{tabular}{lc}
-    \hline
-    Metodă de localizare & IoU mediu \\
-    \hline
-    Aproximare poligonală (\texttt{approxPolyDP}, variantă explorată) & $< 0{,}40$ \\
-    Sobel + morfologie + \texttt{top\_k} (abordarea propusă) & $\approx 0{,}60$ \\
-    \hline
-  \end{tabular}
-  \caption{Comparație între cele două abordări ale etapei de localizare, evaluate prin același lanț de selecție \texttt{top\_k} și corecție de înclinare.}
-  \label{tab:cmp-localizare}
-\end{table}
-
-Abordarea bazată pe aproximare poligonală nu a reușit să depășească un IoU mediu de $0{,}40$, în timp ce abordarea curentă atinge aproximativ $0{,}60$. Cauza principală a limitării este dependența de detectarea unui contur închis și dreptunghiular al marginii plăcuței: în condiții reale, această margine este frecvent fragmentată, astfel încât aproximarea poligonală fie nu produce un patrulater, fie îl produce deplasat față de plăcuța reală. Spre deosebire de aceasta, abordarea bazată pe Sobel și operații morfologice nu depinde de conturul marginii plăcuței, ci de concentrarea de muchii verticale generate de caractere: un semnal mai robust și independent de calitatea conturului exterior.
-
-\subsection{Comparația abordărilor de segmentare}
-\indent\par
-\begin{table}[H]
-  \centering
-  \begin{tabular}{lccc}
-    \hline
-    Metodă de segmentare & Localizare & Segmentare & End-to-end \\
-    \hline
-    Bazată pe proiecții (implementarea propusă) & 0{,}308 & 0{,}033 & 0{,}005 \\
-    Bazată pe contururi (variantă moștenită) & 0{,}308 & 0{,}072 & 0{,}043 \\
-    \hline
-  \end{tabular}
-  \caption{Comparație directă între cele două abordări ale etapei de segmentare, pe același set de candidați produși de etapa de localizare.}
-  \label{tab:cmp-segmentare}
-\end{table}
-
-Comparația dintre cele două metode de segmentare oferă un rezultat aparent contraintuitiv: pe setul de date utilizat, abordarea bazată pe contururi obține o rată end-to-end de $4{,}3\%$, comparativ cu $0{,}5\%$ pentru cea bazată pe proiecții. O analiză posibilă a acestei discrepanțe este aceea că setul \texttt{data/LP-characters/} conține preponderent plăcuțe cu un fundal uniform, în care contururile caracterelor sunt bine separate, scenariu favorabil abordării bazate pe contururi. Avantajele teoretice ale proiecțiilor (robusteța la zgomot și la pragurile dificil de calibrat) s-ar manifesta probabil mai pregnant pe un set mai eterogen, observație care motivează extinderea ulterioară a setului de evaluare.
-
-\subsection{Îmbunătățiri progresive ale fluxului de recunoaștere}\label{sec:imbunatatiri}
-\indent\par
-Plecând de la configurația de bază descrisă în secțiunile anterioare, au fost adoptate, succesiv, patru intervenții incrementale care vizează etapele de segmentare, decodare și clasificare. Evaluarea s-a făcut pe setul \texttt{data/VALIDATE/} (186 de imagini cu adevăr de referință al șirului de caractere), iar metricile raportate sunt rata end-to-end (egalitate exactă), similaritatea Levenshtein a OCR-ului, acordul la nivel de număr de caractere segmentate și IoU-ul localizării. Tabelul~\ref{tab:imbunatatiri} sintetizează contribuția cumulativă a fiecărei intervenții.
-
-\begin{table}[H]
-  \centering
-  \begin{tabular}{lcccc}
-    \hline
-    Configurație & End-to-end & OCR sim. & Acord seg. & IoU \\
-    \hline
-    Bază & 0{,}489 & 0{,}768 & 0{,}809 & 0{,}588 \\
-    \quad + reconstrucția segmentării  & 0{,}597 & 0{,}801 & 0{,}839 & 0{,}588 \\
-    \quad + decodare condiționată de format & 0{,}645 & 0{,}801 & 0{,}839 & 0{,}588 \\
-    \quad + trăsături HOG pentru SVM & 0{,}667 & 0{,}807 & 0{,}839 & 0{,}588 \\
-    \quad + pre-procesare cu conservarea proporțiilor & 0{,}677 & 0{,}806 & 0{,}839 & 0{,}588 \\
-    \quad + padding LP și augmentare cu rotații & \textbf{0{,}694} & 0{,}813 & 0{,}843 & 0{,}589 \\
-    \hline
-  \end{tabular}
-  \caption{Contribuția cumulativă a celor cinci intervenții. Fiecare linie include modificările liniilor anterioare. Cumulat, rata end-to-end a crescut cu $20{,}5$ puncte procentuale ($91 \to 129$ plăcuțe corecte din $186$).}
-  \label{tab:imbunatatiri}
-\end{table}
-
-\subsubsection{Reconstrucția etapei de segmentare}
-\indent\par
-Înainte de intervenție, decupajul de plăcuță era binarizat direct, iar contururile externe erau filtrate exclusiv prin raportul de aspect $w/h$, cu un prag inferior de $0{,}15$. Matricea de confuzii a arătat două surse sistematice de erori: aproximativ $250$ de caractere lipsă (dominate de $5\to\emptyset$ cu $55$ de cazuri, $1\to\emptyset$ cu $48$ de cazuri) și aproximativ $30$ de caractere inserate fals ($\emptyset\to A$, $\emptyset\to T$, $\emptyset\to H$). Caracterul \texttt{1}, cu un raport real $w/h$ între $0{,}07$ și $0{,}12$, era respins în întregime de pragul geometric, iar reziduurile cadrului plăcuței (banda UE, șuruburile de prindere) produceau contururi care imitau caractere reale.
-
-Soluția a constat în (1) restrângerea decupajului la cea mai mare componentă conexă deschisă din interiorul plăcuței, eliminând cadrul înainte de binarizare; (2) coborârea pragului $w/h$ la $0{,}08$, recuperând caracterul \texttt{1}; (3) respingerea contururilor care ating marginile laterale ale plăcuței tăiate, anulând patternul de inserții; (4) o trecere de consistență pe înălțimi, care elimină casetele aflate în afara intervalului $[0{,}55\,m, 1{,}45\,m]$, unde $m$ este înălțimea mediană a supraviețuitorilor; (5) un divizor de blocuri largi care, pentru casete cu $w > 1{,}2\,h$, taie la coloana cu cea mai joasă proiecție verticală, recuperând caracterele lipite. Inserțiile au scăzut de la $\sim 30$ la $\sim 5$, iar rata end-to-end a urcat cu $10{,}8$ puncte procentuale.
-
-Au fost respinse explicit aplicarea unei închideri morfologice $3\times3$, care, pe plăcuțe de $\sim 27$ de pixeli înălțime, a unit caracterele adiacente (numărul de contururi crude a scăzut de la $23$ la $4$ într-un caz observat), și varianta verticală $(2,1)$, cu același efect în formă atenuată.
-
-\subsubsection{Decodare condiționată de format}
-\indent\par
-Analiza confuziilor reziduale a indicat substituții sistematice între clase vizual similare (\texttt{4}$\to$\texttt{F}, \texttt{D}$\to$\texttt{0}, \texttt{Y}$\to$\texttt{T}) generate de ambiguitatea internă a SVM-ului. Adevărul de referință al setului \texttt{data/VALIDATE/} respectă în $92\%$ din cazuri unul dintre formatele \texttt{DDLDDDDD} (8 caractere) sau \texttt{DDLDDDD} (7 caractere); aceste formate sunt derivate strict din distribuția setului, întrucât testul nu conține plăcuțe românești.
-
-Modificarea, localizată în metoda \texttt{predict} a clasei \texttt{CharacterRecognition}, înlocuiește predicția top-1 a SVM-ului cu \texttt{decision\_function} și restrânge argmax-ul fiecărei poziții la setul de caractere admis (cifre pentru toate pozițiile cu excepția poziției $2$, literă pentru poziția $2$). Pentru lungimi care nu corespund vreunui prior, decodarea revine la varianta neconstrânsă, evitând orice regresie. Acțiunea selectivă a priorului asupra ambiguităților SVM a urcat rata end-to-end cu $4{,}8$ puncte procentuale, fără modificarea similarității Levenshtein (doar $\sim 10$ predicții de caracter s-au schimbat, dar exact cele care invalidau șirul întreg).
-
-Tot în acest studiu a fost respinsă o margine adițională la decupajul plăcuței, intenționată să recupereze caracterele tăiate la localizare: padding-uri de $2\%$ și $5\%$ au regresat rata end-to-end la $47{,}3\%$, respectiv $41{,}9\%$. Cauza este că majoritatea decupajelor erau deja corecte (IoU median $0{,}655$), iar adăugarea de margine introducea fragmente de caroserie sau de plăcuțe vecine; pierderea de caractere inițiale se concentrează într-o coadă a distribuției IoU (sub $0{,}3$), nu într-un bias sistematic al localizatorului, pe care un padding uniform nu îl poate corecta.
-
-\subsubsection{Trăsături HOG pentru clasificator}
-\indent\par
-Reprezentarea pe $784$ de dimensiuni (intensitățile brute ale pixelilor $28\times28$) a fost înlocuită cu un descriptor HOG configurat peste aceeași fereastră, cu celule de $7\times7$, blocuri de $14\times14$ și un pas de $7$ pixeli, producând un vector de $324$ de componente. HOG-ul captează distribuția orientărilor muchiilor, în mare măsură invariantă la iluminare și la mici perturbații geometrice — direcția exactă în care reprezentarea pe pixeli bruți era fragilă, întrucât caracterele segmentate la rulare prezintă variații de contrast și de margini față de cele din setul de antrenare.
-
-Modelul a fost re-antrenat fără alte modificări ale scriptului \texttt{src/pipeline/svm.py}, atingând o acuratețe de $97\%$ pe subsetul independent. În pipeline-ul integrat, rata end-to-end a urcat cu $2{,}2$ puncte procentuale (la $66{,}7\%$). Mai semnificativ, matricea de confuzii s-a contractat de la $82$ la $70$ de perechi unice de erori, indicând o concentrare a erorilor reziduale în categorii mai bine definite și mai ușor de atacat în continuare.
-
-\subsubsection{Conservarea proporțiilor caracterului}
-\indent\par
-Ultima intervenție vizează o limitare structurală a etapei de pregătire a caracterului: redimensionarea directă la $28\times28$ deforma raportul de aspect al claselor înguste. Un caracter \texttt{1}, cu $w/h \approx 0{,}12$ la segmentare, devenea un pătrat, iar descriptorul HOG raporta o distribuție de orientări similară cu cea a unui \texttt{I}, \texttt{T} sau \texttt{L}. Modificarea, în \texttt{preprocess\_char}, completează imaginea cu o margine constantă (mediana celor patru colțuri, care aproximează fundalul plăcuței) până la un pătrat, înainte de redimensionarea la $28\times28$.
-
-Această intervenție a oferit și o ilustrare a problemei reprezentativității setului de date: acuratețea pe subsetul independent al setului de antrenare a scăzut ușor ($97\% \to 95{,}8\%$), în timp ce rata end-to-end a urcat cu $1{,}1$ puncte procentuale (la $67{,}7\%$). Diferența reflectă faptul că setul \texttt{data/labeled/} provine de la o singură rulare a segmenterului și conține preponderent caractere deja aproape pătrate; la rulare, în schimb, pipeline-ul întâlnește o variație mai mare a raporturilor de aspect, pe care padding-ul o normalizează.
-
-\subsubsection{Candidați LP padded și augmentare cu rotații a setului de antrenare}
-\indent\par
-Cele două intervenții descrise aici au fost dezvoltate, măsurate și validate împreună, întrucât atacă fenomene complementare: prima țintește bottleneck-ul de localizare evidențiat anterior (tăierea caracterului inițial), iar a doua robustețea clasificatorului la perturbațiile distribuționale dintre setul de antrenare și cel de la rulare. Suma intervențiilor a urcat rata end-to-end cu $1{,}7$ puncte procentuale (la $69{,}4\%$, $129$ plăcuțe corecte din $186$).
-
-Primul element vizează producerea de candidați LP suplimentari prin extindere laterală a celor mai bine clasați doi candidați. În \texttt{LPExtraction.extraction\_pipeline\_with\_intermediates}, după ce ordonarea pe densitate de muchii a produs cei \texttt{top\_k} candidați, sunt adăugate la listă două variante derivate ale fiecăruia dintre primii doi: o margine agresivă la stânga ($+12\%$ din lățime, țintind clipping-ul caracterului inițial) și o margine bilaterală modestă ($+5\%$ pe fiecare parte). Aceste variante intră în turneul de scoring al segmentării (\texttt{CharacterSegmentation.character\_segmentation}), iar funcția \texttt{\_score} alege automat varianta care produce cea mai plauzibilă segmentare; pe plăcuțele cu localizare deja corectă, varianta originală câștigă; pe plăcuțele cu clipping pe stânga, varianta extinsă câștigă selectiv. Decizia de a nu aplica padding-ul blanket — strategia respinsă în Part 2 a acestei secțiuni — este astfel păstrată, dar mecanismul ei subiacent este restaurat prin selectarea condiționată per imagine.
-
-A doua intervenție constă într-un script de augmentare (\texttt{src/augment\_dataset.py}) care, pentru fiecare mostră etichetată din \texttt{data/labeled/}, generează patru variante rotite la $\pm 3°$ și $\pm 5°$ în jurul centrului, cu marginea umplută cu mediana celor patru colțuri (același criteriu folosit în \texttt{preprocess\_char}). Setul de antrenare crește astfel de la $1862$ la $9310$ mostre, iar pragul \texttt{MIN\_SAMPLES\_PER\_CLASS} începe să admită clase noi (\texttt{V}, \texttt{W}, \texttt{X}, \texttt{Y}, \texttt{Z}, \texttt{I}, \texttt{O}) care erau anterior excluse pentru lipsă de exemplare. SVM-ul este re-antrenat fără alte modificări în \texttt{src/pipeline/svm.py}.
-
-\begin{table}[H]
-  \centering
-  \begin{tabular}{lcc}
-    \hline
-    Metrică & Înainte (\texttt{5671681}) & După \\
-    \hline
-    Rată end-to-end & $0{,}677$ & $\mathbf{0{,}694}$ \\
-    Similaritate Levenshtein OCR & $0{,}806$ & $0{,}813$ \\
-    Acord la nivel de număr de caractere & $0{,}839$ & $0{,}843$ \\
-    Localizare (IoU mediu) & $0{,}588$ & $0{,}589$ \\
-    Perechi unice în matricea de confuzii & $75$ & $76$ \\
-    \hline
-  \end{tabular}
-  \caption{Efectul combinat al padding-ului de candidați LP și al augmentării cu rotații a setului de antrenare. Aportul izolat al fiecărei intervenții nu a fost cuantificat, întrucât patternul vizat (caracter inițial recuperat de padding și clasificat de SVM-ul mai robust) implică ambele componente.}
-  \label{tab:imbunatatiri-padding-aug}
-\end{table}
-
-Efectul observat în matricea de confuzii este concentrat pe categoriile de drops dominate de cifre la stânga plăcuței: $5\to\emptyset$ a scăzut de la $55$ la $50$, $1\to\emptyset$ de la $48$ la $41$, $9\to\emptyset$ de la $17$ la $10$, $4\to\emptyset$ de la $16$ la $9$, iar $3\to\emptyset$ de la $20$ la $15$. Suma drops scăzute totalizează aproximativ $36$ de caractere, ceea ce este consistent cu mecanismul intervenției (recuperarea unui caracter pe poziția $0$ a $\sim 30$ de plăcuțe). Câștigul net pe end-to-end este însă mai mic ($+3$ plăcuțe corecte) deoarece o parte din plăcuțele recuperate aveau și alte erori care le mențin clasificate ca greșite, iar padding-ul a introdus, în paralel, aproximativ $6$ inserții noi ($\emptyset\to 1$, $\emptyset\to L$, $\emptyset\to 0$) care au degradat un număr similar de plăcuțe anterior corecte.
-
-\paragraph{Experiment respins (acest tur).} Un mecanism de re-extracție condiționată de lungimea ieșirii (denumit \emph{A2} pe parcursul dezvoltării) a fost implementat și măsurat. Logica: dacă predicția de pe primul pas avea o lungime sub pragul tipic al setului ($< 7$ caractere), se aplica un padding mai agresiv ($+8\%$, $+15\%$ stânga) pe bounding box-ul care produsese segmentarea câștigătoare, iar segmentarea și recunoașterea erau re-rulate; noua predicție era acceptată numai dacă era strict mai lungă decât prima, încadra în lungimea maximă ($\leq 8$) și conținea predicția originală ca sufix. Pe setul \texttt{data/VALIDATE/}, efectul net a fost $0$ puncte procentuale end-to-end și $-0{,}001$ pe similaritatea Levenshtein, motiv pentru care intervenția a fost respinsă. Cauza diagnosticată prin inspecție directă: pe cazurile reziduale (de exemplu \texttt{CarLongPlate264}, GT \texttt{52Y6490}, recuperat ca \texttt{2Y6490}), caracterul lipsă nu se mai află în nicio regiune accesibilă prin padding — chiar și o margine de $100\%$ din lățimea decupajului nu îl include, întrucât el a fost pierdut deja în etapa de detecție a contururilor. Mecanismul de re-extracție este corect proiectat, dar bottleneck-ul real este în \texttt{LPExtraction}, nu în recuperarea ulterioară.
-
-\subsubsection{Bilanț}
-\indent\par
-Cumulat, cele cinci intervenții au urcat rata end-to-end de la $48{,}9\%$ la $69{,}4\%$, cu $20{,}5$ puncte procentuale, sau $38$ de plăcuțe corecte suplimentare din cele $186$ adnotate. Două limitări reziduale rămân vizibile: tăierea caracterului inițial al plăcuței, cauzată în etapa de localizare (vizibilă în patternul $5\to\emptyset$, care s-a redus la $\sim 50$ de cazuri dar nu a putut fi eliminat, întrucât caracterul nu mai ajunge la segmenter), și un set restrâns de substituții vizual ambigue dintre litere sau dintre cifre (\texttt{Y}$\to$\texttt{M}, \texttt{F}$\to$\texttt{6}, \texttt{G}$\to$\texttt{4}), pe care priorul de format nu le poate corecta și care reprezintă, probabil, limita reprezentării HOG pe ferestre de $28\times28$.
-
-\paragraph{Estimare pe un set omogen.}
-Analiza erorilor reziduale sugerează că rata end-to-end măsurată este influențată în mod direct de eterogenitatea setului \texttt{data/VALIDATE/} și ar crește cu aproximativ $10$–$15$ puncte procentuale pe un set omogen, fără a modifica fluxul de procesare. Argumentul este construit prin atribuirea erorilor către surse specifice de variabilitate, iar fiecare sursă ar dispărea sau s-ar atenua într-un scenariu omogen.
-
-În primul rând, priorul de format acoperă $92\%$ din plăcuțele setului (formatele \texttt{DDLDDDDD} și \texttt{DDLDDDD}); cele $15$ plăcuțe cu lungimi sau structuri atipice nu beneficiază de corectarea condiționată per poziție, iar substituțiile lor de tip cifră-literă rămân netratate. Pe un set cu un singur format admis, acoperirea priorului ar fi $100\%$, iar majoritatea acestor $15$ plăcuțe ar trece în categoria corectă.
-
-În al doilea rând, tăierea caracterului inițial este consecința unei dispersii ridicate în IoU-ul localizării (raportat la $0{,}589$ mediu) și a faptului că adnotările au fost realizate manual cu o unealtă cu două click-uri (\texttt{src/bb\_writer.py}), ceea ce introduce zgomot de încadrare în adevărul de referință în sine. Pe un set cu plăcuțe imagistic uniforme, raportul plăcuță-cadru și unghiul de captură ar fi constante, iar dispersia IoU s-ar reduce semnificativ; estimarea pe baza celor $\sim 30$ de plăcuțe afectate sugerează recuperarea a $20$–$25$ dintre ele.
-
-În al treilea rând, clasele rare (\texttt{V}, \texttt{W}, \texttt{X}, \texttt{Y}, \texttt{Z}, \texttt{I}, \texttt{O}) au depășit pragul minim de antrenare doar prin augmentarea cu rotații, ceea ce indică reprezentativitate marginală. Un set omogen ar avea fie un alfabet activ mai restrâns (eliminând clasele rare din spațiul de decizie), fie un volum suficient de mostre per clasă, ambele variante reducând substituțiile literă-literă care reprezintă restul erorilor.
-
-Cumularea acestor trei surse, fiecare cu contribuție independentă, conduce la o estimare conservativă de $80$–$84\%$ end-to-end pe un astfel de set, fără a modifica arhitectura clasică folosită aici. Această estimare nu este o extrapolare optimistă: ea presupune doar uniformizarea sursei de date, nu o îmbunătățire a metodelor, și se sprijină pe descompunerea cuantificată a erorilor reziduale prezentată în secțiunile anterioare.
+Pentru aplicația demonstrativă, modulul de logică a aplicației nu acționează asupra unui echipament fizic, ci expune rezultatele recunoașterii către un client extern. Implementarea se bazează pe biblioteca \textit{FastAPI}, care oferă infrastructura unui server web, și pe protocolul \textit{WebSocket}, ales pentru capacitatea sa de a menține o conexiune bidirecțională persistentă. Prin intermediul acestei conexiuni, rezultatele procesării sunt transmise în timp real către interfața clientului, pe măsură ce sunt produse de fluxul de procesare, fără a necesita interogări repetate din partea acestuia.

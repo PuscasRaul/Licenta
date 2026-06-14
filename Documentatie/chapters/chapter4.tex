@@ -6,13 +6,13 @@ De la optofon și până astăzi, domeniul recunoașterii automate a caracterelo
 
 \section{Potrivire de șabloane}
 \indent\par
-Această abordare, cunoscută sub denumirea de template matching, reprezintă metoda clasică de recunoaștere a caracterelor prin compararea directă a pixelilor. Procesul presupune existența unei baze de date cu șabloane (matrice) predefinite pentru fiecare caracter (litere și cifre), care sunt comparate succesiv cu regiunea segmentată până la identificarea celei mai bune potriviri.
+Această abordare, cunoscută sub denumirea de \textit{template matching}, reprezintă metoda clasică de recunoaștere a caracterelor prin compararea directă a pixelilor. Procesul presupune existența unei baze de date cu șabloane (matrițe) predefinite pentru fiecare caracter, care sunt comparate succesiv cu regiunea segmentată până la identificarea celei mai bune potriviri.
 
 Deși este eficientă din punct de vedere computațional datorită simplității algoritmice, această tehnică prezintă limitări severe în scenarii reale. Ea este aplicabilă cu succes doar atunci când caracterele extrase au dimensiuni, fonturi și grosimi constante, fiind extrem de sensibilă la variații geometrice.
 
 Pentru a introduce un grad de robustețe și pentru a atenua sensibilitatea la zgomot sau mici distorsiuni, în locul unei suprapuneri binare perfecte, se utilizează algoritmi bazați pe calcularea distanțelor matematice între vectorii de trăsături: distanța Hamming~\cite{sarfraz2003saudi}, valoarea Jaccard~\cite{lee1994automatic}.
 
-În mod concret,~\cite{sarfraz2003saudi} prezintă un sistem de recunoaștere a caracterelor format din două etape: normalizarea caracterelor și potrivirea șabloanelor. Prima etapă presupune aducerea regiunilor de interes extrase în etapa anterioară la o dimensiune standard de $40\times40$ prin intermediul unei transformări afine care mapează pixelii din imaginea originală la cei ai regiunii determinate anterior.
+În mod concret,~\cite{sarfraz2003saudi} prezintă un sistem de recunoaștere a caracterelor format din două etape: normalizarea caracterelor și potrivirea șabloanelor. Prima etapă presupune aducerea regiunilor de interes extrase în etapa anterioară la o dimensiune standard de $40\times40$ prin intermediul unei transformări afine care mapează pixelii din imaginea originală la cei ai regiunii determinate anterior. Efectul acestei normalizări poate fi urmărit în Figura~\ref{fig:2003arabia}.
 
 \begin{figure}[H]
   \centering
@@ -47,44 +47,58 @@ Pentru etapa de potrivire a șabloanelor, precum am menționat anterior, autorii
   \label{eq:hamming}
 \end{equation}
 
-Unde nrows și ncols sunt sunt numărul de linii respectiv cel de coloane.
+Unde $nrows$ și $ncols$ sunt sunt numărul de linii respectiv cel de coloane.
 
 \section{Clasificatori statistici}
 \indent\par
-Această metodă valorifică avansurile recente din domeniul inteligenței artificiale pentru a crea module de recunoaștere a caracterelor (OCR) robuste. Acestea prezintă o rezistența ridicată la variațiile de luminozitate, dimensiuni sau fonturi variate utilizate în creare numerelor de înmatriculare, etc. În literatura de specialitate, cele mai frecvent utilizate modele pentru această etapă a procesării imaginii sunt rețelele neuronale artificiale (ANN) și mașinile pe suport vectorial (SVM), ambele prezentând avantaje și limitări specifice.
+Această metodă valorifică avansurile recente din domeniul inteligenței artificiale pentru a crea module de recunoaștere a caracterelor robuste. Acestea prezintă o rezistența ridicată la variațiile de luminozitate, dimensiuni sau fonturi variate utilizate în creare numerelor de înmatriculare, etc. În literatura de specialitate, cele mai frecvent utilizate modele pentru această etapă a procesării imaginii sunt rețelele neuronale artificiale (ANN) și mașinile pe suport vectorial (SVM), ambele prezentând avantaje și limitări specifice.
 
 S-ar putea spune că există o oarecare similitudine între SVM și ANN deoarece ambele își au rădăcinile în algoritmul perceptronului~\cite{rosenblatt1958perceptron}, însă abordările matematice care succedă acest algoritm diferă fundamental.
 
 \subsection{Mașini pe suport vectorial}
 \indent\par
-Algoritmul ce stă la baza mașinilor pe suport vectorial reprezintă o generalizare a algoritmului ”portret generalizat” dezvoltat la începutul anilor 1960~\cite{vapnik1963pattern},~\cite{vapnik1964note}. Fundamentele matematice ale regresiei/ clasficării vectoriale sunt ancorate în învățarea statistică și teoria VC, care oferă o măsură a capacității de învățare a unui algoritm de învățare automată~\cite{vapnik2015uniform}.
+Algoritmul ce stă la baza mașinilor pe suport vectorial reprezintă o generalizare a algoritmului ”portret generalizat” dezvoltat la începutul anilor 1960~\cite{vapnik1963pattern},~\cite{vapnik1964note}. Fundamentele matematice ale regresiei/ clasficării vectoriale sunt ancorate în învățarea statistică și teoria VC, care oferă o măsură a capacității de învățare a unui algoritm~\cite{vapnik2015uniform}.
 
-Este important de menționat că algoritmul perceptronului funcționează prin actualizarea vectorului de greutăți w pornind de la o valoare inițială arbitrară, de regulă vectorul nul. Acesta este modificat prin adunarea exemplelor pozitive clasificate în mod eronat ca fiind negative, sau prin scăderea exemplelor negative clasificate ca fiind pozitive. Așadar, rezultatul final va fi întotdeauna o combinație liniară a punctelor din setul de antrenament.
-\[ \mathbf{w} = \sum_{i=1}^{\ell} \alpha_i y_i \mathbf{x}_i, \]
-
-Unde semnul ecuației este dat de clasificarea $y_i \in \{-1, 1\}$, iar valorile $\alpha_i$ sunt valori pozitive proporționale cu numărul de misclasificări făcute asupra punctului în timpul stagiului de antrenament. Punctele care au cauzat mai puține erori, vor avea un $\alpha_i$ mai mic, iar punctele dificile unul mai mare. Date fiind aceste valori, perceptronul poate fi rescris folosind următoarea formulă:
-\[ h(\mathbf{x}) = \operatorname{sgn} \left( \sum_{j=1}^{\ell} \alpha_j y_j \langle \mathbf{x}_j \cdot \mathbf{x} \rangle + b \right) \] numită și forma duală a perceptronului.
+Este important de menționat că algoritmul perceptronului funcționează prin actualizarea vectorului de greutăți w pornind de la o valoare inițială arbitrară, de regulă vectorul nul. Acesta este modificat prin adunarea exemplelor pozitive clasificate în mod eronat ca fiind negative, sau prin scăderea exemplelor negative clasificate ca fiind pozitive. Așadar, rezultatul final va fi întotdeauna o combinație liniară a punctelor din setul de antrenament, după cum este exprimat în Ecuația~\ref{eq:perceptron-w}:
+\begin{equation}
+  \mathbf{w} = \sum_{i=1}^{\ell} \alpha_i y_i \mathbf{x}_i,
+  \label{eq:perceptron-w}
+\end{equation}
+unde semnul ecuației este dat de clasificarea $y_i \in \{-1, 1\}$, iar valorile $\alpha_i$ sunt valori pozitive proporționale cu numărul de misclasificări făcute asupra punctului în timpul stagiului de antrenament. Punctele care au cauzat mai puține erori, vor avea un $\alpha_i$ mai mic, iar punctele dificile unul mai mare. Date fiind aceste valori, perceptronul poate fi rescris sub forma dată de Ecuația~\ref{eq:perceptron-dual}:
+\begin{equation}
+  h(\mathbf{x}) = \operatorname{sgn} \left( \sum_{j=1}^{\ell} \alpha_j y_j \langle \mathbf{x}_j \cdot \mathbf{x} \rangle + b \right),
+  \label{eq:perceptron-dual}
+\end{equation}
+numită și forma duală a perceptronului.
 
 \subsubsection{Învățarea în spațiul trăsăturilor}
-
-Complexitatea funcției care trebuie aproximată de modelul de învățare depinde în mod direct de modul în care sunt reprezentate datele de intrare; astfel, dificultatea procesului de învățare poate varia semnificativ în funcție de această reprezentare. În mod ideal, se urmărește alegerea unei reprezentări adaptate specificului problemei de învățare. O metodă frecvent utilizată în acest scop o constituie transformarea reprezentării datelor printr-o funcție de mapare a trăsăturilor, care proiectează fiecare punct din spațiul de intrare într-un nou spațiu, denumit spațiul trăsăturilor:
-\[
-x = (x_1, x_2, \ldots, x_n) \;\mapsto\;
-\phi(x) = \bigl(\phi_1(x), \phi_2(x), \ldots, \phi_N(x)\bigr).
-\]
+\indent\par
+Complexitatea funcției care trebuie aproximată de modelul de învățare depinde în mod direct de modul în care sunt reprezentate datele de intrare; astfel, dificultatea procesului de învățare poate varia semnificativ în funcție de această reprezentare. În mod ideal, se urmărește alegerea unei reprezentări adaptate specificului problemei de învățare. O metodă frecvent utilizată în acest scop o constituie transformarea reprezentării datelor printr-o funcție de mapare a trăsăturilor, care proiectează fiecare punct din spațiul de intrare într-un nou spațiu, denumit spațiul trăsăturilor, conform Ecuației~\ref{eq:feature-map}:
+\begin{equation}
+  x = (x_1, x_2, \ldots, x_n) \;\mapsto\;
+  \phi(x) = \bigl(\phi_1(x), \phi_2(x), \ldots, \phi_N(x)\bigr).
+  \label{eq:feature-map}
+\end{equation}
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=\linewidth]{figures/svm_1.png}
   \caption{O funcție de mapare a trăsăturilor poate simplifica problema de clasificare, transformând un set neliniar separabil într-unul liniar separabil~\cite{svmIntroduction}.}
+  \label{fig:svm_feature}
 \end{figure}
 
-Datorită varietății mari a problemelor de învățare, spațiul trăsăturilor rezultat are, de regulă, o dimensiune mult mai mare decât spațiul de intrare (uneori chiar infinită). În consecință, maparea explicită a fiecărui punct în acest spațiu și rezolvarea directă a problemei de învățare, de forma
-\[ f(x) = \sum_{i=1}^{N} w_i\,\phi_i(x) + b, \]
+După cum se poate urmări în Figura~\ref{fig:svm_feature}, o astfel de mapare poate transforma un set de date neliniar separabil într-unul liniar separabil. Datorită varietății mari a problemelor de învățare, spațiul trăsăturilor rezultat are, de regulă, o dimensiune mult mai mare decât spațiul de intrare (uneori chiar infinită). În consecință, maparea explicită a fiecărui punct în acest spațiu și rezolvarea directă a problemei de învățare, de forma dată de Ecuația~\ref{eq:primal-feature}:
+\begin{equation}
+  f(x) = \sum_{i=1}^{N} w_i\,\phi_i(x) + b,
+  \label{eq:primal-feature}
+\end{equation}
 devin nefezabile din punct de vedere computațional, întrucât ar necesita calcularea și stocarea explicită a tuturor celor $N$ componente $\phi_i(x)$.
 
-Reprezentarea duală introdusă anterior permite însă rescrierea problemei de învățare în spațiul trăsăturilor sub forma:
-\[ f(x) = \sum_{i=1}^{\ell} \alpha_i\, y_i\, \langle \phi(x_i),\, \phi(x) \rangle + b. \]
+Reprezentarea duală introdusă anterior permite însă rescrierea problemei de învățare în spațiul trăsăturilor sub forma dată de Ecuația~\ref{eq:dual-feature}:
+\begin{equation}
+  f(x) = \sum_{i=1}^{\ell} \alpha_i\, y_i\, \langle \phi(x_i),\, \phi(x) \rangle + b.
+  \label{eq:dual-feature}
+\end{equation}
 În această formulare, datele de intrare apar exclusiv prin intermediul produsului scalar $\langle \phi(x_i),\, \phi(x) \rangle$ din spațiul trăsăturilor. Prin urmare, dacă acest produs scalar ar putea fi calculat direct, ca o funcție definită pe punctele din spațiul de intrare, fără a construi explicit maparea $\phi$, atunci cei doi pași (maparea datelor și rezolvarea problemei de învățare) ar putea fi combinați, obținând mașini de învățare capabile să separe date care nu sunt liniar separabile în spațiul original.
 
 O astfel de funcție de mapare implicită din spațiul de intrare în cel al trăsăturilor se numește funcție nucleu (\textit{kernel}) și stă la baza dezvoltării mașinilor pe suport vectorial, pas numit în literatura de specialitate \textit{kernel trick}.
@@ -92,17 +106,18 @@ O astfel de funcție de mapare implicită din spațiul de intrare în cel al tr�
 \subsubsection{Teoria VC și clasificatori cu marjă maximală}
 Maparea implicită în spațiul trăsăturilor, realizată prin intermediul funcțiilor nucleu, permite mașinilor pe suport vectorial să definească soluții în spații de dimensiune foarte mare, eventual chiar infinită. Această flexibilitate constituie însă o sabie cu două tăișuri: cu cât familia de funcții pe care modelul o poate reprezenta este mai bogată, cu atât crește și riscul ca acesta să se muleze perfect pe setul de antrenament memorându-l în întregime fără a surprinde structura reală a datelor și, prin urmare, fără a generaliza la exemple noi. Se ridică astfel problema fundamentală a cuantificării capacității unui model, cu scopul de a controla echilibrul dintre fidelitatea față de datele de antrenament și capacitatea de generalizare.
 
-Această problemă este abordată de teoria Vapnik-Chervonenkis (VC), dezvoltată în strânsă legătură cu cadrul învățării \textit{probabil aproximativ corecte} (\textit{Probably Approximately Correct}, PAC)~\cite{valiant1984theory}, care formalizează tocmai noțiunea de învățare cu garanții asupra generalizării. Tocmai pentru că oferă instrumentele necesare controlului capacității unui model, teoria VC reprezintă fundamentul teoretic indispensabil al mașinilor pe suport vectorial.
+Această problemă este abordată de teoria Vapnik-Chervonenkis (VC), dezvoltată în strânsă legătură cu cadrul învățării probabil aproximativ corecte (\textit{Probably Approximately Correct}, PAC)~\cite{valiant1984theory}, care formalizează chiar noțiunea de învățare cu garanții asupra generalizării. Tocmai pentru că oferă instrumentele necesare controlului capacității unui model, teoria VC reprezintă fundamentul teoretic indispensabil al mașinilor pe suport vectorial.
 
-Conceptul central al acestei teorii îl constituie dimensiunea VC, o măsură a capacității de exprimare a unei familii de funcții de clasificare. În mod formal, dimensiunea VC reprezintă cardinalitatea celui mai mare set de puncte care poate fi etichetat (pulverizat) în toate modurile binare posibile de către funcțiile clasei respective. O dimensiune VC ridicată indică un model cu o capacitate sporită de a se mula pe orice configurație a datelor, dar și un risc proporțional crescut de supra-învățare, deoarece marja garantată între eroarea empirică (pe setul de antrenament) și eroarea reală (așteptată pe distribuția datelor) crește odată cu dimensiunea VC. În consecință, controlul acestei dimensiuni reprezintă o cerință esențială pentru asigurarea capacității de generalizare a modelului.
+Conceptul central al acestei teorii îl constituie dimensiunea VC, o măsură a capacității de exprimare a unei familii de funcții de clasificare. În mod formal, dimensiunea VC reprezintă cardinalitatea celui mai mare set de puncte care poate fi etichetat (pulverizat) în toate modurile binare posibile de către funcțiile clasei respective. O dimensiune VC ridicată indică un model cu o capacitate sporită de a se mula pe orice configurație a datelor, deoarece marja garantată între eroarea empirică (pe setul de antrenament) și eroarea reală (așteptată pe distribuția datelor) crește odată cu dimensiunea VC. În consecință, controlul acestei dimensiuni reprezintă o cerință esențială pentru asigurarea capacității de generalizare a modelului.
 
-Pe baza acestei mărimi, teoria VC stabilește o legătură cantitativă între eroarea măsurată pe setul de antrenament și eroarea așteptată pe întreaga distribuție a datelor. Astfel, pentru orice ipoteză $h$ aparținând clasei de funcții analizate, capacitatea de generalizare poate fi mărginită superior, cu o probabilitate de cel puțin $1-\delta$, prin următoarea inegalitate:
+Pe baza acestei mărimi, teoria VC stabilește o legătură cantitativă între eroarea măsurată pe setul de antrenament și eroarea așteptată pe întreaga distribuție a datelor. Astfel, pentru orice ipoteză $h$ aparținând clasei de funcții analizate, capacitatea de generalizare poate fi mărginită superior, cu o probabilitate de cel puțin $1-\delta$, prin inegalitatea dată de Ecuația~\ref{eq:vc-bound}:
   \begin{equation}
     err_{D}(h) \leq \epsilon(l, H, \delta) = \frac{2k}{l} + \frac{4}{l} \left( d\log{\frac{2el}{d}} + \log{\frac{4}{\delta}} \right),
+    \label{eq:vc-bound}
   \end{equation}
 unde semnificația fiecărui termen este următoarea:
 \begin{itemize}
-  \item $err_{D}(h)$ --- eroarea reală (de generalizare) a ipotezei $h$, definită ca probabilitatea ca aceasta să clasifice greșit un exemplu extras aleator din distribuția $D$ a datelor;
+  \item $err_{D}(h)$ --- eroarea reală (de generalizare) a ipotezei $h$, definită drept probabilitatea ca aceasta să clasifice greșit un exemplu extras aleator din distribuția $D$ a datelor;
   \item $\epsilon(l, H, \delta)$ --- marginea superioară garantată asupra erorii de generalizare, exprimată în funcție de dimensiunea setului de antrenament, de complexitatea clasei de funcții și de nivelul de încredere impus;
   \item $l$ --- numărul de exemple din setul de antrenament; pe măsură ce $l$ crește, marginea descrește, reflectând faptul că un volum mai mare de date conduce la garanții mai stricte asupra generalizării;
   \item $H$ --- clasa de funcții de clasificare (ipoteze) din care este selectată soluția;
@@ -112,20 +127,22 @@ unde semnificația fiecărui termen este următoarea:
   \item $e$ --- baza logaritmului natural (constanta lui Euler).
 \end{itemize}
 
-Structura acestei margini evidențiază compromisul fundamental dintre fidelitatea față de datele de antrenament și capacitatea de generalizare: primul termen, $2k/l$, penalizează erorile empirice, în timp ce al doilea termen crește odată cu dimensiunea VC $d$, penalizând astfel complexitatea excesivă a clasei de funcții. Minimizarea simultană a celor doi termeni constituie esența principiului minimizării riscului structural, pe care se fundamentează mașinile pe suport vectorial.
+Structura acestei margini evidențiază compromisul fundamental dintre fidelitatea față de datele de antrenament și capacitatea de generalizare: primul termen, $2k/l$, penalizează erorile empirice, în timp ce al doilea termen crește odată cu dimensiunea VC $d$, penalizând astfel complexitatea excesivă a clasei de funcții.
 
 În mod concret, mașinile pe suport vectorial restrâng familia clasificatorilor și dimensiunea VC a acestora prin adăugarea următoarei constrângeri: hiperplanul care separă elementele din setul de antrenament trebuie să fie unul cu marja maximală. Adăugând această constrângere și presupunând că punctele de antrenament sunt incluse într-o sferă de rază $R$, atunci dimensiunea VC efectivă a clasei rezultate este mărginită superior de raportul $R^2/\gamma^2$~\cite{svmIntroduction}, unde $\gamma$ reprezintă marja geometrică a hiperplanului separator.
 
-Formal, problema clasificatorului cu marjă maximală se reduce la rezolvarea problemei de optimizare convexă:
-\[
-\min_{\mathbf{w}, b} \frac{1}{2} \|\mathbf{w}\|^2 \quad \text{cu restricția} \quad y_i(\mathbf{w}^\top \mathbf{x}_i + b) \geq 1, \quad i = 1, \dots, \ell,
-\]
+Formal, problema clasificatorului cu marjă maximală se reduce la rezolvarea problemei de optimizare convexă dată de Ecuația~\ref{eq:hard-margin}:
+\begin{equation}
+  \min_{\mathbf{w}, b} \frac{1}{2} \|\mathbf{w}\|^2 \quad \text{cu restricția} \quad y_i(\mathbf{w}^\top \mathbf{x}_i + b) \geq 1, \quad i = 1, \dots, \ell,
+  \label{eq:hard-margin}
+\end{equation}
 unde minimizarea normei $\|\mathbf{w}\|$ este echivalentă cu maximizarea marjei $\gamma = 1/\|\mathbf{w}\|$. Această proprietate este deosebit de relevantă în contextul recunoașterii caracterelor de pe plăcuțele de înmatriculare, deoarece spațiile de trăsături utilizate (vectori obținuți prin caracteristici HOG, momente Zernike sau pixeli normalizați) sunt frecvent înalt dimensionale, iar capacitatea unui clasificator de a evita supra-învățarea într-un astfel de regim este critică.
 
-Pentru a permite tratarea seturilor de date care nu sunt liniar separabile, formularea originală a fost extinsă prin introducerea variabilelor de relaxare $\xi_i$ și a parametrului de penalizare $C$~\cite{cortes1995support}, conducând la formularea cu marjă moale:
-\[
-\min_{\mathbf{w}, b, \xi} \frac{1}{2} \|\mathbf{w}\|^2 + C \sum_{i=1}^{\ell} \xi_i \quad \text{cu restricția} \quad y_i(\mathbf{w}^\top \mathbf{x}_i + b) \geq 1 - \xi_i, \quad \xi_i \geq 0.
-\]
+Pentru a permite tratarea seturilor de date care nu sunt liniar separabile, formularea originală a fost extinsă prin introducerea variabilelor de relaxare $\xi_i$ și a parametrului de penalizare $C$~\cite{cortes1995support}, conducând la formularea cu marjă moale, dată de Ecuația~\ref{eq:soft-margin}:
+\begin{equation}
+  \min_{\mathbf{w}, b, \xi} \frac{1}{2} \|\mathbf{w}\|^2 + C \sum_{i=1}^{\ell} \xi_i \quad \text{cu restricția} \quad y_i(\mathbf{w}^\top \mathbf{x}_i + b) \geq 1 - \xi_i, \quad \xi_i \geq 0.
+  \label{eq:soft-margin}
+\end{equation}
 \begin{figure}[H]
   \centering
   \begin{subfigure}{0.4\linewidth}
@@ -137,9 +154,10 @@ Pentru a permite tratarea seturilor de date care nu sunt liniar separabile, form
     \caption{}
   \end{subfigure}
   \caption{(a) Variabila de relaxare pentru exemple liniar separabile, (b) Variabila de relaxare pentru exemple non-liniar separabile}
+  \label{fig:svm_slack}
 \end{figure}
 
-Parametrul $C$ controlează raportul dintre maximizarea marjei și tolerarea erorilor de clasificare, permițând astfel un compromis explicit între capacitatea modelului și riscul empiric. Combinat cu utilizarea funcțiilor kernel introduse prin~\cite{boser1992training}, acest cadru permite construirea unor clasificatori cu putere de discriminare ridicată, păstrând în același timp un control formal asupra capacității de generalizare.
+Rolul variabilelor de relaxare $\xi_i$ în cele două situații poate fi urmărit în Figura~\ref{fig:svm_slack}. Parametrul $C$ controlează raportul dintre maximizarea marjei și tolerarea erorilor de clasificare, permițând astfel un compromis explicit între capacitatea modelului și riscul empiric. Combinat cu utilizarea funcțiilor kernel introduse prin~\cite{boser1992training}, acest cadru permite construirea unor clasificatori cu putere de discriminare ridicată, păstrând în același timp un control formal asupra capacității de generalizare.
 
 
 \subsection{Rețele neuronale artificiale}
@@ -154,42 +172,45 @@ Această abordare inspirată din anatomia umană nu poate părea evidentă în m
   \item{Adaptabilitate}
 \end{itemize}
 
-și se bazează pe compunerea ierarhică a unităților elementare derivate din perceptronul lui Rosenblatt~\cite{rosenblatt1958perceptron}.
-
 \subsubsection{Arhitectura perceptronului multistrat}
 \indent\par
 Din punct de vedere structural, o rețea neuronală artificială poate fi modelată ca un graf orientat și ponderat, în care nodurile corespund neuronilor artificiali, iar muchiile descriu conexiunile prin care ieșirea unui neuron devine intrare pentru un altul. Fiecărei conexiuni îi este asociată o pondere ce reglează intensitatea semnalului transmis, ponderi care sunt ajustate pe parcursul procesului de învățare.
 
-Perceptronul multistrat (MLP) este alcătuit dintr-un strat de intrare, unul sau mai multe straturi ascunse și un strat de ieșire; adoptând convenția uzuală conform căreia nodurile de intrare nu sunt considerate un strat propriu-zis, o rețea cu $L$ straturi cuprinde $L-1$ straturi ascunse și un strat de ieșire. Fiecare neuron $j$ dintr-un strat efectuează o transformare afină asupra activărilor stratului precedent, urmată de aplicarea unei funcții de activare neliniare $\sigma$:
-\[
-a_j = \sigma\left( \sum_{i} w_{ji} x_i + b_j \right).
-\]
-O interpretare geometrică intuitivă a acestei arhitecturi evidențiază rolul fiecărui strat în construirea frontierei de decizie: fiecare unitate din primul strat ascuns definește un hiperplan care separă spațiul de intrare, neuronii celui de-al doilea strat combină aceste hiperplane în regiuni de decizie, iar stratul de ieșire le reunește, printr-o operație de tip conjuncție (AND) a separărilor obținute, într-o regiune de decizie finală de formă arbitrară.
+Perceptronul multistrat (MLP) este alcătuit dintr-un strat de intrare, unul sau mai multe straturi ascunse și un strat de ieșire; adoptând convenția uzuală conform căreia nodurile de intrare nu sunt considerate un strat propriu-zis. Fiecare neuron $j$ dintr-un strat efectuează o transformare afină asupra activărilor stratului precedent, urmată de aplicarea unei funcții de activare neliniare $\sigma$, conform Ecuației~\ref{eq:neuron}:
+\begin{equation}
+  a_j = \sigma\left( \sum_{i} w_{ji} x_i + b_j \right).
+  \label{eq:neuron}
+\end{equation}
+O interpretare geometrică intuitivă a acestei arhitecturi evidențiază rolul fiecărui strat în construirea frontierei de decizie: fiecare unitate din primul strat ascuns definește un hiperplan care separă spațiul de intrare, neuronii celui de-al doilea strat combină aceste hiperplane în regiuni de decizie, iar stratul de ieșire le reunește, printr-o operație de tip conjuncție (AND) a separărilor obținute, într-o regiune de decizie finală de formă arbitrară. Această interpretare geometrică poate fi urmărită în Figura~\ref{fig:ann_geom}.
 
 \begin{figure}[H]
   \includegraphics[width=\linewidth]{figures/ann_2.png}
   \caption{O interpretare geometrică a rolului straturile ascunse~\cite{jain1996artificial}}
+  \label{fig:ann_geom}
 \end{figure}
 
-Compoziția acestor transformări permite rețelei să construiască, în mod implicit, reprezentări ale datelor de complexitate crescândă. Justificarea teoretică pentru această abordare este oferită de teorema aproximării universale, care stabilește că o rețea cu un singur strat ascuns și un număr suficient de neuroni poate aproxima, cu precizie arbitrară, orice funcție continuă definită pe un domeniu compact~\cite{hornik1989multilayer}.
+Compoziția acestor transformări permite rețelei să construiască, în mod implicit, reprezentări ale datelor de complexitate crescândă. Justificarea teoretică pentru această abordare este oferită de teorema aproximării universale, care stabilește că o rețea cu un singur strat ascuns și un număr suficient de neuroni poate aproxima, cu precizie arbitrară, orice funcție continuă definită pe un domeniu compact~\cite{hornik1989multilayer}. Arhitectura generală a unei rețele de tip MLP cu trei straturi poate fi urmărită în Figura~\ref{fig:ann_arch}.
 
 \begin{figure}[H]
   \includegraphics[width=\linewidth]{figures/ann_1.png}
   \caption{Arhitectura unei rețele de tip MLP cu 3 straturi~\cite{jain1996artificial}}
+  \label{fig:ann_arch}
 \end{figure}
 
 \subsubsection{Antrenarea prin retropropagarea erorii}
 \indent\par
 Spre deosebire de mașinile pe suport vectorial, a căror antrenare se reduce la o problemă de optimizare convexă cu soluție unică, antrenarea unei rețele neuronale presupune minimizarea unei funcții de eroare puternic neliniare în raport cu ponderile, ceea ce conduce, în general, la o suprafață de eroare cu numeroase minime locale.
 
-Procesul de învățare pornește de la definirea unei funcții de cost (sau de eroare) care cuantifică discrepanța dintre ieșirile produse de rețea și valorile țintă asociate exemplelor de antrenament. O alegere uzuală o constituie eroarea pătratică:
-\[
-E = \frac{1}{2} \sum_{k} (t_k - y_k)^2,
-\]
-unde $t_k$ reprezintă valoarea dorită, iar $y_k$ ieșirea efectivă a neuronului $k$ din stratul de ieșire. Antrenarea revine astfel la ajustarea iterativă a ponderilor în direcția care reduce această eroare, folosind metoda coborârii gradientului: fiecare pondere este modificată proporțional cu gradientul negativ al erorii în raport cu ea,
-\[
-w_{ji} \leftarrow w_{ji} - \eta\, \frac{\partial E}{\partial w_{ji}},
-\]
+Procesul de învățare pornește de la definirea unei funcții de cost care cuantifică discrepanța dintre ieșirile produse de rețea și valorile țintă asociate exemplelor de antrenament. O alegere uzuală o constituie eroarea pătratică, dată de Ecuația~\ref{eq:mse}:
+\begin{equation}
+  E = \frac{1}{2} \sum_{k} (t_k - y_k)^2,
+  \label{eq:mse}
+\end{equation}
+unde $t_k$ reprezintă valoarea dorită, iar $y_k$ ieșirea efectivă a neuronului $k$ din stratul de ieșire. Antrenarea revine astfel la ajustarea iterativă a ponderilor în direcția care reduce această eroare, folosind metoda coborârii gradientului: fiecare pondere este modificată proporțional cu gradientul negativ al erorii în raport cu ea, după cum este descris în Ecuația~\ref{eq:grad-update}:
+\begin{equation}
+  w_{ji} \leftarrow w_{ji} - \eta\, \frac{\partial E}{\partial w_{ji}},
+  \label{eq:grad-update}
+\end{equation}
 unde $\eta$ este rata de învățare, un hiperparametru care controlează amplitudinea pasului de actualizare.
 
 Dificultatea principală constă în calcularea derivatelor parțiale $\partial E / \partial w_{ji}$ pentru ponderile situate în straturile ascunse, unde contribuția la eroarea finală nu este una directă. Algoritmul de retropropagare a erorii~\cite{rumelhart1986learning} rezolvă această problemă aplicând în mod sistematic regula de derivare în lanț, distribuind eroarea de la ieșire înapoi către straturile anterioare. El se desfășoară în două etape:

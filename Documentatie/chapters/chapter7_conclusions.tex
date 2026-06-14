@@ -1,0 +1,25 @@
+\chapter{Concluzii și perspective de viitor}
+\label{chap:concluzii}
+
+\paragraph{}
+Acest capitol final recapitulează contribuțiile lucrării și rezultatele obținute, după care discută limitările sistemului și direcțiile în care acesta poate fi extins.
+
+\section{Concluzii}
+
+\paragraph{}
+Obiectivul lucrării a fost construirea unui sistem de recunoaștere automată a numerelor de înmatriculare care să funcționeze fiabil pe o varietate largă de formate și să respecte o constrângere de timp real, folosind exclusiv tehnici clasice de viziune artificială și un clasificator SVM, fără a recurge la rețele neuronale profunde. Sistemul IORA, structurat pe trei etape: localizare, segmentare și recunoaștere, arată că o astfel de abordare rămâne viabilă atunci când este completată cu cunoștințe apriori despre structura problemei.
+
+Un prim aspect confirmat de experimente este superioritatea criteriilor geometrice față de cele dependente de aparență. Renunțarea la segmentarea pe culoare a permis generalizarea la cele patru combinații cromatice admise în România și la formatele internaționale, întrucât raportul de aspect al regiunii este un descriptor mult mai stabil decât o paletă cromatică fixă. Aceeași concluzie se confirmă la nivelul segmentării: decizia luată independent pe fiecare componentă conexă rămâne robustă la înclinarea plăcuței, în timp ce analiza proiecțiilor cedează în prezența văilor estompate dintre caractere (un acord de $0{,}85$ față de $0{,}20$).
+
+Al doilea aspect ține de rolul decisiv al cunoștințelor apriori. În absența unui model profund, performanța depinde de modul în care este exploatată structura numărului de înmatriculare. Decodarea condiționată de format, care restrânge la fiecare poziție mulțimea etichetelor admise, recuperează confuziile de tip cifră-literă (\texttt{0}-\texttt{O}, \texttt{1}-\texttt{I}) care altfel ar invalida întregul șir. Tot pe cunoștințe apriori se sprijină și cuplajul dintre localizare și segmentare: returnarea mai multor candidați de plăcuță transformă etapa de segmentare într-un mecanism de recuperare a erorilor de localizare, fără un cost de calcul suplimentar semnificativ.
+
+Cantitativ, clasificatorul SVM antrenat pe descriptori HOG cu nucleu RBF a atins o acuratețe de $96\%$ pe cele $36$ de clase de caractere, iar seria de intervenții incrementale aplicate fluxului a urcat rata \textit{end-to-end} de la $48{,}9\%$ la $69{,}4\%$. Similaritatea Levenshtein medie depășește $0{,}80$, ceea ce arată că majoritatea erorilor rămase se reduc la un singur caracter greșit. Dincolo de metrici, sistemul este integrat într-o aplicație funcțională, organizată pe trei module decuplate prin interfețe și structuri de date proprii, care poate fi rulată atât pe un sistem integrat, cât și ca serviciu web, fără modificarea nucleului de procesare.
+
+Merită subliniat că aceste rezultate au fost obținute pe un set de evaluare eterogen. Deși componentele locală și internațională au fost curățate și normalizate manual, ele rămân departe de a fi uniforme: persistă diferențe importante de unghi de captură, distanță, iluminare, font și calitate a imaginii. Într-un scenariu de exploatare precum cel vizat, un punct de control al accesului auto într-o parcare, aceste variabile sunt, în schimb, fixe și cunoscute: poziția camerei, distanța focală, unghiul și dimensiunea relativă a plăcuței nu variază de la un cadru la altul. Într-un asemenea cadru controlat, în care sistemul poate fi calibrat o singură dată pentru condițiile concrete de instalare, performanța reală ar fi sensibil mai ridicată decât cea măsurată pe setul eterogen de evaluare, care reprezintă mai degrabă un scenariu pesimist.
+
+\section{Perspective de viitor}
+\paragraph{}
+O primă direcție o constituie alcătuirea unui set de date public și reprezentativ pentru plăcuțele din România, în prezent inexistent; componenta locală folosită aici a fost colectată manual, ceea ce îi limitează volumul și diversitatea. O a doua direcție vizează limitările reziduale observate în experimente: tăierea ocazională a primului caracter al plăcuței, cu origine în etapa de localizare, și un set restrâns de substituții vizual ambigue dintre litere sau dintre cifre, care nu pot fi corectate prin decodarea de format. Introducerea unei etape de validare cu un prag minim de încredere, care a ridicat scorul IoU al localizării la $\approx0{,}80$, reprezintă o cale concretă de îmbunătățire în acest sens. În fine, componenta clasică, eficientă din punct de vedere computațional, ar putea fi completată de un clasificator neuronal ușor, dedicat exclusiv caracterelor dificile, păstrând constrângerea de execuție în timp real pe \textit{hardware} modest.
+
+\paragraph{}
+Per ansamblu, lucrarea arată că tehnicile clasice de viziune artificială, atunci când sunt ghidate de cunoștințe apriori solide, pot susține un sistem de recunoaștere a numerelor de înmatriculare suficient de robust și de rapid pentru un scenariu real de control al accesului, oferind totodată o bază clară pentru dezvoltările ulterioare.
