@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ro">
+    <head>
+        <link rel="stylesheet" href="style.css">
+        <script src="script.js" defer></script>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <title>IORA</title>
+    </head>
+    <body>
+        <header>IORA &middot; recunoaștere numere de înmatriculare</header>
+
+        <div id="plate" class="empty">—</div>
+        <div id="status">deconectat</div>
+
+        <div class="stage">
+            <video id="video" autoplay playsinline muted></video>
+            <div class="guide" id="guide"></div>
+            <div class="fps" id="fps">0.0 fps</div>
+        </div>
+
+        <div class="controls">
+            <button id="start">Start</button>
+            <button id="stop" disabled>Stop</button>
+            <button id="flip">Camera</button>
+        </div>
+    </body>
+</html>

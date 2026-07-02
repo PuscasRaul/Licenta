@@ -8,11 +8,6 @@ class CharacterSegmentation():
         self._helper = HelperProcessingFunctions()
 
     def character_segmentation(self, license_plate):
-        '''
-        Accepts a single LP array or a list of LP candidates (best-first).
-        When given multiple candidates, runs segmentation on each and
-        returns the character set from the highest-scoring candidate.
-        '''
         if license_plate is None:
             return None
 
@@ -38,6 +33,7 @@ class CharacterSegmentation():
         body = self._tighten_plate_crop(license_plate)
         if body is None or body.size == 0:
             return None, None
+
         H, W = body.shape[:2]
         if H < 8 or W < 20:
             return None, None
@@ -133,6 +129,7 @@ class CharacterSegmentation():
         '''
         if lp is None or lp.size == 0:
             return lp
+
         gray = (lp if lp.ndim == 2 else cv.cvtColor(lp, cv.COLOR_BGR2GRAY))
         H, W = gray.shape[:2]
 

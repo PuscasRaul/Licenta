@@ -1,0 +1,138 @@
+:root {
+    color-scheme: dark;
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    margin: 0;
+    height: 100%;
+    background: #0b0d10;
+    color: #e8eaed;
+    font-family: -apple-system, Roboto, "Segoe UI", sans-serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    padding: 10px 14px;
+    font-size: 13px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #8b9097;
+    border-bottom: 1px solid #1c2127;
+}
+
+#plate {
+    flex: 0 0 auto;
+    margin: 18px 14px 6px;
+    padding: 22px 16px;
+    text-align: center;
+    font-size: 13vw;
+    font-weight: 700;
+    letter-spacing: .06em;
+    background: #11151a;
+    border: 1px solid #232a32;
+    border-radius: 14px;
+    min-height: 1.4em;
+    word-break: break-all;
+}
+
+#plate.empty {
+    color: #545b63;
+    font-size: 6vw;
+    font-weight: 500;
+    letter-spacing: normal;
+}
+
+#status {
+    text-align: center;
+    font-size: 13px;
+    color: #8b9097;
+    padding: 4px 14px 10px;
+}
+
+#status b {
+    color: #e8eaed;
+    font-weight: 600;
+}
+
+.stage {
+    position: relative;
+    margin: 0 14px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.fps {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    font-size: 12px;
+    color: #9aa0a6;
+    background: rgba(0,0,0,.45);
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.guide {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 50%;
+    border: 2px solid rgba(56,132,255,.9);
+    border-radius: 10px;
+    box-shadow: 0 0 0 999px rgba(0,0,0,.45);
+    pointer-events: none;
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+    padding: 14px;
+}
+
+button {
+    flex: 1;
+    padding: 16px 8px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    background: #2b3138;
+}
+
+button:disabled {
+    opacity: .4;
+}
+
+#start {
+    background: #2563eb;
+}
+
+#stop  {
+    background: #b91c1c;
+}
+
+button:active {
+    filter: brightness(1.25);
+}
